@@ -1,0 +1,8 @@
+# デフォルトでサンプルファイルはコミットしない
+aimlab
+kovaaks
+!.gitignore
+!README.md
+!kovaaks/README.md
+!aimlab/README.md
+
