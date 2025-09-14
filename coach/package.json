@@ -18,14 +18,17 @@
   },
   "dependencies": {
     "@ai-sdk/google": "1.2.22",
+    "@libsql/client": "0.15.15",
     "@mastra/core": "0.16.3",
     "@mastra/libsql": "0.14.1",
     "@mastra/loggers": "0.10.11",
     "@mastra/memory": "0.15.1",
+    "drizzle-orm": "0.44.5",
     "zod": "3.25.76"
   },
   "devDependencies": {
     "@types/node": "24.3.3",
+    "drizzle-kit": "0.31.4",
     "mastra": "0.12.3",
     "typescript": "5.9.2"
   }

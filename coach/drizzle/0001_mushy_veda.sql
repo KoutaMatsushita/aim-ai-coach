@@ -1,0 +1,21 @@
+CREATE TABLE `aimlab_task_data` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`user_id_hash` text NOT NULL,
+	`played_at` text NOT NULL,
+	`task_name` text NOT NULL,
+	`score` integer NOT NULL,
+	`difficulty` integer NOT NULL,
+	`cheated` integer NOT NULL,
+	`game_version` text NOT NULL,
+	`weapon` text NOT NULL,
+	`caliber` text NOT NULL,
+	`data_type` text NOT NULL,
+	`note` text,
+	`details_json` text NOT NULL,
+	`session_id` text NOT NULL,
+	`start_time` text NOT NULL,
+	`end_time` text NOT NULL,
+	`attempt` integer NOT NULL,
+	`variant` text NOT NULL,
+	`source` text NOT NULL
+);
