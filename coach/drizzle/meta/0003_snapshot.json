@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "3fd05b14-d352-48f8-8382-e588e3309b3a",
-  "prevId": "41d993a0-85eb-43f0-82a3-0deaee823bd2",
+  "id": "148f97a7-eea8-4a6f-a51d-c63bd4675a57",
+  "prevId": "a04b0b83-1e6c-4526-853b-908293a665d3",
   "tables": {
     "aimlab_task_data": {
       "name": "aimlab_task_data",
@@ -23,7 +23,7 @@
         },
         "klutchId": {
           "name": "klutchId",
-          "type": "text(140)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -37,7 +37,7 @@
         },
         "taskName": {
           "name": "taskName",
-          "type": "text(140)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -65,63 +65,63 @@
         },
         "aimlab_version": {
           "name": "aimlab_version",
-          "type": "text(140)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "weaponType": {
           "name": "weaponType",
-          "type": "text(140)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "weaponName": {
           "name": "weaponName",
-          "type": "text(140)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "performanceClass": {
           "name": "performanceClass",
-          "type": "text(140)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "workshopId": {
           "name": "workshopId",
-          "type": "text(140)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "performance": {
           "name": "performance",
-          "type": "text(140)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "playId": {
           "name": "playId",
-          "type": "text(140)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "startedAt": {
           "name": "startedAt",
-          "type": "numeric",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "endedAt": {
           "name": "endedAt",
-          "type": "numeric",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -135,7 +135,7 @@
         },
         "weaponSkin": {
           "name": "weaponSkin",
-          "type": "text(140)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

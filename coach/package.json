@@ -17,14 +17,15 @@
     "node": ">=20.9.0"
   },
   "dependencies": {
-    "@ai-sdk/google": "1.2.22",
+    "@ai-sdk/google": "2.0.14",
     "@libsql/client": "0.15.15",
     "@mastra/core": "0.16.3",
     "@mastra/libsql": "0.14.1",
     "@mastra/loggers": "0.10.11",
     "@mastra/memory": "0.15.1",
     "drizzle-orm": "0.44.5",
-    "zod": "3.25.76"
+    "drizzle-zod": "0.8.3",
+    "zod": "4.1.8"
   },
   "devDependencies": {
     "@types/node": "24.3.3",
