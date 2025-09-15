@@ -9,7 +9,6 @@ type RequiredEnvVar = {
 
 const requiredEnvVars: RequiredEnvVar[] = [
 	{ name: "DISCORD_CLIENT_ID", description: "Discord OAuth2 client ID" },
-	{ name: "DISCORD_CLIENT_SECRET", description: "Discord OAuth2 client secret" },
 ];
 
 class EnvValidationError extends Error {
@@ -37,13 +36,12 @@ export function validateEnv(): void {
 }
 
 /**
- * Get validated environment variables
+ * Get validated environment variables for PKCE authentication
  */
 export function getEnv() {
 	validateEnv();
 
 	return {
 		DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID!,
-		DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET!,
 	} as const;
 }

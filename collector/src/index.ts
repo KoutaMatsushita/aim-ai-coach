@@ -2,7 +2,7 @@
 import { MastraClient } from "@mastra/client-js";
 import { Command } from "commander";
 import { uploadAimlab } from "./aimlab.ts";
-import { getUser } from "./discord.ts";
+import {getUser, revokeToken} from "./discord.ts";
 import { uploadKovaaks } from "./kovaaks.ts";
 
 const program = new Command();
@@ -10,6 +10,22 @@ program
 	.name("aim-ai-coach-score-collector")
 	.description("Aim AI Coach Score Collector")
 	.version("1.0.0");
+
+program
+    .command("login")
+    .option("--endpoint <endpoint>", "upload api base endpoint", "http://localhost:4111/")
+    .action(async (opts: { endpoint: string }) => {
+        const mastraClient = new MastraClient({
+            baseUrl: opts.endpoint,
+        });
+
+        await revokeToken()
+        const user = await getUser();
+        await mastraClient.request("/users", {
+            method: "POST",
+            body: user,
+        });
+    });
 
 program
 	.command("kovaaks")

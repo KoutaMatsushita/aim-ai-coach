@@ -3,19 +3,39 @@ import open from "open";
 import { config } from "./config.ts";
 import { getEnv } from "./env.ts";
 import { logger } from "./logger.ts";
+import { generatePkceParams } from "./pkce-utils.ts";
 
 // Validate environment variables on module load
 const env = getEnv();
 const CLIENT_ID = env.DISCORD_CLIENT_ID;
-const CLIENT_SECRET = env.DISCORD_CLIENT_SECRET;
 const REDIRECT_URI = "http://localhost:3456/callback";
 const SCOPES = "identify";
 
-const authURL = new URL("https://discord.com/oauth2/authorize");
-authURL.searchParams.set("client_id", CLIENT_ID);
-authURL.searchParams.set("response_type", "code");
-authURL.searchParams.set("redirect_uri", REDIRECT_URI);
-authURL.searchParams.set("scope", SCOPES);
+// PKCE parameters storage (temporary during OAuth flow)
+let currentPkceParams: {
+	codeVerifier: string;
+	codeChallenge: string;
+	codeChallengeMethod: "S256";
+} | null = null;
+
+/**
+ * Generate Discord OAuth2 authorization URL with PKCE parameters
+ * @returns Object containing the authorization URL and PKCE parameters
+ */
+function generateAuthUrl(): { url: string; pkceParams: typeof currentPkceParams } {
+	const pkceParams = generatePkceParams();
+	currentPkceParams = pkceParams;
+
+	const authURL = new URL("https://discord.com/oauth2/authorize");
+	authURL.searchParams.set("client_id", CLIENT_ID);
+	authURL.searchParams.set("response_type", "code");
+	authURL.searchParams.set("redirect_uri", REDIRECT_URI);
+	authURL.searchParams.set("scope", SCOPES);
+	authURL.searchParams.set("code_challenge", pkceParams.codeChallenge);
+	authURL.searchParams.set("code_challenge_method", pkceParams.codeChallengeMethod);
+
+	return { url: authURL.toString(), pkceParams };
+}
 
 type Token = {
 	token_type: string;
@@ -33,7 +53,11 @@ export type DiscordUser = {
 
 const getToken = async (code: string): Promise<Token> => {
 	try {
-		logger.info("Requesting Discord access token", { hasCode: !!code });
+		logger.info("Requesting Discord access token with PKCE", { hasCode: !!code });
+
+		if (!currentPkceParams) {
+			throw new Error("No PKCE parameters available for token exchange");
+		}
 
 		const response = await fetch("https://discord.com/api/oauth2/token", {
 			method: "POST",
@@ -42,17 +66,17 @@ const getToken = async (code: string): Promise<Token> => {
 			},
 			body: new URLSearchParams({
 				client_id: CLIENT_ID,
-				client_secret: CLIENT_SECRET,
 				code: code,
 				grant_type: "authorization_code",
 				redirect_uri: REDIRECT_URI,
 				scope: SCOPES,
+				code_verifier: currentPkceParams.codeVerifier,
 			}).toString(),
 		});
 
 		if (!response.ok) {
 			const error = await response.text();
-			throw new Error(`Discord token request failed: ${response.status} ${error}`);
+			throw new Error(`Discord PKCE token request failed: ${response.status} ${error}`);
 		}
 
 		const token = (await response.json()) as Token;
@@ -67,17 +91,22 @@ const getToken = async (code: string): Promise<Token> => {
 			config.set(`discord.${key}`, value);
 		});
 
-		logger.info("Discord access token obtained successfully");
+		// Clear PKCE parameters after successful token exchange
+		currentPkceParams = null;
+
+		logger.info("Discord access token obtained successfully with PKCE");
 		return token;
 	} catch (error) {
-		logger.error("Failed to get Discord token", error);
+		logger.error("Failed to get Discord token with PKCE", error);
+		// Clear PKCE parameters on error
+		currentPkceParams = null;
 		throw error;
 	}
 };
 
 const refreshToken = async (refreshToken: string): Promise<Token> => {
 	try {
-		logger.info("Refreshing Discord access token");
+		logger.info("Refreshing Discord access token with PKCE");
 
 		const response = await fetch("https://discord.com/api/oauth2/token", {
 			method: "POST",
@@ -86,7 +115,6 @@ const refreshToken = async (refreshToken: string): Promise<Token> => {
 			},
 			body: new URLSearchParams({
 				client_id: CLIENT_ID,
-				client_secret: CLIENT_SECRET,
 				grant_type: "refresh_token",
 				refresh_token: refreshToken,
 			}).toString(),
@@ -94,7 +122,7 @@ const refreshToken = async (refreshToken: string): Promise<Token> => {
 
 		if (!response.ok) {
 			const error = await response.text();
-			throw new Error(`Discord token refresh failed: ${response.status} ${error}`);
+			throw new Error(`Discord PKCE token refresh failed: ${response.status} ${error}`);
 		}
 
 		const token = (await response.json()) as Token;
@@ -109,19 +137,19 @@ const refreshToken = async (refreshToken: string): Promise<Token> => {
 			config.set(`discord.${key}`, value);
 		});
 
-		logger.info("Discord access token refreshed successfully");
+		logger.info("Discord access token refreshed successfully with PKCE");
 		return token;
 	} catch (error) {
-		logger.error("Failed to refresh Discord token", error);
+		logger.error("Failed to refresh Discord token with PKCE", error);
 		// Clear invalid token from config
 		config.delete("discord");
 		throw error;
 	}
 };
 
-const revokeToken = async (token: string): Promise<void> => {
+const _revokeToken = async (token: string): Promise<void> => {
 	try {
-		logger.info("Revoking Discord access token");
+		logger.info("Revoking Discord access token with PKCE");
 
 		const response = await fetch("https://discord.com/api/oauth2/token/revoke", {
 			method: "POST",
@@ -130,22 +158,21 @@ const revokeToken = async (token: string): Promise<void> => {
 			},
 			body: new URLSearchParams({
 				client_id: CLIENT_ID,
-				client_secret: CLIENT_SECRET,
 				token: token,
 				token_type_hint: "access_token",
 			}).toString(),
 		});
 
 		if (!response.ok) {
-			logger.warn("Failed to revoke Discord token", { status: response.status });
+			logger.warn("Failed to revoke Discord PKCE token", { status: response.status });
 		} else {
-			logger.info("Discord token revoked successfully");
+			logger.info("Discord PKCE token revoked successfully");
 		}
 
 		// Always clear local token regardless of revocation result
 		config.delete("discord");
 	} catch (error) {
-		logger.error("Error revoking Discord token", error);
+		logger.error("Error revoking Discord PKCE token", error);
 		// Still clear local token
 		config.delete("discord");
 		throw error;
@@ -188,7 +215,10 @@ const fetchUser = async (token: string): Promise<DiscordUser> => {
 
 const login = async () => {
 	return new Promise<Token>(async (resolve, reject) => {
-		await open(authURL.toString());
+		// Generate PKCE parameters and authorization URL
+		const { url: authURL } = generateAuthUrl();
+
+		await open(authURL);
 		const server = serve({
 			port: 3456,
 			routes: {
@@ -237,13 +267,13 @@ export const getUser = async (): Promise<DiscordUser> => {
 
 			try {
 				return await fetchUser(token.access_token);
-			} catch (error) {
+			} catch (_error) {
 				logger.info("Access token expired, attempting refresh");
 
 				try {
 					const newToken = await refreshToken(token.refresh_token);
 					return await fetchUser(newToken.access_token);
-				} catch (refreshError) {
+				} catch (_refreshError) {
 					logger.warn("Token refresh failed, initiating new login");
 					config.delete("discord");
 					const newToken = await login();
@@ -260,3 +290,18 @@ export const getUser = async (): Promise<DiscordUser> => {
 		throw error;
 	}
 };
+
+export const revokeToken = async () => {
+	try {
+		if (config.has("discord")) {
+			const token = config.get("discord") as Token;
+			await _revokeToken(token.access_token);
+            config.delete("discord");
+			logger.info("Discord token revoked successfully");
+		} else {
+			logger.info("No token to revoke");
+		}
+	} catch (error) {
+        logger.error("Failed to revoke Discord token", error);
+    }
+}
