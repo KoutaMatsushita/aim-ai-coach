@@ -1,36 +1,39 @@
 {
-  "name": "coach",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "mastra dev",
-    "build": "mastra build",
-    "start": "mastra start"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
-  "engines": {
-    "node": ">=20.9.0"
-  },
-  "dependencies": {
-    "@ai-sdk/google": "2.0.14",
-    "@libsql/client": "0.15.15",
-    "@mastra/core": "0.16.3",
-    "@mastra/libsql": "0.14.1",
-    "@mastra/loggers": "0.10.11",
-    "@mastra/memory": "0.15.1",
-    "drizzle-orm": "0.44.5",
-    "drizzle-zod": "0.8.3",
-    "zod": "4.1.8"
-  },
-  "devDependencies": {
-    "@types/node": "24.3.3",
-    "drizzle-kit": "0.31.4",
-    "mastra": "0.12.3",
-    "typescript": "5.9.2"
-  }
+	"name": "coach",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "mastra dev",
+		"build": "mastra build",
+		"start": "mastra start",
+		"format": "biome format --write .",
+		"check": "biome check --write ."
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"type": "module",
+	"engines": {
+		"node": ">=20.9.0"
+	},
+	"dependencies": {
+		"@ai-sdk/google": "2.0.14",
+		"@libsql/client": "0.15.15",
+		"@mastra/core": "0.16.3",
+		"@mastra/libsql": "0.14.1",
+		"@mastra/loggers": "0.10.11",
+		"@mastra/memory": "0.15.1",
+		"drizzle-orm": "0.44.5",
+		"drizzle-zod": "0.8.3",
+		"zod": "4.1.8"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.2.4",
+		"@types/node": "24.3.3",
+		"drizzle-kit": "0.31.4",
+		"mastra": "0.12.3",
+		"typescript": "5.9.2"
+	}
 }

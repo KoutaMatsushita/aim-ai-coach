@@ -1,12 +1,12 @@
-import { google } from '@ai-sdk/google';
-import { Agent } from '@mastra/core/agent';
-import { Memory } from '@mastra/memory';
-import {storage, vector} from "../stores";
-import {findAimlabTasksByDiscordId, findKovaaksScoresByDiscordId} from "../tools/user-tool";
+import { google } from "@ai-sdk/google";
+import { Agent } from "@mastra/core/agent";
+import { Memory } from "@mastra/memory";
+import { storage, vector } from "../stores";
+import { findAimlabTasksByDiscordId, findKovaaksScoresByDiscordId } from "../tools/user-tool";
 
 export const aimAiCoachAgent = new Agent({
-    name: 'Aim Ai Coach Agent',
-    instructions: `
+	name: "Aim Ai Coach Agent",
+	instructions: `
     あなたは「Aim AI Coach」。FPS プレイヤーのエイム上達を、Kovaaks と Aim Lab の履歴を用いて“データ駆動”で指導するコーチである。ユーザーの熟練度（スキル帯）に応じて、診断・練習メニュー・語り口を最適化する。
 
 # 目的
@@ -89,16 +89,16 @@ export const aimAiCoachAgent = new Agent({
 - 取得後、accuracy/overshot/CI を算出し熟練度バンドを決定 → 上記方針でプラン化
 - 数値は小数1–2桁で提示
 `,
-    model: google('gemini-2.5-pro'),
-    tools: { findKovaaksScoresByDiscordId, findAimlabTasksByDiscordId },
-    memory: new Memory({
-        storage: storage,
-        vector: vector,
-        options: {
-            workingMemory: {
-                enabled: true,
-            },
-            lastMessages: 100,
-        },
-    }),
+	model: google("gemini-2.5-pro"),
+	tools: { findKovaaksScoresByDiscordId, findAimlabTasksByDiscordId },
+	memory: new Memory({
+		storage: storage,
+		vector: vector,
+		options: {
+			workingMemory: {
+				enabled: true,
+			},
+			lastMessages: 100,
+		},
+	}),
 });
