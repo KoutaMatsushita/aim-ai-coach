@@ -1,97 +1,98 @@
-import type {MastraClient} from "@mastra/client-js";
-import type {DiscordUser} from "./discord.ts";
-import {drizzle} from "drizzle-orm/bun-sqlite";
-import {Database} from "bun:sqlite";
-import {getDB} from "./local-db.ts";
-import {chunkArray, findFirstWithExt} from "./util.ts";
-import {localCompleteAimlabTask} from "./db/schema.ts";
-import {taskData} from "../local-aimlab-schema/schema.ts";
-import {logger} from "./logger.ts";
+import { Database } from "bun:sqlite";
+import type { MastraClient } from "@mastra/client-js";
+import { drizzle } from "drizzle-orm/bun-sqlite";
+import { taskData } from "../local-aimlab-schema/schema.ts";
+import { localCompleteAimlabTask } from "./db/schema.ts";
+import type { DiscordUser } from "./discord.ts";
+import { getDB } from "./local-db.ts";
+import { logger } from "./logger.ts";
+import { chunkArray, findFirstWithExt } from "./util.ts";
 
-export const uploadAimlab = async (
-    path: string,
-    mastraClient: MastraClient,
-    user: DiscordUser,
-) => {
-    try {
-        logger.info('Starting Aimlab data upload', { path, userId: user.id });
+export const uploadAimlab = async (path: string, mastraClient: MastraClient, user: DiscordUser) => {
+	try {
+		logger.info("Starting Aimlab data upload", { path, userId: user.id });
 
-        const dbPath = await findFirstWithExt(path, ".bytes");
-        if (!dbPath) {
-            throw new Error("No .bytes file found in the specified path");
-        }
+		const dbPath = await findFirstWithExt(path, ".bytes");
+		if (!dbPath) {
+			throw new Error("No .bytes file found in the specified path");
+		}
 
-        logger.info('Found Aimlab database file', { dbPath });
+		logger.info("Found Aimlab database file", { dbPath });
 
-        const client = new Database(dbPath, { readonly: true });
-        const aimlabDB = drizzle({
-            client,
-            schema: {taskData}
-        });
+		const client = new Database(dbPath, { readonly: true });
+		const aimlabDB = drizzle({
+			client,
+			schema: { taskData },
+		});
 
-        const localDB = await getDB();
+		const localDB = await getDB();
 
-        // Get already processed task IDs
-        const completedTaskIds = await localDB.query.localCompleteAimlabTask.findMany({
-            columns: {
-                taskId: true,
-            }
-        }).then(r => r.map(r => r.taskId));
+		// Get already processed task IDs
+		const completedTaskIds = await localDB.query.localCompleteAimlabTask
+			.findMany({
+				columns: {
+					taskId: true,
+				},
+			})
+			.then((r) => r.map((r) => r.taskId));
 
-        logger.info('Checking for new tasks', { completedTasksCount: completedTaskIds.length });
+		logger.info("Checking for new tasks", { completedTasksCount: completedTaskIds.length });
 
-        // Find new tasks to upload
-        const uploadTasks = await aimlabDB.query.taskData.findMany({
-            where: (t, { notInArray }) => notInArray(t.taskId, completedTaskIds)
-        })
-            .then(r => r.map(t => ({
-                ...t,
-                discordUserId: user.id,
-            })));
+		// Find new tasks to upload
+		const uploadTasks = await aimlabDB.query.taskData
+			.findMany({
+				where: (t, { notInArray }) => notInArray(t.taskId, completedTaskIds),
+			})
+			.then((r) =>
+				r.map((t) => ({
+					...t,
+					discordUserId: user.id,
+				}))
+			);
 
-        if (uploadTasks.length === 0) {
-            logger.info('No new Aimlab tasks to upload');
-            return;
-        }
+		if (uploadTasks.length === 0) {
+			logger.info("No new Aimlab tasks to upload");
+			return;
+		}
 
-        logger.info('Uploading new Aimlab tasks', { taskCount: uploadTasks.length });
+		logger.info("Uploading new Aimlab tasks", { taskCount: uploadTasks.length });
 
-        // Upload tasks in chunks
-        const chunks = chunkArray(uploadTasks, 100);
-        let uploadedChunks = 0;
+		// Upload tasks in chunks
+		const chunks = chunkArray(uploadTasks, 100);
+		let uploadedChunks = 0;
 
-        for (const chunked of chunks) {
-            try {
-                await mastraClient.request(`/users/${user.id}/aimlab`, {
-                    method: "POST",
-                    body: chunked,
-                });
-                uploadedChunks++;
-                logger.debug('Chunk uploaded successfully', {
-                    progress: `${uploadedChunks}/${chunks.length}`,
-                    taskCount: chunked.length
-                });
-            } catch (error) {
-                logger.error('Failed to upload Aimlab chunk', { chunkIndex: uploadedChunks, error });
-                throw error;
-            }
-        }
+		for (const chunked of chunks) {
+			try {
+				await mastraClient.request(`/users/${user.id}/aimlab`, {
+					method: "POST",
+					body: chunked,
+				});
+				uploadedChunks++;
+				logger.debug("Chunk uploaded successfully", {
+					progress: `${uploadedChunks}/${chunks.length}`,
+					taskCount: chunked.length,
+				});
+			} catch (error) {
+				logger.error("Failed to upload Aimlab chunk", { chunkIndex: uploadedChunks, error });
+				throw error;
+			}
+		}
 
-        // Mark tasks as processed
-        await localDB.insert(localCompleteAimlabTask)
-            .values(uploadTasks.map(t => ({ taskId: t.taskId })))
-            .onConflictDoNothing();
+		// Mark tasks as processed
+		await localDB
+			.insert(localCompleteAimlabTask)
+			.values(uploadTasks.map((t) => ({ taskId: t.taskId })))
+			.onConflictDoNothing();
 
-        logger.info('Aimlab upload completed successfully', {
-            tasksUploaded: uploadTasks.length,
-            chunksUploaded: uploadedChunks
-        });
+		logger.info("Aimlab upload completed successfully", {
+			tasksUploaded: uploadTasks.length,
+			chunksUploaded: uploadedChunks,
+		});
 
-        // Close the database connection
-        client.close();
-
-    } catch (error) {
-        logger.error('Aimlab upload failed', error);
-        throw error;
-    }
-}
+		// Close the database connection
+		client.close();
+	} catch (error) {
+		logger.error("Aimlab upload failed", error);
+		throw error;
+	}
+};

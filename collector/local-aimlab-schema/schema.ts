@@ -1,4 +1,4 @@
-import { sqliteTable, real, blob, integer, text, numeric } from "drizzle-orm/sqlite-core"
+import { blob, integer, numeric, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const composite = sqliteTable("Composite", {
 	totalScore: real(),
@@ -772,4 +772,3 @@ export const sensData = sqliteTable("SensData", {
 	duration: real("Duration"),
 	deviceInfo: text("DeviceInfo", { length: 140 }),
 });
-
