@@ -3,6 +3,8 @@ import {drizzle} from 'drizzle-orm/libsql';
 import {relations} from "drizzle-orm";
 import {createInsertSchema, createSelectSchema} from "drizzle-zod";
 import {z} from "zod";
+import {getEnv} from "../env.ts";
+import {logger} from "../logger.ts";
 
 const epochSeconds = customType<{ data: Date; driverData: number }>({
     dataType() { return "integer"; },
@@ -90,8 +92,11 @@ export const aimlabTaskDiscordUsersRelations = relations(aimlabTaskTable, ({one}
     }),
 }))
 
+// Validate environment variables and create database connection
+const env = getEnv();
+
 export const db = drizzle({
-    logger: true,
+    logger: process.env.NODE_ENV === 'development',
     schema: {
         discordUsersTable,
         kovaaksScoresTable,
@@ -100,10 +105,15 @@ export const db = drizzle({
         aimlabTaskDiscordUsersRelations,
     },
     connection: {
-        url: process.env.TURSO_DATABASE_URL!,
-        authToken: process.env.TURSO_AUTH_TOKEN!,
+        url: env.TURSO_DATABASE_URL,
+        authToken: env.TURSO_AUTH_TOKEN,
     },
-})
+});
+
+logger.info('Database connection initialized', {
+    hasUrl: !!env.TURSO_DATABASE_URL,
+    hasToken: !!env.TURSO_AUTH_TOKEN
+});
 
 export const DiscordUserInsertSchema = createInsertSchema(discordUsersTable)
 export const DiscordUserSelectSchema = createSelectSchema(discordUsersTable)

@@ -1,12 +1,12 @@
 import {readdir} from "node:fs/promises";
 import {join} from "node:path";
-
 import {basename} from "path";
 import type {MastraClient} from "@mastra/client-js";
 import type {DiscordUser} from "./discord.ts";
 import {chunkArray, hashFile} from "./util.ts";
 import {getDB} from "./local-db.ts";
 import {localCompleteKovaaksScore} from "./db/schema.ts";
+import {logger} from "./logger.ts";
 
 const FILENAME_RE =
     /^(?<scenario>.+?) - (?<mode>.+?) - (?<dt>\d{4}\.\d{2}\.\d{2}-\d{2}\.\d{2}\.\d{2}) Stats\.csv$/u;
@@ -25,72 +25,183 @@ export const uploadKovaaks = async (
     mastraClient: MastraClient,
     user: DiscordUser,
 ) => {
-    const db = await getDB()
-    const all = (await readdir(path)).filter(f => f.endsWith(".csv"));
-    const patches: string[] = [];
+    try {
+        logger.info('Starting Kovaaks data upload', { path, userId: user.id });
 
-    for (const file of all) {
-        const fileHash = await hashFile(join(path, file));
-        const history = await db.query.localCompleteKovaaksScore.findFirst({
-            where: (t, { eq, and }) => and(
-                eq(localCompleteKovaaksScore.fileName, file),
-                eq(localCompleteKovaaksScore.fileHash, fileHash),
-            ),
-        });
+        const db = await getDB();
+        const all = (await readdir(path)).filter(f => f.endsWith(".csv"));
+        const patches: string[] = [];
 
-        if (history) {
-            console.log(`[SKIP] ${file}`);
-        } else {
-            patches.push(file);
+        logger.info('Checking for new files', { totalFiles: all.length });
+
+        // Check for new files that haven't been processed
+        for (const file of all) {
+            try {
+                const fileHash = await hashFile(join(path, file));
+                const history = await db.query.localCompleteKovaaksScore.findFirst({
+                    where: (t, { eq, and }) => and(
+                        eq(localCompleteKovaaksScore.fileName, file),
+                        eq(localCompleteKovaaksScore.fileHash, fileHash),
+                    ),
+                });
+
+                if (history) {
+                    logger.debug('File already processed, skipping', { file });
+                } else {
+                    patches.push(file);
+                }
+            } catch (error) {
+                logger.warn('Failed to check file history', { file, error });
+                // Skip this file if we can't verify its status
+                continue;
+            }
         }
-    }
 
-    console.log(`[TOTAL] ${patches.length} files`);
+        logger.info('Files to process', { newFiles: patches.length });
 
-    const data = []
-    for (const [index, file] of Object.entries(patches)) {
-        console.log(`[${index + 1}/${patches.length}] ${file}`)
+        if (patches.length === 0) {
+            logger.info('No new files to process');
+            return;
+        }
 
-        const parsed = await parseKovaaks(path, file, user)
-        if (!parsed) continue;
+        const allData: any[] = [];
+        let processedFiles = 0;
 
-        data.push(...parsed)
-    }
+        // Process files with error handling
+        for (const file of patches) {
+            try {
+                logger.debug('Processing file', { file, progress: `${processedFiles + 1}/${patches.length}` });
 
-    for (const chunk of chunkArray(data, 100)) {
-        await mastraClient.request(`/users/${user.id}/kovaaks`, {
-            method: "POST",
-            body: chunk,
-        })
-    }
+                const parsed = await parseKovaaks(path, file, user);
+                if (parsed && parsed.length > 0) {
+                    allData.push(...parsed);
+                    logger.debug('File processed successfully', { file, recordCount: parsed.length });
+                } else {
+                    logger.warn('File parsing returned no data', { file });
+                }
 
-    for (const file of patches) {
-        await db.insert(localCompleteKovaaksScore)
-            .values({
+                processedFiles++;
+            } catch (error) {
+                logger.error('Failed to process file', { file, error });
+                // Continue processing other files instead of failing entirely
+                continue;
+            }
+        }
+
+        if (allData.length === 0) {
+            logger.warn('No data extracted from files');
+            return;
+        }
+
+        logger.info('Uploading data to API', { totalRecords: allData.length });
+
+        // Upload data in chunks with error handling
+        const chunks = chunkArray(allData, 100);
+        let uploadedChunks = 0;
+
+        for (const chunk of chunks) {
+            try {
+                await mastraClient.request(`/users/${user.id}/kovaaks`, {
+                    method: "POST",
+                    body: chunk,
+                });
+                uploadedChunks++;
+                logger.debug('Chunk uploaded successfully', {
+                    progress: `${uploadedChunks}/${chunks.length}`,
+                    recordCount: chunk.length
+                });
+            } catch (error) {
+                logger.error('Failed to upload chunk', { chunkIndex: uploadedChunks, error });
+                throw error; // Stop processing if upload fails
+            }
+        }
+
+        // Mark files as processed only after successful upload
+        logger.info('Marking files as processed');
+        const processedFileHashes = await Promise.all(
+            patches.map(async (file) => ({
                 fileName: file,
                 fileHash: await hashFile(join(path, file)),
-            })
+            }))
+        );
+
+        await db.insert(localCompleteKovaaksScore)
+            .values(processedFileHashes)
+            .onConflictDoNothing();
+
+        logger.info('Kovaaks upload completed successfully', {
+            filesProcessed: processedFiles,
+            recordsUploaded: allData.length,
+            chunksUploaded: uploadedChunks
+        });
+
+    } catch (error) {
+        logger.error('Kovaaks upload failed', error);
+        throw error;
     }
 }
 
 const parseKovaaks = async (path: string, file: string, user: DiscordUser) => {
-    const lines = await Bun.file(join(path, file))
-        .text()
-        .then(t => t.split("\n").filter(l => l.trim().length > 0).map(t => t.trim()));
+    try {
+        const filePath = join(path, file);
+        const text = await Bun.file(filePath).text();
 
-    const header = lines.shift()!.split(",");
-    const rows = lines
-        .map(line => line.split(","))
-        .filter(r => r.length === header.length);
+        if (!text || text.trim().length === 0) {
+            logger.warn('File is empty', { file });
+            return null;
+        }
 
-    const objects = rows.map(row =>
-        Object.fromEntries(header.map((key, i) => [key, row[i] ?? ""]))
-    );
+        const lines = text
+            .split("\n")
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
 
-    const meta = parseFilename(file);
-    if (!meta) return null;
+        if (lines.length < 2) {
+            logger.warn('File has insufficient data (needs header + at least 1 data row)', { file, lineCount: lines.length });
+            return null;
+        }
 
-    return mapKovaaksRow(objects, meta, user)
+        const header = lines.shift()!.split(",");
+
+        if (header.length === 0) {
+            logger.warn('File has no header columns', { file });
+            return null;
+        }
+
+        const rows = lines
+            .map(line => line.split(","))
+            .filter(row => {
+                if (row.length !== header.length) {
+                    logger.debug('Skipping malformed row', { file, expectedColumns: header.length, actualColumns: row.length });
+                    return false;
+                }
+                return true;
+            });
+
+        if (rows.length === 0) {
+            logger.warn('No valid data rows found in file', { file });
+            return null;
+        }
+
+        const objects = rows.map(row =>
+            Object.fromEntries(header.map((key, i) => [key, row[i] ?? ""]))
+        );
+
+        const meta = parseFilename(file);
+        if (!meta) {
+            logger.warn('Could not parse filename metadata', { file });
+            return null;
+        }
+
+        const mappedData = mapKovaaksRow(objects, meta, user);
+        logger.debug('File parsed successfully', { file, recordCount: mappedData.length });
+
+        return mappedData;
+
+    } catch (error) {
+        logger.error('Failed to parse Kovaaks file', { file, error });
+        throw error;
+    }
 };
 
 const parseFilename = (path: string): MetaData | null => {
@@ -104,18 +215,29 @@ const parseFilename = (path: string): MetaData | null => {
 
     if (!scenarioName || !mode || !runDatetimeText) return null;
 
-    const [, y, mo, d, h, mi, s] =
-        runDatetimeText.match(/^(\d{4})\.(\d{2})\.(\d{2})-(\d{2})\.(\d{2})\.(\d{2})$/)!;
+    const dateMatch = runDatetimeText.match(/^(\d{4})\.(\d{2})\.(\d{2})-(\d{2})\.(\d{2})\.(\d{2})$/);
+    if (!dateMatch) {
+        logger.warn('Invalid datetime format in filename', { filename: path, datetime: runDatetimeText });
+        return null;
+    }
+
+    const [, y, mo, d, h, mi, s] = dateMatch;
 
     const date = new Date(
         Number(y),
-        Number(mo) - 1, // JSは0始まりの月
+        Number(mo) - 1, // JavaScript uses 0-based months
         Number(d),
         Number(h),
         Number(mi),
         Number(s),
         0
     );
+
+    // Validate the parsed date
+    if (isNaN(date.getTime())) {
+        logger.warn('Invalid date parsed from filename', { filename: path, datetime: runDatetimeText });
+        return null;
+    }
 
     const runEpochSec = Math.floor(date.getTime() / 1000);
 
@@ -128,28 +250,50 @@ const parseFilename = (path: string): MetaData | null => {
     };
 };
 
-const mapKovaaksRow = (raws: { [p: string]: any }[], meta: MetaData, user: DiscordUser) => raws.map(raw => ({
-    discordUserId: user.id,
+const mapKovaaksRow = (raws: { [p: string]: any }[], meta: MetaData, user: DiscordUser) => {
+    return raws.map(raw => {
+        try {
+            return {
+                discordUserId: user.id,
 
-    // メタ情報
-    scenarioName: meta.scenarioName,
-    mode: meta.mode,
-    runDatetimeText: meta.runDatetimeText,
-    runEpochSec: meta.runEpochSec,
-    sourceFilename: meta.sourceFilename,
+                // Meta information
+                scenarioName: meta.scenarioName,
+                mode: meta.mode,
+                runDatetimeText: meta.runDatetimeText,
+                runEpochSec: meta.runEpochSec,
+                sourceFilename: meta.sourceFilename,
 
-    // スコア情報
-    accuracy: parseFloat(raw["Accuracy"]),
-    bot: raw["Bot"],
-    cheated: parseInt(raw["Cheated"]?.trim() ?? "0", 10),
-    damageDone: parseFloat(raw["Damage Done"]),
-    damagePossible: parseFloat(raw["Damage Possible"]),
-    efficiency: parseFloat(raw["Efficiency"]),
-    hits: parseInt(raw["Hits"], 10),
-    killNumber: parseInt(raw["Kill #"], 10),
-    overShots: parseInt(raw["OverShots"] ?? "0", 10),
-    shots: parseInt(raw["Shots"], 10),
-    ttk: raw["TTK"],
-    timestamp: raw["Timestamp"] ?? "", // 無いなら空文字
-    weapon: raw["Weapon"],
-} as const))
+                // Score information with safe parsing
+                accuracy: safeParseFloat(raw["Accuracy"]),
+                bot: raw["Bot"] || "",
+                cheated: safeParseInt(raw["Cheated"]),
+                damageDone: safeParseFloat(raw["Damage Done"]),
+                damagePossible: safeParseFloat(raw["Damage Possible"]),
+                efficiency: safeParseFloat(raw["Efficiency"]),
+                hits: safeParseInt(raw["Hits"]),
+                killNumber: safeParseInt(raw["Kill #"]),
+                overShots: safeParseInt(raw["OverShots"]),
+                shots: safeParseInt(raw["Shots"]),
+                ttk: raw["TTK"] || "",
+                timestamp: raw["Timestamp"] || "",
+                weapon: raw["Weapon"] || "",
+            } as const;
+        } catch (error) {
+            logger.error('Failed to map Kovaaks row', { raw, error });
+            throw error;
+        }
+    });
+};
+
+// Helper functions for safe parsing
+const safeParseFloat = (value: string | undefined): number => {
+    if (!value || value.trim() === '') return 0;
+    const parsed = parseFloat(value.trim());
+    return isNaN(parsed) ? 0 : parsed;
+};
+
+const safeParseInt = (value: string | undefined): number => {
+    if (!value || value.trim() === '') return 0;
+    const parsed = parseInt(value.trim(), 10);
+    return isNaN(parsed) ? 0 : parsed;
+}
