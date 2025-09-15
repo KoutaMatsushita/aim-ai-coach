@@ -296,12 +296,12 @@ export const revokeToken = async () => {
 		if (config.has("discord")) {
 			const token = config.get("discord") as Token;
 			await _revokeToken(token.access_token);
-            config.delete("discord");
+			config.delete("discord");
 			logger.info("Discord token revoked successfully");
 		} else {
 			logger.info("No token to revoke");
 		}
 	} catch (error) {
-        logger.error("Failed to revoke Discord token", error);
-    }
-}
+		logger.error("Failed to revoke Discord token", error);
+	}
+};

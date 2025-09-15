@@ -17,10 +17,7 @@ function generateSecureRandomString(length: number): string {
 	let result = "";
 
 	for (let i = 0; i < length; i++) {
-		const byte = buffer[i];
-		if (byte !== undefined) {
-			result += charset[byte % charset.length];
-		}
+		result += charset[buffer[i]! % charset.length];
 	}
 
 	return result;

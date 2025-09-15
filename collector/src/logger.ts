@@ -13,7 +13,7 @@ interface LogEntry {
 	timestamp: string;
 	level: keyof typeof LogLevel;
 	message: string;
-	data?: Record<string, any>;
+	data?: Record<string, unknown>;
 }
 
 class Logger {
@@ -30,7 +30,7 @@ class Logger {
 	private formatLog(
 		level: keyof typeof LogLevel,
 		message: string,
-		data?: Record<string, any>
+		data?: Record<string, unknown>
 	): string {
 		const entry: LogEntry = {
 			timestamp: new Date().toISOString(),
@@ -46,7 +46,7 @@ class Logger {
 		level: LogLevel,
 		levelName: keyof typeof LogLevel,
 		message: string,
-		data?: Record<string, any>
+		data?: Record<string, unknown>
 	): void {
 		if (!this.shouldLog(level)) return;
 
@@ -67,21 +67,54 @@ class Logger {
 		}
 	}
 
-	debug(message: string, data?: Record<string, any>): void {
+	debug(message: string, data?: Record<string, unknown>): void {
 		this.log(LogLevel.DEBUG, "DEBUG", message, data);
 	}
 
-	info(message: string, data?: Record<string, any>): void {
+	info(message: string, data?: Record<string, unknown>): void {
 		this.log(LogLevel.INFO, "INFO", message, data);
 	}
 
-	warn(message: string, data?: Record<string, any>): void {
+	warn(message: string, data?: Record<string, unknown>): void {
 		this.log(LogLevel.WARN, "WARN", message, data);
 	}
 
-	error(message: string, error?: Error | Record<string, any>): void {
-		const data = error instanceof Error ? { error: error.message, stack: error.stack } : error;
+	error(message: string, error?: unknown): void {
+		const data = this.processError(error);
 		this.log(LogLevel.ERROR, "ERROR", message, data);
+	}
+
+	/**
+	 * Process unknown error value into logger-compatible format
+	 * @param error Unknown error value from catch clause or user input
+	 * @returns Structured error data for logging
+	 */
+	private processError(error: unknown): Record<string, unknown> | undefined {
+		if (error === undefined || error === null) {
+			return undefined;
+		}
+
+		// Handle Error instances with stack trace
+		if (error instanceof Error) {
+			return {
+				error: error.message,
+				stack: error.stack,
+				name: error.name,
+			};
+		}
+
+		// Handle structured objects
+		if (error && typeof error === "object") {
+			return error as Record<string, unknown>;
+		}
+
+		// Handle primitive types
+		if (typeof error === "string") {
+			return { error: error };
+		}
+
+		// Fallback for any other type
+		return { error: String(error) };
 	}
 
 	setLevel(level: LogLevel): void {
