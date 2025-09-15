@@ -1,0 +1,9 @@
+[env]
+_.file = [
+    'coach/.env',
+    'collector/.env'
+]
+
+[tools]
+bun = "1.2"
+node = "22"
