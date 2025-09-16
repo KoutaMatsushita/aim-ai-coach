@@ -1,36 +1,35 @@
 /**
- * Type-safe error handling utilities
+ * 型安全エラー処理ユーティリティ
  */
 
 /**
- * Convert unknown error to Error instance
- * @param error Unknown error value from catch clause
- * @returns Error instance
+ * 未知のエラーをErrorインスタンスに変換
+ * @param error catch文からの未知のエラー値
+ * @returns Errorインスタンス
  */
 export function toError(error: unknown): Error {
 	if (error instanceof Error) {
 		return error;
 	}
 
-	// Handle string errors
+	// 文字列エラーを処理
 	if (typeof error === "string") {
 		return new Error(error);
 	}
 
-	// Handle objects with message property
+	// messageプロパティを持つオブジェクトを処理
 	if (error && typeof error === "object" && "message" in error) {
 		return new Error(String(error.message));
 	}
 
-	// Fallback for any other type
+	// その他の型のフォールバック
 	return new Error(`Unknown error: ${String(error)}`);
 }
 
-
 /**
- * Extract error message safely from unknown error
- * @param error Unknown error value
- * @returns Error message string
+ * 未知のエラーから安全にエラーメッセージを抽出
+ * @param error 未知のエラー値
+ * @returns エラーメッセージ文字列
  */
 export function getErrorMessage(error: unknown): string {
 	if (error instanceof Error) {
@@ -49,11 +48,11 @@ export function getErrorMessage(error: unknown): string {
 }
 
 /**
- * Create a structured error with additional context
- * @param message Primary error message
- * @param originalError Original error from catch clause
- * @param context Additional context data
- * @returns Structured error object
+ * 追加のコンテキストを持つ構造化エラーを作成
+ * @param message メインエラーメッセージ
+ * @param originalError catch文からの元のエラー
+ * @param context 追加のコンテキストデータ
+ * @returns 構造化エラーオブジェクト
  */
 export function createStructuredError(
 	message: string,

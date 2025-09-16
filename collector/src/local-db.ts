@@ -14,7 +14,7 @@ function getAppDataDir() {
 	if (process.platform === "win32") {
 		return join(process.env.APPDATA || join(homedir(), "AppData", "Roaming"), appName);
 	}
-	// Linux / others
+	// Linux / その他
 	const xdg = process.env.XDG_DATA_HOME || join(homedir(), ".local", "share");
 	return join(xdg, appName);
 }

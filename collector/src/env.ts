@@ -1,5 +1,5 @@
 /**
- * Environment variable validation and configuration
+ * 環境変数の検証と設定
  */
 
 type RequiredEnvVar = {
@@ -22,8 +22,8 @@ class EnvValidationError extends Error {
 }
 
 /**
- * Validates all required environment variables are present
- * @throws {EnvValidationError} When required variables are missing
+ * 必要な環境変数がすべて存在することを検証
+ * @throws {EnvValidationError} 必要な変数が異失している場合
  */
 export function validateEnv(): void {
 	const missingVars = requiredEnvVars
@@ -36,7 +36,7 @@ export function validateEnv(): void {
 }
 
 /**
- * Get validated environment variables for PKCE authentication
+ * PKCE認証用の検証済み環境変数を取得
  */
 export function getEnv() {
 	validateEnv();

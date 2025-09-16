@@ -1,5 +1,5 @@
 /**
- * Structured logging utility
+ * 構造化ログユーティリティ
  */
 
 export enum LogLevel {
@@ -85,16 +85,16 @@ class Logger {
 	}
 
 	/**
-	 * Process unknown error value into logger-compatible format
-	 * @param error Unknown error value from catch clause or user input
-	 * @returns Structured error data for logging
+	 * 未知のエラー値をロガー対応フォーマットに変換
+	 * @param error catch文またはユーザー入力からの未知のエラー値
+	 * @returns ログ記録用の構造化エラーデータ
 	 */
 	private processError(error: unknown): Record<string, unknown> | undefined {
 		if (error === undefined || error === null) {
 			return undefined;
 		}
 
-		// Handle Error instances with stack trace
+		// スタックトレース付きのErrorインスタンスを処理
 		if (error instanceof Error) {
 			return {
 				error: error.message,
@@ -103,17 +103,17 @@ class Logger {
 			};
 		}
 
-		// Handle structured objects
+		// 構造化オブジェクトを処理
 		if (error && typeof error === "object") {
 			return error as Record<string, unknown>;
 		}
 
-		// Handle primitive types
+		// プリミティブ型を処理
 		if (typeof error === "string") {
 			return { error: error };
 		}
 
-		// Fallback for any other type
+		// その他の型のフォールバック
 		return { error: String(error) };
 	}
 
@@ -122,7 +122,7 @@ class Logger {
 	}
 }
 
-// Export singleton logger instance
+// シングルトンロガーインスタンスをエクスポート
 export const logger = new Logger(
 	process.env.NODE_ENV === "development" ? LogLevel.DEBUG : LogLevel.INFO
 );

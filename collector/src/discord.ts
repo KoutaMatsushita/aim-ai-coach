@@ -5,13 +5,13 @@ import { getEnv } from "./env.ts";
 import { logger } from "./logger.ts";
 import { generatePkceParams } from "./pkce-utils.ts";
 
-// Validate environment variables on module load
+// モジュール読み込み時に環境変数を検証
 const env = getEnv();
 const CLIENT_ID = env.DISCORD_CLIENT_ID;
 const REDIRECT_URI = "http://localhost:3456/callback";
 const SCOPES = "identify";
 
-// PKCE parameters storage (temporary during OAuth flow)
+// PKCEパラメータ保存（OAuthフロー中の一時的保存）
 let currentPkceParams: {
 	codeVerifier: string;
 	codeChallenge: string;
@@ -19,8 +19,8 @@ let currentPkceParams: {
 } | null = null;
 
 /**
- * Generate Discord OAuth2 authorization URL with PKCE parameters
- * @returns Object containing the authorization URL and PKCE parameters
+ * PKCEパラメータ付きDiscord OAuth2認可 URLを生成
+ * @returns 認可 URLとPKCEパラメータを含むオブジェクト
  */
 function generateAuthUrl(): { url: string; pkceParams: typeof currentPkceParams } {
 	const pkceParams = generatePkceParams();
@@ -81,24 +81,24 @@ const getToken = async (code: string): Promise<Token> => {
 
 		const token = (await response.json()) as Token;
 
-		// Validate token structure
+		// トークン構造を検証
 		if (!token.access_token || !token.token_type) {
 			throw new Error("Invalid token response from Discord");
 		}
 
-		// Store token securely
+		// トークンを安全に保存
 		Object.entries(token).forEach(([key, value]) => {
 			config.set(`discord.${key}`, value);
 		});
 
-		// Clear PKCE parameters after successful token exchange
+		// トークン交換成功後PKCEパラメータをクリア
 		currentPkceParams = null;
 
 		logger.info("Discord access token obtained successfully with PKCE");
 		return token;
 	} catch (error) {
 		logger.error("Failed to get Discord token with PKCE", error);
-		// Clear PKCE parameters on error
+		// エラー時にPKCEパラメータをクリア
 		currentPkceParams = null;
 		throw error;
 	}
@@ -127,12 +127,12 @@ const refreshToken = async (refreshToken: string): Promise<Token> => {
 
 		const token = (await response.json()) as Token;
 
-		// Validate token structure
+		// トークン構造を検証
 		if (!token.access_token || !token.token_type) {
 			throw new Error("Invalid refresh token response from Discord");
 		}
 
-		// Update stored token
+		// 保存されたトークンを更新
 		Object.entries(token).forEach(([key, value]) => {
 			config.set(`discord.${key}`, value);
 		});
@@ -141,7 +141,7 @@ const refreshToken = async (refreshToken: string): Promise<Token> => {
 		return token;
 	} catch (error) {
 		logger.error("Failed to refresh Discord token with PKCE", error);
-		// Clear invalid token from config
+		// 無効なトークンを設定からクリア
 		config.delete("discord");
 		throw error;
 	}
@@ -169,11 +169,11 @@ const _revokeToken = async (token: string): Promise<void> => {
 			logger.info("Discord PKCE token revoked successfully");
 		}
 
-		// Always clear local token regardless of revocation result
+		// 無効化結果に関係なくローカルトークンを常にクリア
 		config.delete("discord");
 	} catch (error) {
 		logger.error("Error revoking Discord PKCE token", error);
-		// Still clear local token
+		// それでもローカルトークンをクリア
 		config.delete("discord");
 		throw error;
 	}
@@ -196,7 +196,7 @@ const fetchUser = async (token: string): Promise<DiscordUser> => {
 
 		const user = (await response.json()) as DiscordUser;
 
-		// Validate user structure
+		// ユーザー構造を検証
 		if (!user.id || !user.username) {
 			throw new Error("Invalid user response from Discord");
 		}
@@ -215,7 +215,7 @@ const fetchUser = async (token: string): Promise<DiscordUser> => {
 
 const login = async () => {
 	return new Promise<Token>(async (resolve, reject) => {
-		// Generate PKCE parameters and authorization URL
+		// PKCEパラメータと認可 URLを生成
 		const { url: authURL } = generateAuthUrl();
 
 		await open(authURL);
@@ -258,7 +258,7 @@ export const getUser = async (): Promise<DiscordUser> => {
 		if (config.has("discord")) {
 			const token = config.get("discord") as Token;
 
-			// Validate stored token structure
+			// 保存されたトークン構造を検証
 			if (!token.access_token || !token.refresh_token) {
 				logger.warn("Invalid stored token, clearing and re-authenticating");
 				config.delete("discord");

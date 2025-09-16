@@ -20,9 +20,9 @@ export const hashFile = async (
 };
 
 type FindOptions = {
-	recursive?: boolean; // 既定: true
-	followSymlinks?: boolean; // 既定: false
-	caseInsensitive?: boolean; // 既定: true
+	recursive?: boolean; // デフォルト: true
+	followSymlinks?: boolean; // デフォルト: false
+	caseInsensitive?: boolean; // デフォルト: true
 };
 
 function normalizeExt(ext: string, ci: boolean) {
@@ -53,12 +53,12 @@ export async function findFirstWithExt(
 		return null;
 	}
 
-	// 1) パス自体がファイルなら拡張子判定
+	// 1) パス自体がファイルの場合は拡張子で判定
 	if (s.isFile()) {
 		return matchExt(abs, wanted, caseInsensitive) ? abs : null;
 	}
 
-	// 2) ディレクトリなら BFS で探索
+	// 2) ディレクトリの場合はBFSで探索
 	if (!s.isDirectory()) return null;
 
 	const q: string[] = [abs];
@@ -76,7 +76,7 @@ export async function findFirstWithExt(
 			const full = join(dir, e.name);
 
 			if (e.isFile()) {
-				if (matchExt(e.name, wanted, caseInsensitive)) return full; // 最初の1件
+				if (matchExt(e.name, wanted, caseInsensitive)) return full; // 最初の一件を返す
 				continue;
 			}
 			if (e.isDirectory()) {

@@ -33,7 +33,7 @@ export const uploadKovaaks = async (
 
 		logger.info("Checking for new files", { totalFiles: all.length });
 
-		// Check for new files that haven't been processed
+		// 処理されていない新しいファイルをチェック
 		for (const file of all) {
 			try {
 				const fileHash = await hashFile(join(path, file));
@@ -65,7 +65,7 @@ export const uploadKovaaks = async (
 		const allData: any[] = [];
 		let processedFiles = 0;
 
-		// Process files with error handling
+		// エラー処理つきでファイルを処理
 		for (const file of patches) {
 			try {
 				logger.debug("Processing file", {
@@ -94,7 +94,7 @@ export const uploadKovaaks = async (
 
 		logger.info("Uploading data to API", { totalRecords: allData.length });
 
-		// Upload data in chunks with error handling
+		// エラー処理つきでデータをチャンク単位でアップロード
 		const chunks = chunkArray(allData, 100);
 		let uploadedChunks = 0;
 
@@ -115,7 +115,7 @@ export const uploadKovaaks = async (
 			}
 		}
 
-		// Mark files as processed only after successful upload
+		// アップロード成功後のみファイルを処理済みとしてマーク
 		logger.info("Marking files as processed");
 		const processedFileHashes = await Promise.all(
 			patches.map(async (file) => ({
@@ -238,7 +238,7 @@ const parseFilename = (path: string): MetaData | null => {
 		0
 	);
 
-	// Validate the parsed date
+	// パースした日付を検証
 	if (isNaN(date.getTime())) {
 		logger.warn("Invalid date parsed from filename", { filename: path, datetime: runDatetimeText });
 		return null;
@@ -261,14 +261,14 @@ const mapKovaaksRow = (raws: { [p: string]: any }[], meta: MetaData, user: Disco
 			return {
 				discordUserId: user.id,
 
-				// Meta information
+				// メタ情報
 				scenarioName: meta.scenarioName,
 				mode: meta.mode,
 				runDatetimeText: meta.runDatetimeText,
 				runEpochSec: meta.runEpochSec,
 				sourceFilename: meta.sourceFilename,
 
-				// Score information with safe parsing
+				// 安全なパーシングでスコア情報
 				accuracy: safeParseFloat(raw["Accuracy"]),
 				bot: raw["Bot"] || "",
 				cheated: safeParseInt(raw["Cheated"]),
@@ -290,7 +290,7 @@ const mapKovaaksRow = (raws: { [p: string]: any }[], meta: MetaData, user: Disco
 	});
 };
 
-// Helper functions for safe parsing
+// 安全なパーシング用ヘルパー関数
 const safeParseFloat = (value: string | undefined): number => {
 	if (!value || value.trim() === "") return 0;
 	const parsed = parseFloat(value.trim());

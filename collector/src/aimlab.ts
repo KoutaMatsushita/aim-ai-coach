@@ -27,7 +27,7 @@ export const uploadAimlab = async (path: string, mastraClient: MastraClient, use
 
 		const localDB = await getDB();
 
-		// Get already processed task IDs
+		// 既に処理されたタスクIDを取得
 		const completedTaskIds = await localDB.query.localCompleteAimlabTask
 			.findMany({
 				columns: {
@@ -38,7 +38,7 @@ export const uploadAimlab = async (path: string, mastraClient: MastraClient, use
 
 		logger.info("Checking for new tasks", { completedTasksCount: completedTaskIds.length });
 
-		// Find new tasks to upload
+		// アップロードする新しいタスクを特定
 		const uploadTasks = await aimlabDB.query.taskData
 			.findMany({
 				where: (t, { notInArray }) => notInArray(t.taskId, completedTaskIds),
@@ -57,7 +57,7 @@ export const uploadAimlab = async (path: string, mastraClient: MastraClient, use
 
 		logger.info("Uploading new Aimlab tasks", { taskCount: uploadTasks.length });
 
-		// Upload tasks in chunks
+		// タスクをチャンク単位でアップロード
 		const chunks = chunkArray(uploadTasks, 100);
 		let uploadedChunks = 0;
 
@@ -78,7 +78,7 @@ export const uploadAimlab = async (path: string, mastraClient: MastraClient, use
 			}
 		}
 
-		// Mark tasks as processed
+		// タスクを処理済みとしてマーク
 		await localDB
 			.insert(localCompleteAimlabTask)
 			.values(uploadTasks.map((t) => ({ taskId: t.taskId })))
@@ -89,7 +89,7 @@ export const uploadAimlab = async (path: string, mastraClient: MastraClient, use
 			chunksUploaded: uploadedChunks,
 		});
 
-		// Close the database connection
+		// データベース接続を閉じる
 		client.close();
 	} catch (error) {
 		logger.error("Aimlab upload failed", error);

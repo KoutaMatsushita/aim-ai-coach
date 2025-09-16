@@ -1,17 +1,17 @@
 /**
- * PKCE (Proof Key for Code Exchange) utility functions
+ * PKCE (Proof Key for Code Exchange) ユーティリティ関数
  * RFC 7636: https://tools.ietf.org/html/rfc7636
  */
 
 import { createHash, randomBytes } from "node:crypto";
 
 /**
- * Generate a cryptographically secure random string for PKCE code verifier
- * @param length Length of the string (43-128 characters for PKCE)
- * @returns Random string using [A-Z] [a-z] [0-9] and unreserved characters
+ * PKCE コードベリファイア用の暗号学的に安全なランダム文字列を生成
+ * @param length 文字列の長さ（PKCE では43-128文字）
+ * @returns [A-Z] [a-z] [0-9] と予約されていない文字を使用したランダム文字列
  */
 function generateSecureRandomString(length: number): string {
-	// PKCE unreserved characters: A-Z a-z 0-9 - . _ ~
+	// PKCE で使用可能な文字: A-Z a-z 0-9 - . _ ~
 	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
 	const buffer = randomBytes(length);
 	let result = "";
@@ -24,32 +24,32 @@ function generateSecureRandomString(length: number): string {
 }
 
 /**
- * Base64URL encode a buffer (URL-safe base64 without padding)
- * @param buffer Buffer to encode
- * @returns Base64URL encoded string
+ * バッファをBase64URLエンコード（パディング無しのURL安全なbase64）
+ * @param buffer エンコードするバッファ
+ * @returns Base64URLエンコード文字列
  */
 function base64urlEncode(buffer: Buffer): string {
 	return buffer.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
 /**
- * Generate PKCE code verifier
- * A cryptographically random string using [A-Z] [a-z] [0-9] and "-", ".", "_", "~"
- * with a minimum length of 43 characters and a maximum length of 128 characters
+ * PKCEコードベリファイアを生成
+ * [A-Z] [a-z] [0-9] と "-", ".", "_", "~" を使用した暗号学的ランダム文字列
+ * 最小43文字、最大128文字
  *
- * @returns Code verifier string (128 characters)
+ * @returns コードベリファイア文字列（128文字）
  */
 export function generateCodeVerifier(): string {
-	// Use maximum length (128) for better security
+	// セキュリティ向上のため最大長（128文字）を使用
 	return generateSecureRandomString(128);
 }
 
 /**
- * Generate PKCE code challenge from code verifier
- * SHA256 hash of the code verifier, base64url encoded
+ * コードベリファイアからPKCEコードチャレンジを生成
+ * コードベリファイアのSHA256ハッシュをbase64urlエンコード
  *
- * @param codeVerifier The code verifier string
- * @returns Code challenge string
+ * @param codeVerifier コードベリファイア文字列
+ * @returns コードチャレンジ文字列
  */
 export function generateCodeChallenge(codeVerifier: string): string {
 	const hash = createHash("sha256");
@@ -60,26 +60,8 @@ export function generateCodeChallenge(codeVerifier: string): string {
 }
 
 /**
- * Validate code verifier format according to PKCE specification
- * @param codeVerifier Code verifier to validate
- * @returns True if valid, false otherwise
- */
-export function validateCodeVerifier(codeVerifier: string): boolean {
-	// PKCE code verifier requirements:
-	// - Length: 43-128 characters
-	// - Characters: [A-Z] [a-z] [0-9] "-" "." "_" "~"
-
-	if (codeVerifier.length < 43 || codeVerifier.length > 128) {
-		return false;
-	}
-
-	const validCharPattern = /^[A-Za-z0-9\-._~]+$/;
-	return validCharPattern.test(codeVerifier);
-}
-
-/**
- * Generate a complete PKCE parameter set
- * @returns Object containing code verifier and code challenge
+ * 完全なPKCEパラメータセットを生成
+ * @returns コードベリファイアとコードチャレンジを含むオブジェクト
  */
 export function generatePkceParams(): {
 	codeVerifier: string;
