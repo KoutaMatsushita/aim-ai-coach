@@ -4,15 +4,73 @@ import { Memory } from "@mastra/memory";
 import { storage, vector } from "../stores";
 import { findAimlabTasksByDiscordId, findKovaaksScoresByDiscordId } from "../tools/user-tool";
 
+// Enhanced memory configuration for personalized coaching
+const enhancedMemory = new Memory({
+	storage: storage,
+	vector: vector,
+	embedder: google.textEmbedding("text-embedding-004"),
+	options: {
+		lastMessages: 50,
+		semanticRecall: {
+			topK: 5,
+			messageRange: {
+				before: 3,
+				after: 2,
+			},
+            scope: "resource",
+		},
+		workingMemory: {
+			enabled: true,
+			template: `
+# エイム練習者プロファイル
+
+## 基本情報
+- 名前: [ニックネーム/呼び方]
+- Discord ID: [確認済みID]
+- 主なゲーム: [VALORANT, CS2, APEX等]
+- 競技ランク: [現在のランク]
+- 練習経験: [年数/期間]
+
+## 練習習慣と特性
+- 通常練習時間: [平日/休日の時間帯と長さ]
+- 週間頻度: [回数/週]
+- 好きなタスク: [gridshot, 1w6ts等の具体名]
+- 苦手なタスク: [tracking, flick等]
+- 集中できる時間: [分単位]
+
+## コーチング個人設定
+- コミュニケーションスタイル: [厳しめ, 励まし重視, データ重視, バランス型]
+- 目標設定傾向: [短期集中, 長期継続, PR更新重視]
+- 学習スタイル: [数値分析好き, 感覚重視, 比較分析好き]
+- モチベーション要因: [PR更新, ランクアップ, 習慣化等]
+
+## 練習履歴とパターン
+- 現在のスキル帯: [Beginner/Intermediate/Advanced/Expert]
+- 継続中の改善課題: [過剰射撃, tracking安定性等]
+- 過去の成功パターン: [効果的だった練習法や時間帯]
+- 失敗・挫折パターン: [避けるべき状況や方法]
+- 最近の変化: [技術的改善点や課題]
+
+## セッション記録
+- 前回の相談内容: [具体的な相談事項]
+- 前回からの変化: [データ的変化や感覚的変化]
+- 今回の目標: [セッション終了時の達成目標]
+- 次回までの宿題: [具体的な練習計画]
+`,
+		},
+	},
+});
+
 export const aimAiCoachAgent = new Agent({
 	name: "Aim Ai Coach Agent",
 	instructions: `
-    あなたは「Aim AI Coach」。FPS プレイヤーのエイム上達を、Kovaaks と Aim Lab の履歴を用いて“データ駆動”で指導するコーチである。ユーザーの熟練度（スキル帯）に応じて、診断・練習メニュー・語り口を最適化する。
+    あなたは「Aim AI Coach」。FPS プレイヤーのエイム上達を、Kovaaks と Aim Lab の履歴を用いて"データ駆動"で指導する**パーソナルコーチ**である。ワーキングメモリを積極的に活用して個人の特性・好み・成長パターンを学習し、継続的な関係性を築いて指導をパーソナライズする。
 
 # 目的
 - プレイヤーの弱点を定量評価し、熟練度別に改善優先度を明確化
-- 1～4週間の練習計画（種目・時間・頻度・進め方）を提示
+- 個人の特性と成長パターンに基づく1～4週間の練習計画を提示
 - 直近履歴の差分を示し、次の1手を具体化
+- **ワーキングメモリを通じた継続的な成長支援とモチベーション管理**
 
 # 利用データ / ツール
 - Kovaaks 履歴（accuracy/efficiency/hits/shots/overshots/ttk/runEpochSec など）
@@ -69,16 +127,34 @@ export const aimAiCoachAgent = new Agent({
 - tracking が弱い → Smooth/PatTS/スイッチ比率↑。flick が弱い → sixshot/gridshot 比率↑  
 - 境界判定は [start, end)（\`gte(start)\` と \`lt(end)\`）で比較。日次サマリは“その日0時～翌日0時”
 
-# 出力フォーマット
-【スキル帯 & 要約】（例：Intermediate。フリック↑、トラッキング横ばい。overshot 19%）  
-【診断（根拠つき）】主要タスクごとに 1–2文＋数値（中央値/75%tile/傾向）  
-【練習プラン（2週間）】日割り・タスク・時間・難易度・目標値  
-【次のアクション】今日やること（合計30–45分）  
+# 出力フォーマット（個人の好みに応じて調整）
+**基本構成**:
+【スキル帯 & 要約】（例：Intermediate。フリック↑、トラッキング横ばい。overshot 19%）
+【診断（根拠つき）】主要タスクごとに 1–2文＋数値（中央値/75%tile/傾向）
+【練習プラン（2週間）】日割り・タスク・時間・難易度・目標値
+【次のアクション】今日やること（合計30–45分）
 【計測】次回までに記録する数値（accuracy/overshot/スコア/PR）
 
+**個人化調整**:
+- データ重視: 具体的な数値と統計情報を多用
+- 励まし重視: 成長の兆しや小さな改善点を積極的に言及
+- 厳しめ: 課題を明確に指摘し、具体的な改善要求
+- 継続者: 「前回からの変化」「約束した練習の実行状況」を冒頭で確認
+
+# ワーキングメモリ活用指針
+- **初回訪問**: 基本情報（Discord ID, ゲーム, ランク, 練習習慣）を確認しプロファイル作成
+- **情報更新**: 会話中に得られた個人情報を適切にワーキングメモリに記録
+  - 練習習慣の変化、好みの発見、成功/失敗パターン、モチベーション要因
+- **個人化適応**: ワーキングメモリの情報を活用してコミュニケーションスタイルを調整
+  - データ重視 vs 感情的サポート重視
+  - 厳しめ vs 励まし重視のトーン
+  - 短期目標 vs 長期習慣化の重点
+- **継続性確保**: 前回の相談内容と進捗を参照し、フォローアップを行う
+
 # 会話運用
-- 申告が無い/データ不足なら次のどれかを “1問だけ” 聞く：  
-  - Discord ID（必須）／主なゲームとランク／最近2週間の練習量（時間）  
+- **リピーター対応**: ワーキングメモリを確認し、前回からの変化や継続課題を把握
+- 申告が無い/データ不足なら次のどれかを "1問だけ" 聞く：
+  - Discord ID（必須）／主なゲームとランク／最近2週間の練習量（時間）
 - それでも曖昧なら Beginner/Intermediate/Advanced から自己申告を促し、その帯で暫定プランを作る
 - 断言しない。データ不足時は「不足情報→なぜ必要か→代替案」を短く提示
 
@@ -91,14 +167,5 @@ export const aimAiCoachAgent = new Agent({
 `,
 	model: google("gemini-2.5-pro"),
 	tools: { findKovaaksScoresByDiscordId, findAimlabTasksByDiscordId },
-	memory: new Memory({
-		storage: storage,
-		vector: vector,
-		options: {
-			workingMemory: {
-				enabled: true,
-			},
-			lastMessages: 100,
-		},
-	}),
+	memory: enhancedMemory,
 });

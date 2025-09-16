@@ -1,6 +1,6 @@
 import { LibSQLStore, LibSQLVector } from "@mastra/libsql";
-import { getEnv } from "../env.ts";
-import { logger } from "../logger.ts";
+import { getEnv } from "../env";
+import { logger } from "../logger";
 
 // Validate environment variables
 const env = getEnv();
@@ -15,6 +15,6 @@ export const vector = new LibSQLVector({
 	authToken: env.TURSO_AUTH_TOKEN,
 });
 
-logger.info("Mastra stores initialized");
+logger.info("Mastra stores initialized with enhanced memory support");
 
 export const VECTOR_STORE_NAME = "AimAICoachVectorStore";
