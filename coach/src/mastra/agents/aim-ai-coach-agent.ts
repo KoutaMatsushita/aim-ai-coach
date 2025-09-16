@@ -2,7 +2,13 @@ import { google } from "@ai-sdk/google";
 import { Agent } from "@mastra/core/agent";
 import { Memory } from "@mastra/memory";
 import { storage, vector } from "../stores";
-import { findAimlabTasksByDiscordId, findKovaaksScoresByDiscordId } from "../tools/user-tool";
+import {
+	assessSkillLevel,
+	findAimlabTasksByDiscordId,
+	findKovaaksScoresByDiscordId,
+	getAimlabStatsByDiscordId,
+	getKovaaksStatsByDiscordId,
+} from "../tools/user-tool";
 
 // Enhanced memory configuration for personalized coaching
 const enhancedMemory = new Memory({
@@ -17,7 +23,7 @@ const enhancedMemory = new Memory({
 				before: 3,
 				after: 2,
 			},
-            scope: "resource",
+			scope: "resource",
 		},
 		workingMemory: {
 			enabled: true,
@@ -75,9 +81,12 @@ export const aimAiCoachAgent = new Agent({
 # 利用データ / ツール
 - Kovaaks 履歴（accuracy/efficiency/hits/shots/overshots/ttk/runEpochSec など）
 - Aim Lab 履歴（taskName/score/difficulty/playedAt 等）
-- \`findKovaaksScoresByDiscordId(userId, limit?, offset?, after?)\`
-- \`findAimlabTasksByDiscordId(userId, limit?, offset?, after?)\`
+- \`findKovaaksScoresByDiscordId(userId, limit?, offset?, after?, before?, days?, scenarioName?, orderBy?, sortOrder?)\`
+- \`findAimlabTasksByDiscordId(userId, limit?, offset?, after?, before?, days?, taskName?, orderBy?, sortOrder?)\`
   - まず直近14日（不足なら30日）を \`after\` で取得
+- \`getKovaaksStatsByDiscordId(userId, period?, scenarioName?)\` - 統計分析
+- \`getAimlabStatsByDiscordId(userId, period?, taskName?)\` - 統計分析
+- \`assessSkillLevel(userId, platform?)\` - 自動スキル評価
 
 # 熟練度バンドの推定（自動判定 + 申告併用）
 1) 申告情報があれば優先：ランク（VALORANT/CS2/APEX 等），プレイ年数，エイム練経験
@@ -159,13 +168,35 @@ export const aimAiCoachAgent = new Agent({
 - 断言しない。データ不足時は「不足情報→なぜ必要か→代替案」を短く提示
 
 # ツールの使い方
-- 直近14日を取得：  
-  \`findKovaaksScoresByDiscordId({ userId, after: <14日前ISO> })\`  
-  \`findAimlabTasksByDiscordId({ userId, after: <14日前ISO> })\`  
-- 取得後、accuracy/overshot/CI を算出し熟練度バンドを決定 → 上記方針でプラン化
+
+## 効率的な分析フロー
+1. **スキル評価**: \`assessSkillLevel(userId)\` で自動判定を最初に実行
+2. **統計取得**: \`getKovaaksStatsByDiscordId(userId, '14d')\` で概要把握
+3. **詳細履歴**: 必要に応じて \`findKovaaksScoresByDiscordId\` で特定データ取得
+
+## 基本データ取得
+- 直近14日: \`findKovaaksScoresByDiscordId({ userId, days: 14 })\`
+- 期間指定: \`findKovaaksScoresByDiscordId({ userId, after: <ISO>, before: <ISO> })\`
+- 特定タスク: \`findKovaaksScoresByDiscordId({ userId, scenarioName: "1wall6targets TE" })\`
+
+## 統計分析活用
+- 全般統計: \`getKovaaksStatsByDiscordId(userId, '14d')\` → 中央値, 標準偏差, CI取得
+- 特定タスク統計: \`getKovaaksStatsByDiscordId(userId, '14d', '1wall6targets TE')\`
+- トレンド比較: 14d vs 30d で成長傾向を判定
+
+## 自動評価
+- \`assessSkillLevel(userId)\` → accuracy, overshot, CI を基にした4段階判定
+- 判定基準: Beginner(<45% acc), Intermediate(45-60%), Advanced(60-70%), Expert(>70%)
+
 - 数値は小数1–2桁で提示
 `,
 	model: google("gemini-2.5-pro"),
-	tools: { findKovaaksScoresByDiscordId, findAimlabTasksByDiscordId },
+	tools: {
+		findKovaaksScoresByDiscordId,
+		findAimlabTasksByDiscordId,
+		getKovaaksStatsByDiscordId,
+		getAimlabStatsByDiscordId,
+		assessSkillLevel,
+	},
 	memory: enhancedMemory,
 });
