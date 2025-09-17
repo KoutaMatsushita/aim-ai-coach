@@ -43,8 +43,7 @@ export const findKovaaksScoresByDiscordId = createTool({
 	}),
 	outputSchema: z.array(createSelectSchema(kovaaksScoresTable)),
 	execute: async ({ context, runtimeContext }) => {
-		const { limit, offset, after, before, days, scenarioName, orderBy, sortOrder } =
-			context;
+		const { limit, offset, after, before, days, scenarioName, orderBy, sortOrder } = context;
 
 		const discordId = runtimeContext.get("discordId") as string | null;
 		if (!discordId) {
@@ -108,18 +107,8 @@ export const findAimlabTasksByDiscordId = createTool({
 	}),
 	outputSchema: z.array(createSelectSchema(aimlabTaskTable)),
 	execute: async ({ context, runtimeContext }) => {
-		const {
-			limit,
-			offset,
-			after,
-			before,
-			days,
-			taskName,
-			minScore,
-			maxScore,
-			orderBy,
-			sortOrder,
-		} = context;
+		const { limit, offset, after, before, days, taskName, minScore, maxScore, orderBy, sortOrder } =
+			context;
 
 		const discordId = runtimeContext.get("discordId") as string | null;
 		if (!discordId) {

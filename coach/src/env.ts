@@ -13,6 +13,10 @@ const requiredEnvVars: RequiredEnvVar[] = [
 		name: "TURSO_AUTH_TOKEN",
 		description: "Turso database authentication token",
 	},
+	{
+		name: "YOUTUBE_API_KEY",
+		description: "YouTube Data API v3 key for video content analysis",
+	},
 ];
 
 class EnvValidationError extends Error {
@@ -46,7 +50,8 @@ export function getEnv() {
 	validateEnv();
 
 	return {
-		TURSO_DATABASE_URL: process.env.TURSO_DATABASE_URL!,
-		TURSO_AUTH_TOKEN: process.env.TURSO_AUTH_TOKEN!,
+		TURSO_DATABASE_URL: process.env.TURSO_DATABASE_URL as string,
+		TURSO_AUTH_TOKEN: process.env.TURSO_AUTH_TOKEN as string,
+		YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY as string,
 	} as const;
 }
