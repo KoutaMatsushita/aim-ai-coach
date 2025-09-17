@@ -24,14 +24,24 @@ export const mastra = new Mastra({
 			registerApiRoute("/users", {
 				method: "POST",
 				handler: async (c) => {
-					const result = DiscordUserInsertSchema.safeParse(await c.req.json());
-					if (!result.success) {
-						return c.json(result.error, 400);
-					}
+                    try {
+                        const result = DiscordUserInsertSchema.safeParse(await c.req.json());
+                        if (!result.success) {
+                            return c.json(result.error, 400);
+                        }
 
-					return c.json(
-						await db.insert(discordUsersTable).values(result.data).onConflictDoNothing().returning()
-					);
+                        return c.json(
+                            await db.insert(discordUsersTable).values(result.data).onConflictDoNothing().returning()
+                        );
+                    } catch (e) {
+                        if (e instanceof Error) {
+                            logger.error("error", e)
+                            return c.json(e, 500)
+                        } else {
+                            logger.error(`error: ${JSON.stringify(e)}`)
+                            return c.json({ error: "unknown error" }, 500)
+                        }
+                    }
 				},
 			}),
 			registerApiRoute("/users/:userId/kovaaks", {
@@ -77,7 +87,10 @@ export const mastra = new Mastra({
                         });
                         if (!user) return c.json({error: "user not found"}, 404);
 
-                        const result = z.array(AimlabTaskInsertSchema).safeParse(await c.req.json());
+                        const result = z.array(AimlabTaskInsertSchema.extend({
+                            startedAt: z.coerce.date(),
+                            endedAt: z.coerce.date(),
+                        })).safeParse(await c.req.json());
                         if (!result.success) {
                             return c.json(result.error, 400);
                         }
