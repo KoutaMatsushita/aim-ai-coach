@@ -1,6 +1,5 @@
 import { Mastra } from "@mastra/core/mastra";
 import { registerApiRoute } from "@mastra/core/server";
-import { PinoLogger } from "@mastra/loggers";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import {
@@ -19,10 +18,7 @@ import {logger} from "../logger";
 export const mastra = new Mastra({
 	agents: { aimAiCoachAgent },
 	storage: storage,
-	logger: new PinoLogger({
-		name: "Mastra",
-		level: "info",
-	}),
+	logger: logger,
 	server: {
 		apiRoutes: [
 			registerApiRoute("/users", {
