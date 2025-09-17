@@ -3,11 +3,12 @@ import { Agent } from "@mastra/core/agent";
 import { Memory } from "@mastra/memory";
 import { storage, vector } from "../stores";
 import {
-    assessSkillLevel,
-    findAimlabTasksByDiscordId,
-    findKovaaksScoresByDiscordId, findUserByDiscordId,
-    getAimlabStatsByDiscordId,
-    getKovaaksStatsByDiscordId,
+	assessSkillLevel,
+	findAimlabTasksByDiscordId,
+	findKovaaksScoresByDiscordId,
+	findUserByDiscordId,
+	getAimlabStatsByDiscordId,
+	getKovaaksStatsByDiscordId,
 } from "../tools/user-tool";
 
 // Enhanced memory configuration for personalized coaching
@@ -204,7 +205,7 @@ export const aimAiCoachAgent = new Agent({
 `,
 	model: google("gemini-2.5-pro"),
 	tools: {
-        findUserByDiscordId,
+		findUserByDiscordId,
 		findKovaaksScoresByDiscordId,
 		findAimlabTasksByDiscordId,
 		getKovaaksStatsByDiscordId,

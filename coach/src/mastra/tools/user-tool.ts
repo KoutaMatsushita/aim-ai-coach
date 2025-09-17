@@ -2,7 +2,13 @@ import { createTool } from "@mastra/core";
 import { asc, desc, eq } from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import {aimlabTaskTable, db, DiscordUserInsertSchema, discordUsersTable, kovaaksScoresTable} from "../../db/schema";
+import {
+	aimlabTaskTable,
+	DiscordUserInsertSchema,
+	db,
+	discordUsersTable,
+	kovaaksScoresTable,
+} from "../../db/schema";
 
 export const findUserByDiscordId = createTool({
 	id: "find-user-by-discord-user-id-tool",
@@ -11,17 +17,17 @@ export const findUserByDiscordId = createTool({
 		userId: z.string().optional(),
 	}),
 	outputSchema: DiscordUserInsertSchema.optional(),
-    execute: ({context, runtimeContext}) => {
-        const discordId = context.userId || runtimeContext.get("discordId")
-        if (!discordId) {
-            throw new Error("input か runtimeContext で discordId を渡してください")
-        }
+	execute: ({ context, runtimeContext }) => {
+		const discordId = context.userId || runtimeContext.get("discordId");
+		if (!discordId) {
+			throw new Error("input か runtimeContext で discordId を渡してください");
+		}
 
-        return db.query.discordUsersTable.findFirst({
-            where: (t, { eq }) => eq(t.id, discordId)
-        })
-    }
-})
+		return db.query.discordUsersTable.findFirst({
+			where: (t, { eq }) => eq(t.id, discordId),
+		});
+	},
+});
 
 export const findKovaaksScoresByDiscordId = createTool({
 	id: "find-kovaaks-scores-by-discord-user-id-tool",
@@ -43,13 +49,12 @@ export const findKovaaksScoresByDiscordId = createTool({
 		const { userId, limit, offset, after, before, days, scenarioName, orderBy, sortOrder } =
 			context;
 
-        const discordId = userId || runtimeContext.get("discordId")
-        if (!discordId) {
-            throw new Error("input か runtimeContext で discordId を渡してください")
-        }
+		const discordId = userId || runtimeContext.get("discordId");
+		if (!discordId) {
+			throw new Error("input か runtimeContext で discordId を渡してください");
+		}
 
-
-        // Calculate date range if days is specified
+		// Calculate date range if days is specified
 		let startDate = after;
 		let endDate = before;
 
@@ -121,12 +126,12 @@ export const findAimlabTasksByDiscordId = createTool({
 			sortOrder,
 		} = context;
 
-        const discordId = userId || runtimeContext.get("discordId")
-        if (!discordId) {
-            throw new Error("input か runtimeContext で discordId を渡してください")
-        }
+		const discordId = userId || runtimeContext.get("discordId");
+		if (!discordId) {
+			throw new Error("input か runtimeContext で discordId を渡してください");
+		}
 
-        // Calculate date range if days is specified
+		// Calculate date range if days is specified
 		let startDate = after;
 		let endDate = before;
 
@@ -190,12 +195,12 @@ export const getKovaaksStatsByDiscordId = createTool({
 	}),
 	execute: async ({ context, runtimeContext }) => {
 		const { userId, days, scenarioName } = context;
-        const discordId = userId || runtimeContext.get("discordId")
-        if (!discordId) {
-            throw new Error("input か runtimeContext で discordId を渡してください")
-        }
+		const discordId = userId || runtimeContext.get("discordId");
+		if (!discordId) {
+			throw new Error("input か runtimeContext で discordId を渡してください");
+		}
 
-        const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+		const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
 		const scores = await db.query.kovaaksScoresTable.findMany({
 			where: (t, { and, eq, gte }) =>
@@ -290,12 +295,12 @@ export const getAimlabStatsByDiscordId = createTool({
 	}),
 	execute: async ({ context, runtimeContext }) => {
 		const { userId, days, taskName } = context;
-        const discordId = userId || runtimeContext.get("discordId")
-        if (!discordId) {
-            throw new Error("input か runtimeContext で discordId を渡してください")
-        }
+		const discordId = userId || runtimeContext.get("discordId");
+		if (!discordId) {
+			throw new Error("input か runtimeContext で discordId を渡してください");
+		}
 
-        const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+		const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
 		const tasks = await db.query.aimlabTaskTable.findMany({
 			where: (t, { and, eq, gte }) =>
@@ -401,12 +406,12 @@ export const assessSkillLevel = createTool({
 	}),
 	execute: async ({ context, runtimeContext }) => {
 		const { userId, days } = context;
-        const discordId = userId || runtimeContext.get("discordId")
-        if (!discordId) {
-            throw new Error("input か runtimeContext で discordId を渡してください")
-        }
+		const discordId = userId || runtimeContext.get("discordId");
+		if (!discordId) {
+			throw new Error("input か runtimeContext で discordId を渡してください");
+		}
 
-        const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+		const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
 		// Get Kovaaks data
 		const kovaaksScores = await db.query.kovaaksScoresTable.findMany({
@@ -418,13 +423,14 @@ export const assessSkillLevel = createTool({
 
 		// Get Aimlab data
 		const aimlabTasks = await db.query.aimlabTaskTable.findMany({
-			where: (t, { and, eq, gte }) => and(eq(t.discordUserId, discordId), gte(t.startedAt, startDate)),
+			where: (t, { and, eq, gte }) =>
+				and(eq(t.discordUserId, discordId), gte(t.startedAt, startDate)),
 			orderBy: (t) => desc(t.startedAt),
 			limit: 50,
 		});
 
 		// Analyze Kovaaks data
-		let kovaaksAnalysis = undefined;
+		let kovaaksAnalysis;
 		if (kovaaksScores.length >= 5) {
 			const accuracies = kovaaksScores.map((s) => s.accuracy);
 			const overshots = kovaaksScores.map((s) => s.overShots);
@@ -440,7 +446,7 @@ export const assessSkillLevel = createTool({
 		}
 
 		// Analyze Aimlab data
-		let aimlabAnalysis = undefined;
+		let aimlabAnalysis;
 		if (aimlabTasks.length >= 5) {
 			const scores = aimlabTasks.map((t) => t.score || 0);
 			const avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;
