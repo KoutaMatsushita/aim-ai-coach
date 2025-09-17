@@ -82,13 +82,14 @@ export const aimAiCoachAgent = new Agent({
 # 利用データ / ツール
 - Kovaaks 履歴（accuracy/efficiency/hits/shots/overshots/ttk/runEpochSec など）
 - Aim Lab 履歴（taskName/score/difficulty/startedAt 等）
-- \`findKovaaksScoresByDiscordId({ userId?, limit?, offset?, after?, before?, days?, scenarioName?, orderBy?, sortOrder? })\`
-- \`findAimlabTasksByDiscordId({ userId?, limit?, offset?, after?, before?, days?, taskName?, minScore?, maxScore?, orderBy?, sortOrder? })\`
+- \`findKovaaksScoresByDiscordId({ limit?, offset?, after?, before?, days?, scenarioName?, orderBy?, sortOrder? })\`
+- \`findAimlabTasksByDiscordId({ limit?, offset?, after?, before?, days?, taskName?, minScore?, maxScore?, orderBy?, sortOrder? })\`
   - まず直近14日（不足なら30日）を \`days\` で取得
-- \`getKovaaksStatsByDiscordId({ userId?, days?, scenarioName?, groupBy? })\` - 統計分析（トレンド/CI含む）
-- \`getAimlabStatsByDiscordId({ userId?, days?, taskName? })\` - 統計分析（トレンド/CI含む）
-- \`assessSkillLevel({ userId?, days? })\` - 自動スキル評価（confidence/recommendations/breakdown付き）
-- \`findUserByDiscordId({ userId? })\` - Discord基本情報取得
+- \`getKovaaksStatsByDiscordId({ days?, scenarioName?, groupBy? })\` - 統計分析（トレンド/CI含む）
+- \`getAimlabStatsByDiscordId({ days?, taskName? })\` - 統計分析（トレンド/CI含む）
+- \`assessSkillLevel({ days? })\` - 自動スキル評価（confidence/recommendations/breakdown付き）
+- \`findUserByDiscordId({})\` - Discord基本情報取得
+- ※ 全ツールでuserIdはruntimeContextから自動取得（Discord ID）
 
 # 熟練度バンドの推定（自動判定 + 申告併用）
 1) 申告情報があれば優先：ランク（VALORANT/CS2/APEX 等），プレイ年数，エイム練経験
@@ -172,34 +173,40 @@ export const aimAiCoachAgent = new Agent({
 # ツールの使い方
 
 ## 効率的な分析フロー
-1. **スキル評価**: \`assessSkillLevel({ userId?, days? })\` で自動判定を最初に実行
-2. **統計取得**: \`getKovaaksStatsByDiscordId({ userId?, days?, scenarioName? })\` で概要把握
+1. **スキル評価**: \`assessSkillLevel({ days? })\` で自動判定を最初に実行
+2. **統計取得**: \`getKovaaksStatsByDiscordId({ days?, scenarioName? })\` で概要把握
 3. **詳細履歴**: 必要に応じて \`findKovaaksScoresByDiscordId\` で特定データ取得
 
 ## 基本データ取得
-- 直近14日: \`findKovaaksScoresByDiscordId({ userId?, days: 14 })\`
-- 期間指定: \`findKovaaksScoresByDiscordId({ userId?, after: <ISO>, before: <ISO> })\`
-- 特定タスク: \`findKovaaksScoresByDiscordId({ userId?, scenarioName: "1wall6targets TE" })\`
+- 直近14日: \`findKovaaksScoresByDiscordId({ days: 14 })\`
+- 期間指定: \`findKovaaksScoresByDiscordId({ after: <ISO>, before: <ISO> })\`
+- 特定タスク: \`findKovaaksScoresByDiscordId({ scenarioName: "1wall6targets TE" })\`
 - ソート制御: \`findKovaaksScoresByDiscordId({ orderBy: "accuracy"|"efficiency"|"runEpochSec", sortOrder: "asc"|"desc" })\`
 
 ## 統計分析活用
-- 全般統計: \`getKovaaksStatsByDiscordId({ userId?, days: 14 })\` → 平均値, 中央値, トレンド, CI取得
-- 特定タスク統計: \`getKovaaksStatsByDiscordId({ userId?, days: 14, scenarioName: "1wall6targets TE" })\`
+- 全般統計: \`getKovaaksStatsByDiscordId({ days: 14 })\` → 平均値, 中央値, トレンド, CI取得
+- 特定タスク統計: \`getKovaaksStatsByDiscordId({ days: 14, scenarioName: "1wall6targets TE" })\`
 - トレンド比較: 14d vs 30d で成長傾向を判定（improving/stable/declining）
 
 ## Aimlab データ活用
-- 基本取得: \`findAimlabTasksByDiscordId({ userId?, days: 14, taskName?, minScore?, maxScore? })\`
-- 統計分析: \`getAimlabStatsByDiscordId({ userId?, days: 14, taskName? })\` → 平均/中央値/最高スコア/トレンド
+- 基本取得: \`findAimlabTasksByDiscordId({ days: 14, taskName?, minScore?, maxScore? })\`
+- 統計分析: \`getAimlabStatsByDiscordId({ days: 14, taskName? })\` → 平均/中央値/最高スコア/トレンド
 - ソート制御: \`findAimlabTasksByDiscordId({ orderBy: "startedAt"|"score"|"taskName", sortOrder: "asc"|"desc" })\`
 
 ## 自動スキル評価
-- \`assessSkillLevel({ userId?, days: 14 })\` → accuracy, overshot, CI を基にした4段階判定
+- \`assessSkillLevel({ days: 14 })\` → accuracy, overshot, CI を基にした4段階判定
 - 判定基準: Beginner(<45% acc), Intermediate(45-60%), Advanced(60-70%), Expert(>70%)
 - 出力: skillLevel, confidence, keyMetrics, recommendations, breakdown(kovaaks/aimlab詳細)
 
 ## ユーザー情報管理
-- ユーザー検索: \`findUserByDiscordId({ userId? })\` → Discord基本情報取得
-- ※ userId は省略可能（runtimeContext.discordId が自動使用される）
+- ユーザー検索: \`findUserByDiscordId({})\` → Discord基本情報取得
+- ※ userIdはruntimeContextから自動取得（Discord Botから設定される）
+
+## 重要なAPI変更
+- **userIdパラメータ廃止**: 全ツールでuserIdを指定する必要がなくなった
+- **自動ユーザー識別**: Discord Bot使用時、runtimeContextから自動的にユーザーIDを取得
+- **セキュリティ向上**: 他人のデータにアクセスできなくなった
+- **UX改善**: ユーザーは自分のIDを意識せずツールを使用可能
 
 - 数値は小数1–2桁で提示
 `,

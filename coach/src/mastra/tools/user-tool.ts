@@ -13,14 +13,12 @@ import {
 export const findUserByDiscordId = createTool({
 	id: "find-user-by-discord-user-id-tool",
 	description: "Find user by Discord user id",
-	inputSchema: z.object({
-		userId: z.string().optional(),
-	}),
+	inputSchema: z.object({}),
 	outputSchema: DiscordUserInsertSchema.optional(),
 	execute: ({ context, runtimeContext }) => {
-		const discordId = context.userId || runtimeContext.get("discordId");
+		const discordId = runtimeContext.get("discordId") as string | null;
 		if (!discordId) {
-			throw new Error("input か runtimeContext で discordId を渡してください");
+			throw new Error("runtimeContext で discordId を渡してください");
 		}
 
 		return db.query.discordUsersTable.findFirst({
@@ -34,7 +32,6 @@ export const findKovaaksScoresByDiscordId = createTool({
 	description:
 		"find kovaaks scores by Discord user id with enhanced filtering and sorting for coaching analysis",
 	inputSchema: z.object({
-		userId: z.string().optional(),
 		limit: z.number().int().min(1).max(100).default(20), // Optimized for coaching sessions
 		offset: z.number().int().min(0).default(0),
 		after: z.coerce.date().optional(),
@@ -46,12 +43,12 @@ export const findKovaaksScoresByDiscordId = createTool({
 	}),
 	outputSchema: z.array(createSelectSchema(kovaaksScoresTable)),
 	execute: async ({ context, runtimeContext }) => {
-		const { userId, limit, offset, after, before, days, scenarioName, orderBy, sortOrder } =
+		const { limit, offset, after, before, days, scenarioName, orderBy, sortOrder } =
 			context;
 
-		const discordId = userId || runtimeContext.get("discordId");
+		const discordId = runtimeContext.get("discordId") as string | null;
 		if (!discordId) {
-			throw new Error("input か runtimeContext で discordId を渡してください");
+			throw new Error("runtimeContext で discordId を渡してください");
 		}
 
 		// Calculate date range if days is specified
@@ -98,7 +95,6 @@ export const findAimlabTasksByDiscordId = createTool({
 	description:
 		"find aimlab tasks by Discord user id with enhanced filtering and sorting for coaching analysis",
 	inputSchema: z.object({
-		userId: z.string().optional(),
 		limit: z.number().int().min(1).max(100).default(20), // Optimized for coaching sessions
 		offset: z.number().int().min(0).default(0),
 		after: z.coerce.date().optional(),
@@ -113,7 +109,6 @@ export const findAimlabTasksByDiscordId = createTool({
 	outputSchema: z.array(createSelectSchema(aimlabTaskTable)),
 	execute: async ({ context, runtimeContext }) => {
 		const {
-			userId,
 			limit,
 			offset,
 			after,
@@ -126,9 +121,9 @@ export const findAimlabTasksByDiscordId = createTool({
 			sortOrder,
 		} = context;
 
-		const discordId = userId || runtimeContext.get("discordId");
+		const discordId = runtimeContext.get("discordId") as string | null;
 		if (!discordId) {
-			throw new Error("input か runtimeContext で discordId を渡してください");
+			throw new Error("runtimeContext で discordId を渡してください");
 		}
 
 		// Calculate date range if days is specified
@@ -176,7 +171,6 @@ export const getKovaaksStatsByDiscordId = createTool({
 	id: "get-kovaaks-stats-by-discord-user-id-tool",
 	description: "Get statistical analysis of kovaaks scores for coaching analysis",
 	inputSchema: z.object({
-		userId: z.string().optional(),
 		days: z.number().int().min(1).max(90).default(14),
 		scenarioName: z.string().optional(),
 		groupBy: z.enum(["day", "week", "scenario"]).optional(),
@@ -194,10 +188,10 @@ export const getKovaaksStatsByDiscordId = createTool({
 		recentData: z.array(createSelectSchema(kovaaksScoresTable)),
 	}),
 	execute: async ({ context, runtimeContext }) => {
-		const { userId, days, scenarioName } = context;
-		const discordId = userId || runtimeContext.get("discordId");
+		const { days, scenarioName } = context;
+		const discordId = runtimeContext.get("discordId") as string | null;
 		if (!discordId) {
-			throw new Error("input か runtimeContext で discordId を渡してください");
+			throw new Error("runtimeContext で discordId を渡してください");
 		}
 
 		const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -277,7 +271,6 @@ export const getAimlabStatsByDiscordId = createTool({
 	id: "get-aimlab-stats-by-discord-user-id-tool",
 	description: "Get statistical analysis of aimlab tasks for coaching analysis",
 	inputSchema: z.object({
-		userId: z.string().optional(),
 		days: z.number().int().min(1).max(90).default(14),
 		taskName: z.string().optional(),
 	}),
@@ -294,10 +287,10 @@ export const getAimlabStatsByDiscordId = createTool({
 		recentData: z.array(createSelectSchema(aimlabTaskTable)),
 	}),
 	execute: async ({ context, runtimeContext }) => {
-		const { userId, days, taskName } = context;
-		const discordId = userId || runtimeContext.get("discordId");
+		const { days, taskName } = context;
+		const discordId = runtimeContext.get("discordId") as string | null;
 		if (!discordId) {
-			throw new Error("input か runtimeContext で discordId を渡してください");
+			throw new Error("runtimeContext で discordId を渡してください");
 		}
 
 		const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -375,7 +368,6 @@ export const assessSkillLevel = createTool({
 	id: "assess-skill-level-tool",
 	description: "Assess player skill level based on recent performance data for coaching analysis",
 	inputSchema: z.object({
-		userId: z.string().optional(),
 		days: z.number().int().min(7).max(30).default(14),
 	}),
 	outputSchema: z.object({
@@ -405,10 +397,10 @@ export const assessSkillLevel = createTool({
 		}),
 	}),
 	execute: async ({ context, runtimeContext }) => {
-		const { userId, days } = context;
-		const discordId = userId || runtimeContext.get("discordId");
+		const { days } = context;
+		const discordId = runtimeContext.get("discordId") as string | null;
 		if (!discordId) {
-			throw new Error("input か runtimeContext で discordId を渡してください");
+			throw new Error("runtimeContext で discordId を渡してください");
 		}
 
 		const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);

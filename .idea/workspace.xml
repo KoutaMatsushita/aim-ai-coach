@@ -4,15 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d1ff2bf0-ff30-4e28-acb9-4372f6c93247" name="変更" comment="" />
+    <list default="true" id="d1ff2bf0-ff30-4e28-acb9-4372f6c93247" name="変更" comment="apply a format">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+      <option value="repository" />
+    </option>
+  </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Python Script" />
         <option value="TypeScript File" />
       </list>
     </option>
@@ -20,12 +29,28 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "KoutaMatsushita"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "git@github.com:KoutaMatsushita/aim-ai-coach.git",
+    "accountId": "0dc02c4e-2ac8-47d8-bdcc-f34e48c8af3d"
+  }
+}]]></component>
+  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
+  <component name="KubernetesApiProvider"><![CDATA[{
+  "isMigrated": true
+}]]></component>
   <component name="ProjectCodeStyleSettingsMigration">
     <option name="version" value="2" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="32gBRA1C0obYMGv2G96NI5sb3pj" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -35,23 +60,92 @@
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "main",
     "go.import.settings.migrated": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/macmini-2018/git/aim-ai-coach",
+    "last_opened_file_path": "/Users/macmini-2018/git/aim-ai-coach/collector/kovaaks",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "npm.deploy.executor": "Run",
+    "npm.dev.executor": "Run",
+    "npm.register.executor": "Run",
+    "project.structure.last.edited": "モジュール",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "ml.llm.mcp",
     "show.migrate.to.gradle.popup": "false",
-    "ts.external.directory.path": "/Users/macmini-2018/git/aim-ai-coach/node_modules/typescript/lib",
+    "ts.external.directory.path": "/Users/macmini-2018/git/aim-ai-coach/collector/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "sqlite"
+    ]
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/collector/kovaaks" />
+      <recent name="$PROJECT_DIR$/coach/samples/aimlab" />
+      <recent name="$PROJECT_DIR$/coach" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/collector/src" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="RunManager" selected="npm.deploy">
+    <configuration name="deploy" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/discord-bot/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="deploy" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="dev" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/coach/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <EXTENSION ID="com.github.l34130.mise.core.run.MiseRunConfigurationSettingsEditor" myConfigEnvironmentStrategy="use_project_settings" myMiseDirEnvCb="true" myMiseConfigEnvironmentTf="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="register" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/discord-bot/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="register" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="npm.deploy" />
+      <item itemvalue="npm.register" />
+      <item itemvalue="npm.dev" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="npm.deploy" />
+        <item itemvalue="npm.dev" />
+        <item itemvalue="npm.register" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -66,14 +160,139 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1757832326843</updated>
-      <workItem from="1757832329027" duration="2153000" />
+      <workItem from="1757832329027" duration="67312000" />
     </task>
+    <task id="LOCAL-00001" summary="create mastra">
+      <option name="closed" value="true" />
+      <created>1757834897047</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1757834897047</updated>
+    </task>
+    <task id="LOCAL-00002" summary="add sample">
+      <option name="closed" value="true" />
+      <created>1757835128011</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1757835128011</updated>
+    </task>
+    <task id="LOCAL-00003" summary="add score schemas">
+      <option name="closed" value="true" />
+      <created>1757854253009</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1757854253009</updated>
+    </task>
+    <task id="LOCAL-00004" summary="mastra 部分の実装">
+      <option name="closed" value="true" />
+      <created>1757948661444</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1757948661444</updated>
+    </task>
+    <task id="LOCAL-00005" summary="データ収集アプリの実装">
+      <option name="closed" value="true" />
+      <created>1757948709392</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1757948709392</updated>
+    </task>
+    <task id="LOCAL-00006" summary="add mise.toml">
+      <option name="closed" value="true" />
+      <created>1757948724305</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1757948724305</updated>
+    </task>
+    <task id="LOCAL-00007" summary="pkce でログインするように変更">
+      <option name="closed" value="true" />
+      <created>1757952332749</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1757952332749</updated>
+    </task>
+    <task id="LOCAL-00008" summary="add docs">
+      <option name="closed" value="true" />
+      <created>1758030981732</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1758030981732</updated>
+    </task>
+    <task id="LOCAL-00009" summary="エージェントのワーキングメモリ機能を改善。それに伴ってシステムプロンプトも改善。">
+      <option name="closed" value="true" />
+      <created>1758031020441</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1758031020441</updated>
+    </task>
+    <task id="LOCAL-00010" summary="add discord bot">
+      <option name="closed" value="true" />
+      <created>1758033250470</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1758033250470</updated>
+    </task>
+    <task id="LOCAL-00011" summary="discord bot の実装">
+      <option name="closed" value="true" />
+      <created>1758073691969</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1758073691969</updated>
+    </task>
+    <task id="LOCAL-00012" summary="discord Id を runtimeContext から取得できるようにする">
+      <option name="closed" value="true" />
+      <created>1758073739103</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1758073739103</updated>
+    </task>
+    <task id="LOCAL-00013" summary="apply a format">
+      <option name="closed" value="true" />
+      <created>1758115214388</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1758115214389</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="create mastra" />
+    <MESSAGE value="add sample" />
+    <MESSAGE value="add score schemas" />
+    <MESSAGE value="mastra 部分の実装" />
+    <MESSAGE value="データ収集アプリの実装" />
+    <MESSAGE value="add mise.toml" />
+    <MESSAGE value="pkce でログインするように変更" />
+    <MESSAGE value="add docs" />
+    <MESSAGE value="エージェントのワーキングメモリ機能を改善。それに伴ってシステムプロンプトも改善。" />
+    <MESSAGE value="add discord bot" />
+    <MESSAGE value="discord bot の実装" />
+    <MESSAGE value="discord Id を runtimeContext から取得できるようにする" />
+    <MESSAGE value="apply a format" />
+    <option name="LAST_COMMIT_MESSAGE" value="apply a format" />
+  </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
