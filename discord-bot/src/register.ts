@@ -1,13 +1,10 @@
-import { Command, Option, register } from 'discord-hono'
-
-const commands = [
-	new Command('hello', 'Hello, World!').options(new Option('name', 'Your name')),
-	new Command('help', 'Docs URL'),
-]
+import * as handlers from './handlers/index.js'
+import {register} from "discord-hono";
+import {factory} from "./init.js";
 
 register(
-	commands,
-	process.env.DISCORD_APPLICATION_ID,
-	process.env.DISCORD_TOKEN,
-	// process.env.DISCORD_TEST_GUILD_ID,
+    factory.getCommands(Object.values(handlers)),
+    process.env.DISCORD_APPLICATION_ID,
+    process.env.DISCORD_TOKEN,
+    // process.env.DISCORD_TEST_GUILD_ID,
 )

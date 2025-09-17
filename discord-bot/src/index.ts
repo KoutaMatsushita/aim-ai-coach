@@ -1,15 +1,5 @@
-import { Button, Components, DiscordHono } from 'discord-hono'
+import * as handlers from './handlers'
+import {factory} from "./init";
 
-const app = new DiscordHono()
-	.command('hello', c => c.res(`Hello, ${c.var.name ?? 'World'}!`))
-	.command('help', c =>
-		c.res({
-			components: new Components().row(
-				new Button('https://discord-hono.luis.fun', ['📑', 'Docs'], 'Link'),
-				new Button('delete', ['🗑️', 'Delete']),
-			),
-		}),
-	)
-	.component('delete', c => c.update().resDefer(c => c.followup()))
 
-export default app
+export default factory.discord().loader(Object.values(handlers))
