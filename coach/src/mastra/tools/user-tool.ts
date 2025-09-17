@@ -2,14 +2,33 @@ import { createTool } from "@mastra/core";
 import { asc, desc, eq } from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import { aimlabTaskTable, db, discordUsersTable, kovaaksScoresTable } from "../../db/schema";
+import {aimlabTaskTable, db, DiscordUserInsertSchema, discordUsersTable, kovaaksScoresTable} from "../../db/schema";
+
+export const findUserByDiscordId = createTool({
+	id: "find-user-by-discord-user-id-tool",
+	description: "Find user by Discord user id",
+	inputSchema: z.object({
+		userId: z.string().optional(),
+	}),
+	outputSchema: DiscordUserInsertSchema.optional(),
+    execute: ({context, runtimeContext}) => {
+        const discordId = context.userId || runtimeContext.get("discordId")
+        if (!discordId) {
+            throw new Error("input か runtimeContext で discordId を渡してください")
+        }
+
+        return db.query.discordUsersTable.findFirst({
+            where: (t, { eq }) => eq(t.id, discordId)
+        })
+    }
+})
 
 export const findKovaaksScoresByDiscordId = createTool({
 	id: "find-kovaaks-scores-by-discord-user-id-tool",
 	description:
 		"find kovaaks scores by Discord user id with enhanced filtering and sorting for coaching analysis",
 	inputSchema: z.object({
-		userId: z.string(),
+		userId: z.string().optional(),
 		limit: z.number().int().min(1).max(100).default(20), // Optimized for coaching sessions
 		offset: z.number().int().min(0).default(0),
 		after: z.coerce.date().optional(),
@@ -20,11 +39,17 @@ export const findKovaaksScoresByDiscordId = createTool({
 		sortOrder: z.enum(["asc", "desc"]).default("desc"),
 	}),
 	outputSchema: z.array(createSelectSchema(kovaaksScoresTable)),
-	execute: async ({ context }) => {
+	execute: async ({ context, runtimeContext }) => {
 		const { userId, limit, offset, after, before, days, scenarioName, orderBy, sortOrder } =
 			context;
 
-		// Calculate date range if days is specified
+        const discordId = userId || runtimeContext.get("discordId")
+        if (!discordId) {
+            throw new Error("input か runtimeContext で discordId を渡してください")
+        }
+
+
+        // Calculate date range if days is specified
 		let startDate = after;
 		let endDate = before;
 
@@ -46,7 +71,7 @@ export const findKovaaksScoresByDiscordId = createTool({
 		return db.query.kovaaksScoresTable.findMany({
 			where: (t, { and, eq, gte, lte }) =>
 				and(
-					eq(t.discordUserId, userId),
+					eq(t.discordUserId, discordId),
 					startDate ? gte(t.runEpochSec, startDate) : undefined,
 					endDate ? lte(t.runEpochSec, endDate) : undefined,
 					scenarioName ? eq(t.scenarioName, scenarioName) : undefined
@@ -68,7 +93,7 @@ export const findAimlabTasksByDiscordId = createTool({
 	description:
 		"find aimlab tasks by Discord user id with enhanced filtering and sorting for coaching analysis",
 	inputSchema: z.object({
-		userId: z.string(),
+		userId: z.string().optional(),
 		limit: z.number().int().min(1).max(100).default(20), // Optimized for coaching sessions
 		offset: z.number().int().min(0).default(0),
 		after: z.coerce.date().optional(),
@@ -81,7 +106,7 @@ export const findAimlabTasksByDiscordId = createTool({
 		sortOrder: z.enum(["asc", "desc"]).default("desc"),
 	}),
 	outputSchema: z.array(createSelectSchema(aimlabTaskTable)),
-	execute: async ({ context }) => {
+	execute: async ({ context, runtimeContext }) => {
 		const {
 			userId,
 			limit,
@@ -96,7 +121,12 @@ export const findAimlabTasksByDiscordId = createTool({
 			sortOrder,
 		} = context;
 
-		// Calculate date range if days is specified
+        const discordId = userId || runtimeContext.get("discordId")
+        if (!discordId) {
+            throw new Error("input か runtimeContext で discordId を渡してください")
+        }
+
+        // Calculate date range if days is specified
 		let startDate = after;
 		let endDate = before;
 
@@ -118,7 +148,7 @@ export const findAimlabTasksByDiscordId = createTool({
 		return db.query.aimlabTaskTable.findMany({
 			where: (t, { and, eq, gte, lte }) =>
 				and(
-					eq(t.discordUserId, userId),
+					eq(t.discordUserId, discordId),
 					startDate ? gte(t.startedAt, startDate) : undefined,
 					endDate ? lte(t.startedAt, endDate) : undefined,
 					taskName ? eq(t.taskName, taskName) : undefined,
@@ -141,7 +171,7 @@ export const getKovaaksStatsByDiscordId = createTool({
 	id: "get-kovaaks-stats-by-discord-user-id-tool",
 	description: "Get statistical analysis of kovaaks scores for coaching analysis",
 	inputSchema: z.object({
-		userId: z.string(),
+		userId: z.string().optional(),
 		days: z.number().int().min(1).max(90).default(14),
 		scenarioName: z.string().optional(),
 		groupBy: z.enum(["day", "week", "scenario"]).optional(),
@@ -158,14 +188,19 @@ export const getKovaaksStatsByDiscordId = createTool({
 		}),
 		recentData: z.array(createSelectSchema(kovaaksScoresTable)),
 	}),
-	execute: async ({ context }) => {
+	execute: async ({ context, runtimeContext }) => {
 		const { userId, days, scenarioName } = context;
-		const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+        const discordId = userId || runtimeContext.get("discordId")
+        if (!discordId) {
+            throw new Error("input か runtimeContext で discordId を渡してください")
+        }
+
+        const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
 		const scores = await db.query.kovaaksScoresTable.findMany({
 			where: (t, { and, eq, gte }) =>
 				and(
-					eq(t.discordUserId, userId),
+					eq(t.discordUserId, discordId),
 					gte(t.runEpochSec, startDate),
 					scenarioName ? eq(t.scenarioName, scenarioName) : undefined
 				),
@@ -237,7 +272,7 @@ export const getAimlabStatsByDiscordId = createTool({
 	id: "get-aimlab-stats-by-discord-user-id-tool",
 	description: "Get statistical analysis of aimlab tasks for coaching analysis",
 	inputSchema: z.object({
-		userId: z.string(),
+		userId: z.string().optional(),
 		days: z.number().int().min(1).max(90).default(14),
 		taskName: z.string().optional(),
 	}),
@@ -253,14 +288,19 @@ export const getAimlabStatsByDiscordId = createTool({
 		}),
 		recentData: z.array(createSelectSchema(aimlabTaskTable)),
 	}),
-	execute: async ({ context }) => {
+	execute: async ({ context, runtimeContext }) => {
 		const { userId, days, taskName } = context;
-		const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+        const discordId = userId || runtimeContext.get("discordId")
+        if (!discordId) {
+            throw new Error("input か runtimeContext で discordId を渡してください")
+        }
+
+        const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
 		const tasks = await db.query.aimlabTaskTable.findMany({
 			where: (t, { and, eq, gte }) =>
 				and(
-					eq(t.discordUserId, userId),
+					eq(t.discordUserId, discordId),
 					gte(t.startedAt, startDate),
 					taskName ? eq(t.taskName, taskName) : undefined
 				),
@@ -330,7 +370,7 @@ export const assessSkillLevel = createTool({
 	id: "assess-skill-level-tool",
 	description: "Assess player skill level based on recent performance data for coaching analysis",
 	inputSchema: z.object({
-		userId: z.string(),
+		userId: z.string().optional(),
 		days: z.number().int().min(7).max(30).default(14),
 	}),
 	outputSchema: z.object({
@@ -359,27 +399,32 @@ export const assessSkillLevel = createTool({
 				.optional(),
 		}),
 	}),
-	execute: async ({ context }) => {
+	execute: async ({ context, runtimeContext }) => {
 		const { userId, days } = context;
-		const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+        const discordId = userId || runtimeContext.get("discordId")
+        if (!discordId) {
+            throw new Error("input か runtimeContext で discordId を渡してください")
+        }
+
+        const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
 		// Get Kovaaks data
 		const kovaaksScores = await db.query.kovaaksScoresTable.findMany({
 			where: (t, { and, eq, gte }) =>
-				and(eq(t.discordUserId, userId), gte(t.runEpochSec, startDate)),
+				and(eq(t.discordUserId, discordId), gte(t.runEpochSec, startDate)),
 			orderBy: (t) => desc(t.runEpochSec),
 			limit: 50,
 		});
 
 		// Get Aimlab data
 		const aimlabTasks = await db.query.aimlabTaskTable.findMany({
-			where: (t, { and, eq, gte }) => and(eq(t.discordUserId, userId), gte(t.startedAt, startDate)),
+			where: (t, { and, eq, gte }) => and(eq(t.discordUserId, discordId), gte(t.startedAt, startDate)),
 			orderBy: (t) => desc(t.startedAt),
 			limit: 50,
 		});
 
 		// Analyze Kovaaks data
-		let kovaaksAnalysis = null;
+		let kovaaksAnalysis = undefined;
 		if (kovaaksScores.length >= 5) {
 			const accuracies = kovaaksScores.map((s) => s.accuracy);
 			const overshots = kovaaksScores.map((s) => s.overShots);
@@ -395,7 +440,7 @@ export const assessSkillLevel = createTool({
 		}
 
 		// Analyze Aimlab data
-		let aimlabAnalysis = null;
+		let aimlabAnalysis = undefined;
 		if (aimlabTasks.length >= 5) {
 			const scores = aimlabTasks.map((t) => t.score || 0);
 			const avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;

@@ -12,8 +12,8 @@ import {
 } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import type { z } from "zod";
-import { getEnv } from "../env.ts";
-import { logger } from "../logger.ts";
+import { getEnv } from "../env";
+import { logger } from "../logger";
 
 const epochSeconds = customType<{ data: Date; driverData: number }>({
 	dataType() {
