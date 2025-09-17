@@ -73,6 +73,7 @@ export const addYoutubeContentLibSQL = createTool({
 	}),
 	execute: async ({ context }) => {
 		try {
+            await ragLibSQLService.initializeIndex()
 			// YouTube URLからvideo IDを抽出
 			const videoId = extractVideoId(context.videoUrl);
 			if (!videoId) {
@@ -161,6 +162,7 @@ export const searchAimContentLibSQL = createTool({
 	}),
 	execute: async ({ context }) => {
 		try {
+            await ragLibSQLService.initializeIndex()
 			const results = await ragLibSQLService.search({
 				text: context.query,
 				difficultyLevel: context.difficultyLevel,
@@ -247,6 +249,7 @@ export const getPersonalizedRecommendationsLibSQL = createTool({
 		}
 
 		try {
+            await ragLibSQLService.initializeIndex()
 			const recommendations = await ragLibSQLService.getPersonalizedRecommendations(
 				context.userSkillLevel,
 				context.weakAreas,
@@ -302,6 +305,7 @@ export const getVectorStatsLibSQL = createTool({
 	}),
 	execute: async ({ context }) => {
 		try {
+            await ragLibSQLService.initializeIndex()
 			const stats = await ragLibSQLService.getContentStats();
 
 			return {
@@ -350,6 +354,7 @@ export const batchAddChannelVideosLibSQL = createTool({
 	}),
 	execute: async ({ context }) => {
 		try {
+            await ragLibSQLService.initializeIndex()
 			// チャンネルの動画一覧を取得
 			const videos = await youtubeService.getChannelVideos(context.maxVideos);
 
