@@ -9,6 +9,7 @@ import { embed } from "ai";
 import { getEnv } from "../env.js";
 import type { AimAnalysisResult } from "./content-analyzer.js";
 import {YouTubeVideo} from "./youtube";
+import { vector } from "../mastra/stores"
 
 export interface SearchQuery {
 	text: string;
@@ -66,18 +67,10 @@ export interface PersonalizedRecommendation {
 }
 
 export class RAGLibSQLService {
-	private readonly vectorStore: LibSQLVector;
+	private readonly vectorStore: LibSQLVector = vector;
 	private readonly embeddingModel = google.textEmbedding("text-embedding-004");
 	private readonly indexName = "aimTrainingContent";
 	private readonly embeddingDimension = 768;
-
-	constructor() {
-		const env = getEnv();
-		this.vectorStore = new LibSQLVector({
-			connectionUrl: env.TURSO_DATABASE_URL,
-			authToken: env.TURSO_AUTH_TOKEN,
-		});
-	}
 
 	/**
 	 * ベクトルインデックスの初期化
