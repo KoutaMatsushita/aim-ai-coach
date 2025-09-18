@@ -15,14 +15,6 @@ import type { z } from "zod";
 import { getEnv } from "../env";
 import { logger } from "../logger";
 
-const epochSeconds = customType<{ data: Date; driverData: number }>({
-	dataType() {
-		return "integer";
-	},
-	toDriver: (value) => Math.floor(value.getTime() / 1000),
-	fromDriver: (value) => new Date(value * 1000),
-});
-
 export const discordUsersTable = sqliteTable("discord_users", {
 	id: text("id").primaryKey(),
 	username: text("username").notNull(),
@@ -39,7 +31,7 @@ export const kovaaksScoresTable = sqliteTable(
 		scenarioName: text("scenario_name").notNull(),
 		mode: text("mode").notNull(),
 		runDatetimeText: text("run_datetime_text").notNull(),
-		runEpochSec: epochSeconds("run_epoch_sec").notNull(),
+		runEpochSec: integer("run_epoch_sec").notNull(),
 		sourceFilename: text("source_filename").notNull(),
 
 		// スコア情報（元キーとの対応をコメントで示す）

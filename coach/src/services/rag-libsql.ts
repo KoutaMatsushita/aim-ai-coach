@@ -4,12 +4,12 @@
  */
 
 import { google } from "@ai-sdk/google";
-import { LibSQLVector } from "@mastra/libsql";
+import type { LibSQLVector } from "@mastra/libsql";
 import { embed } from "ai";
 import { getEnv } from "../env.js";
+import { vector } from "../mastra/stores";
 import type { AimAnalysisResult } from "./content-analyzer.js";
-import {YouTubeVideo} from "./youtube";
-import { vector } from "../mastra/stores"
+import type { YouTubeVideo } from "./youtube";
 
 export interface SearchQuery {
 	text: string;
