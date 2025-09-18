@@ -12,8 +12,9 @@ FPSプレイヤーのエイム上達を支援するAIコーチングシステム
 ## 🏗️ アーキテクチャ
 
 ```
-├── coach/      # AIコーチサーバー (Node.js + Mastra)
-└── collector/  # データ収集CLI (Bun + Commander)
+├── coach/        # AIコーチサーバー (Node.js + Mastra)
+├── collector/    # データ収集CLI (Bun + Commander)
+└── discord-bot/  # Discord bot (Cloudflare Workers)
 ```
 
 ### Coach (コーチサーバー)
@@ -26,6 +27,11 @@ FPSプレイヤーのエイム上達を支援するAIコーチングシステム
 - **実行**: CLI アプリケーション
 - **技術**: Bun + TypeScript
 - **対応**: Kovaaks CSV / Aim Lab SQLite
+
+### Discord Bot
+- **実行**: Cloudflare Workers
+- **技術**: TypeScript + discord-hono + Mastra Client
+- **機能**: `/ask` コマンドでAIコーチに質問
 
 ## 🚀 セットアップ
 
@@ -43,6 +49,11 @@ GOOGLE_API_KEY=your_google_api_key
 DISCORD_CLIENT_ID=your_discord_client_id
 ```
 
+**discord-bot/.env**
+```bash
+MASTRA_BASE_URL=http://localhost:4111  # または本番環境URL
+```
+
 ### 2. 依存関係インストール
 
 ```bash
@@ -53,6 +64,10 @@ npm install
 # Collector CLI
 cd collector
 bun install
+
+# Discord Bot
+cd discord-bot
+npm install
 ```
 
 ### 3. データベース準備
@@ -86,6 +101,16 @@ bun src/index.ts kovaaks /path/to/kovaaks/stats
 # Aim Labデータ収集
 bun src/index.ts aimlab /path/to/aimlab/database
 ```
+
+### Discord Bot 使用
+
+Discord サーバーで以下のコマンドが利用できます：
+
+```
+/ask message: エイムの練習方法について質問したいです
+```
+
+Botは自動的にユーザーのDiscord IDを使用して個人データを分析し、パーソナライズされたアドバイスを提供します。
 
 ## 📊 データ分析
 
@@ -140,6 +165,14 @@ collector/
 │   ├── aimlab.ts       # Aim Lab処理
 │   ├── discord.ts      # Discord OAuth
 │   └── pkce-utils.ts   # PKCE認証
+
+discord-bot/
+├── src/
+│   ├── index.ts            # Bot メイン
+│   ├── handlers/
+│   │   ├── ask.ts          # /askコマンド処理
+│   │   └── ping.ts         # /pingコマンド処理
+│   └── init.ts             # Discord初期化
 ```
 
 ## 🛡️ セキュリティ
@@ -180,6 +213,17 @@ ISC
 3. Run `npm run check`
 4. Commit changes
 5. Create Pull Request
+
+## 📝 設計思想
+
+このプロジェクトは個人開発のためのソフトウェアです。以下の方針で開発されています：
+
+- **シンプル設計**: 過度に抽象化された設計パターンは避け、理解しやすいコードを重視
+- **必要最小限**: エンタープライズ向けのような複雑なエラーハンドリングや冗長な処理は実装しない
+- **実用性重視**: 完璧性よりも動作することを優先し、必要に応じて段階的に改善
+- **開発効率**: コードの保守性と開発速度のバランスを考慮した実装
+
+個人プロジェクトの特性を活かし、オーバーエンジニアリングを避けながら実用的なソリューションを提供します。
 
 ---
 
