@@ -73,8 +73,8 @@ export const findKovaaksScoresByDiscordId = createTool({
 			where: (t, { and, eq, gte, lte }) =>
 				and(
 					eq(t.discordUserId, discordId),
-					startDate ? gte(t.runEpochSec, startDate) : undefined,
-					endDate ? lte(t.runEpochSec, endDate) : undefined,
+					startDate ? gte(t.runEpochSec, Math.floor(startDate.getTime() / 1000)) : undefined,
+					endDate ? lte(t.runEpochSec, Math.floor(endDate.getTime() / 1000)) : undefined,
 					scenarioName ? eq(t.scenarioName, scenarioName) : undefined
 				),
 			limit,
@@ -189,7 +189,7 @@ export const getKovaaksStatsByDiscordId = createTool({
 			where: (t, { and, eq, gte }) =>
 				and(
 					eq(t.discordUserId, discordId),
-					gte(t.runEpochSec, startDate),
+					gte(t.runEpochSec, Math.floor(startDate.getTime() / 1000)),
 					scenarioName ? eq(t.scenarioName, scenarioName) : undefined
 				),
 			orderBy: (t) => desc(t.runEpochSec),
@@ -397,7 +397,10 @@ export const assessSkillLevel = createTool({
 		// Get Kovaaks data
 		const kovaaksScores = await db.query.kovaaksScoresTable.findMany({
 			where: (t, { and, eq, gte }) =>
-				and(eq(t.discordUserId, discordId), gte(t.runEpochSec, startDate)),
+				and(
+					eq(t.discordUserId, discordId),
+					gte(t.runEpochSec, Math.floor(startDate.getTime() / 1000))
+				),
 			orderBy: (t) => desc(t.runEpochSec),
 			limit: 50,
 		});
