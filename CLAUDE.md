@@ -133,6 +133,7 @@ npm run register  # コマンド登録のみ
 TURSO_DATABASE_URL=libsql://your-database.turso.io
 TURSO_AUTH_TOKEN=your-auth-token
 GOOGLE_API_KEY=your-gemini-api-key
+YOUTUBE_API_KEY=your-youtube-api-key
 
 # collector/.env
 DISCORD_CLIENT_ID=your-discord-app-client-id
