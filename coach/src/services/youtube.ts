@@ -311,8 +311,8 @@ export class YouTubeService {
 	 */
 	private async fetchTranscriptDirect(videoId: string): Promise<string | null> {
 		try {
-			// YouTube's player response endpoint that doesn't require API key
-			const playerUrl = `https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8`;
+			// YouTube's player response endpoint
+			const playerUrl = `https://www.youtube.com/youtubei/v1/player?key=${this.apiKey}`;
 
 			const playerResponse = await fetch(playerUrl, {
 				method: "POST",
