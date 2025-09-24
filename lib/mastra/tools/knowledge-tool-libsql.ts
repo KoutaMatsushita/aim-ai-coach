@@ -8,6 +8,7 @@ import { z } from "zod";
 import { contentAnalyzer } from "../services/content-analyzer";
 import { ragLibSQLService } from "../services/rag-libsql";
 import { youtubeService } from "../services/youtube";
+import { logger } from "../logger";
 
 // インデックス初期化ツール
 export const initializeVectorIndex = createTool({
@@ -622,7 +623,10 @@ export const batchAddChannelVideosLibSQL = createTool({
 						transcript: transcript?.text,
 					});
 				} catch (error) {
-					console.warn(`Failed to analyze video ${video.id}: ${error}`);
+					logger.warn(`Failed to analyze video ${video.id}`, {
+						videoId: video.id,
+						error: (error as Error).message
+					}, );
 				}
 			}
 

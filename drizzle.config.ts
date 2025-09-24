@@ -11,7 +11,7 @@ function getRequiredEnv(key: string): string {
 
 export default defineConfig({
 	dialect: "turso",
-	schema: "./src/schema.ts",
+	schema: "./lib/db/schema.ts",
 	out: "./drizzle",
 	dbCredentials: {
 		url: getRequiredEnv("TURSO_DATABASE_URL"),

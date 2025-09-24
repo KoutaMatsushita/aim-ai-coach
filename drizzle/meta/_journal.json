@@ -1,83 +1,90 @@
 {
-	"version": "7",
-	"dialect": "sqlite",
-	"entries": [
-		{
-			"idx": 0,
-			"version": "6",
-			"when": 1757917419133,
-			"tag": "0000_nostalgic_marvel_apes",
-			"breakpoints": true
-		},
-		{
-			"idx": 1,
-			"version": "6",
-			"when": 1757943764022,
-			"tag": "0001_legal_zombie",
-			"breakpoints": true
-		},
-		{
-			"idx": 2,
-			"version": "6",
-			"when": 1757943998048,
-			"tag": "0002_productive_lord_hawal",
-			"breakpoints": true
-		},
-		{
-			"idx": 3,
-			"version": "6",
-			"when": 1757946270977,
-			"tag": "0003_big_justice",
-			"breakpoints": true
-		},
-		{
-			"idx": 4,
-			"version": "6",
-			"when": 1758459650322,
-			"tag": "0004_complex_skullbuster",
-			"breakpoints": true
-		},
-		{
-			"idx": 5,
-			"version": "6",
-			"when": 1758521141552,
-			"tag": "0005_woozy_sabra",
-			"breakpoints": true
-		},
-		{
-			"idx": 6,
-			"version": "6",
-			"when": 1758521537392,
-			"tag": "0006_careful_wolf_cub",
-			"breakpoints": true
-		},
-		{
-			"idx": 7,
-			"version": "6",
-			"when": 1758521685965,
-			"tag": "0007_old_gamma_corps",
-			"breakpoints": true
-		},
-		{
-			"idx": 8,
-			"version": "6",
-			"when": 1758522945942,
-			"tag": "0008_skinny_whiplash",
-			"breakpoints": true
-		},
-		{
-			"idx": 9,
-			"version": "6",
-			"when": 1758524013783,
-			"tag": "0009_supreme_jazinda",
-			"breakpoints": true
-		},
-		{
-			"idx": 10,
-			"version": "6",
-			"when": 1758530290049,
-			"tag": "0010_high_skrulls",
-			"breakpoints": true
-		}
-	]
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1757917419133,
+      "tag": "0000_nostalgic_marvel_apes",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1757943764022,
+      "tag": "0001_legal_zombie",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1757943998048,
+      "tag": "0002_productive_lord_hawal",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1757946270977,
+      "tag": "0003_big_justice",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1758459650322,
+      "tag": "0004_complex_skullbuster",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1758521141552,
+      "tag": "0005_woozy_sabra",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1758521537392,
+      "tag": "0006_careful_wolf_cub",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1758521685965,
+      "tag": "0007_old_gamma_corps",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1758522945942,
+      "tag": "0008_skinny_whiplash",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1758524013783,
+      "tag": "0009_supreme_jazinda",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1758530290049,
+      "tag": "0010_high_skrulls",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1758708999695,
+      "tag": "0011_clear_rage",
+      "breakpoints": true
+    }
+  ]
 }

@@ -8,6 +8,16 @@ import {
     aimlabTaskTable,
     UserSelectSchema, AimlabTaskSelectSchema, KovaaksScoreSelectSchema
 } from "../../db";
+import {
+    withToolExecution,
+    withDatabaseOperation,
+    validateUserId,
+    logToolEvent
+} from "./shared/tool-utils";
+import {
+    withCache,
+    CACHE_TTL
+} from "./shared/cache-layer";
 
 export const findUser = createTool({
 	id: "find-user",
@@ -43,7 +53,7 @@ export const findKovaaksScoresByUserId = createTool({
 		orderBy: z.enum(["runEpochSec", "accuracy", "efficiency"]).default("runEpochSec"),
 		sortOrder: z.enum(["asc", "desc"]).default("desc"),
 	}),
-	outputSchema: z.array(AimlabTaskSelectSchema),
+	outputSchema: z.array(KovaaksScoreSelectSchema),
 	execute: async ({ context, runtimeContext }) => {
 		const { limit, offset, after, before, days, scenarioName, orderBy, sortOrder } = context;
 
@@ -388,118 +398,183 @@ export const assessSkillLevel = createTool({
 		}),
 	}),
 	execute: async ({ context, runtimeContext }) => {
-		const { days } = context;
-		const userId = runtimeContext.get("userId") as string | null;
-		if (!userId) {
-			throw new Error("runtimeContext で userId を渡してください");
-		}
+		return withToolExecution(
+			'assess-skill-level',
+			runtimeContext,
+			async (ctx) => {
+				const { days } = context;
+				const userId = validateUserId(ctx);
 
-		const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+				// Use caching for skill assessment with 24-hour TTL
+				return withCache(
+					ctx,
+					'skill_assessment',
+					'SKILL_ASSESSMENT',
+					{ days, userId },
+					CACHE_TTL.ASSESSMENT_TOOLS,
+					async () => {
+						logToolEvent('info', ctx, 'Executing skill assessment (cache miss)', { days });
 
-		// Get Kovaaks data
-		const kovaaksScores = await db.query.kovaaksScoresTable.findMany({
-			where: (t, { and, eq, gte }) =>
-				and(eq(t.userId, userId), gte(t.runEpochSec, Math.floor(startDate.getTime() / 1000))),
-			orderBy: (t) => desc(t.runEpochSec),
-			limit: 50,
-		});
+						const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
-		// Get Aimlab data
-		const aimlabTasks = await db.query.aimlabTaskTable.findMany({
-			where: (t, { and, eq, gte }) => and(eq(t.userId, userId), gte(t.startedAt, startDate)),
-			orderBy: (t) => desc(t.startedAt),
-			limit: 50,
-		});
+						// Get Kovaaks data with database operation tracking
+						const kovaaksScores = await withDatabaseOperation(
+							ctx,
+							'fetch_kovaaks_scores',
+							() => db.query.kovaaksScoresTable.findMany({
+								where: (t, { and, eq, gte }) =>
+									and(eq(t.userId, userId), gte(t.runEpochSec, Math.floor(startDate.getTime() / 1000))),
+								orderBy: (t) => desc(t.runEpochSec),
+								limit: 50,
+							})
+						);
 
-		// Analyze Kovaaks data
-		let kovaaksAnalysis;
-		if (kovaaksScores.length >= 5) {
-			const accuracies = kovaaksScores.map((s) => s.accuracy);
-			const overshots = kovaaksScores.map((s) => s.overShots);
+						// Get Aimlab data with database operation tracking
+						const aimlabTasks = await withDatabaseOperation(
+							ctx,
+							'fetch_aimlab_tasks',
+							() => db.query.aimlabTaskTable.findMany({
+								where: (t, { and, eq, gte }) => and(eq(t.userId, userId), gte(t.startedAt, startDate)),
+								orderBy: (t) => desc(t.startedAt),
+								limit: 50,
+							})
+						);
 
-			const avgAccuracy = accuracies.reduce((a, b) => a + b, 0) / accuracies.length;
-			const avgOvershots = overshots.reduce((a, b) => a + b, 0) / overshots.length;
+						logToolEvent('debug', ctx, 'Retrieved performance data', {
+							kovaaksCount: kovaaksScores.length,
+							aimlabCount: aimlabTasks.length,
+							daysAnalyzed: days
+						});
 
-			kovaaksAnalysis = {
-				avgAccuracy,
-				avgOvershots,
-				sessionsCount: kovaaksScores.length,
-			};
-		}
+						// Analyze Kovaaks data
+						let kovaaksAnalysis;
+						if (kovaaksScores.length >= 5) {
+							const accuracies = kovaaksScores.map((s) => s.accuracy);
+							const overshots = kovaaksScores.map((s) => s.overShots);
 
-		// Analyze Aimlab data
-		let aimlabAnalysis;
-		if (aimlabTasks.length >= 5) {
-			const scores = aimlabTasks.map((t) => t.score || 0);
-			const avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;
+							const avgAccuracy = accuracies.reduce((a, b) => a + b, 0) / accuracies.length;
+							const avgOvershots = overshots.reduce((a, b) => a + b, 0) / overshots.length;
 
-			aimlabAnalysis = {
-				avgScore,
-				tasksCount: aimlabTasks.length,
-			};
-		}
+							kovaaksAnalysis = {
+								avgAccuracy,
+								avgOvershots,
+								sessionsCount: kovaaksScores.length,
+							};
+						} else if (kovaaksScores.length > 0) {
+							logToolEvent('warn', ctx, 'Insufficient Kovaaks data for reliable analysis', {
+								availableScores: kovaaksScores.length,
+								requiredMinimum: 5
+							});
+						}
 
-		// Skill assessment logic
-		let skillLevel: "Beginner" | "Intermediate" | "Advanced" | "Expert" = "Beginner";
-		let confidence = 0.5;
-		const recommendations: string[] = [];
+						// Analyze Aimlab data
+						let aimlabAnalysis;
+						if (aimlabTasks.length >= 5) {
+							const scores = aimlabTasks.map((t) => t.score || 0);
+							const avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;
 
-		if (kovaaksAnalysis) {
-			const { avgAccuracy, avgOvershots } = kovaaksAnalysis;
+							aimlabAnalysis = {
+								avgScore,
+								tasksCount: aimlabTasks.length,
+							};
+						} else if (aimlabTasks.length > 0) {
+							logToolEvent('warn', ctx, 'Insufficient Aimlab data for reliable analysis', {
+								availableTasks: aimlabTasks.length,
+								requiredMinimum: 5
+							});
+						}
 
-			// Skill level determination based on accuracy and overshot rate
-			if (avgAccuracy >= 0.7 && avgOvershots <= 10) {
-				skillLevel = "Expert";
-				confidence = Math.min(0.9, confidence + 0.4);
-				recommendations.push("Maintain current performance with competitive scenarios");
-				recommendations.push("Focus on consistency and peak performance optimization");
-			} else if (avgAccuracy >= 0.6 && avgOvershots <= 15) {
-				skillLevel = "Advanced";
-				confidence = Math.min(0.8, confidence + 0.3);
-				recommendations.push("Work on precision under pressure scenarios");
-				recommendations.push("Practice advanced tracking and micro-adjustments");
-			} else if (avgAccuracy >= 0.45 && avgOvershots <= 25) {
-				skillLevel = "Intermediate";
-				confidence = Math.min(0.7, confidence + 0.2);
-				recommendations.push("Balance flick and tracking training equally");
-				recommendations.push("Focus on reducing overshot rate with deliberate practice");
-			} else {
-				skillLevel = "Beginner";
-				confidence = Math.min(0.8, confidence + 0.3);
-				recommendations.push("Focus on fundamental aim mechanics with larger targets");
-				recommendations.push("Prioritize accuracy over speed in all scenarios");
-				recommendations.push("Practice basic tracking and clicking scenarios daily");
+						// Skill assessment logic
+						let skillLevel: "Beginner" | "Intermediate" | "Advanced" | "Expert" = "Beginner";
+						let confidence = 0.5;
+						const recommendations: string[] = [];
+
+						if (kovaaksAnalysis) {
+							const { avgAccuracy, avgOvershots } = kovaaksAnalysis;
+
+							// Skill level determination based on accuracy and overshot rate
+							if (avgAccuracy >= 0.7 && avgOvershots <= 10) {
+								skillLevel = "Expert";
+								confidence = Math.min(0.9, confidence + 0.4);
+								recommendations.push("Maintain current performance with competitive scenarios");
+								recommendations.push("Focus on consistency and peak performance optimization");
+							} else if (avgAccuracy >= 0.6 && avgOvershots <= 15) {
+								skillLevel = "Advanced";
+								confidence = Math.min(0.8, confidence + 0.3);
+								recommendations.push("Work on precision under pressure scenarios");
+								recommendations.push("Practice advanced tracking and micro-adjustments");
+							} else if (avgAccuracy >= 0.45 && avgOvershots <= 25) {
+								skillLevel = "Intermediate";
+								confidence = Math.min(0.7, confidence + 0.2);
+								recommendations.push("Balance flick and tracking training equally");
+								recommendations.push("Focus on reducing overshot rate with deliberate practice");
+							} else {
+								skillLevel = "Beginner";
+								confidence = Math.min(0.8, confidence + 0.3);
+								recommendations.push("Focus on fundamental aim mechanics with larger targets");
+								recommendations.push("Prioritize accuracy over speed in all scenarios");
+								recommendations.push("Practice basic tracking and clicking scenarios daily");
+							}
+
+							logToolEvent('debug', ctx, 'Skill assessment completed', {
+								skillLevel,
+								confidence: Math.round(confidence * 100) / 100,
+								avgAccuracy: Math.round(avgAccuracy * 100) / 100,
+								avgOvershots
+							});
+						}
+
+						// Adjust based on Aimlab data if available
+						if (aimlabAnalysis && aimlabAnalysis.avgScore > 0) {
+							confidence = Math.min(0.9, confidence + 0.1);
+							logToolEvent('debug', ctx, 'Confidence adjusted with Aimlab data', {
+								aimlabAvgScore: aimlabAnalysis.avgScore,
+								adjustedConfidence: Math.round(confidence * 100) / 100
+							});
+						}
+
+						// Calculate overall metrics
+						const keyMetrics = {
+							avgAccuracy: kovaaksAnalysis?.avgAccuracy || 0,
+							consistencyIndex: kovaaksAnalysis ? Math.max(0, 1 - 0.2) : 0, // Simplified CI
+							overshotRate: kovaaksAnalysis?.avgOvershots || 0,
+							sessionsAnalyzed: kovaaksScores.length + aimlabTasks.length,
+						};
+
+						// Add general recommendations
+						if (keyMetrics.sessionsAnalyzed < 10) {
+							recommendations.unshift("Need more practice data for accurate assessment");
+							confidence *= 0.7;
+							logToolEvent('warn', ctx, 'Limited data affects confidence', {
+								totalSessions: keyMetrics.sessionsAnalyzed,
+								confidencePenalty: 0.3
+							});
+						}
+
+						const result = {
+							skillLevel,
+							confidence: Math.round(confidence * 100) / 100,
+							keyMetrics,
+							recommendations,
+							breakdown: {
+								kovaaksAnalysis,
+								aimlabAnalysis,
+							},
+						};
+
+						logToolEvent('info', ctx, 'Skill assessment analysis completed', {
+							result: {
+								skillLevel: result.skillLevel,
+								confidence: result.confidence,
+								totalRecommendations: result.recommendations.length,
+								dataQuality: keyMetrics.sessionsAnalyzed >= 10 ? 'sufficient' : 'limited'
+							}
+						});
+
+						return result;
+					}
+				);
 			}
-		}
-
-		// Adjust based on Aimlab data if available
-		if (aimlabAnalysis && aimlabAnalysis.avgScore > 0) {
-			confidence = Math.min(0.9, confidence + 0.1);
-		}
-
-		// Calculate overall metrics
-		const keyMetrics = {
-			avgAccuracy: kovaaksAnalysis?.avgAccuracy || 0,
-			consistencyIndex: kovaaksAnalysis ? Math.max(0, 1 - 0.2) : 0, // Simplified CI
-			overshotRate: kovaaksAnalysis?.avgOvershots || 0,
-			sessionsAnalyzed: kovaaksScores.length + aimlabTasks.length,
-		};
-
-		// Add general recommendations
-		if (keyMetrics.sessionsAnalyzed < 10) {
-			recommendations.unshift("Need more practice data for accurate assessment");
-			confidence *= 0.7;
-		}
-
-		return {
-			skillLevel,
-			confidence: Math.round(confidence * 100) / 100,
-			keyMetrics,
-			recommendations,
-			breakdown: {
-				kovaaksAnalysis,
-				aimlabAnalysis,
-			},
-		};
+		);
 	},
-});
+});;;

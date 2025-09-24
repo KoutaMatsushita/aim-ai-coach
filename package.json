@@ -5,7 +5,11 @@
   "scripts": {
     "build": "next build --turbopack",
     "dev": "next dev --turbopack",
-    "start": "next start"
+    "start": "next start",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@ai-sdk/google": "2.0.14",
@@ -36,7 +40,6 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "remark-gfm": "4.0.1",
-    "sst": "3.17.14",
     "tailwind-merge": "3.3.1",
     "zustand": "5.0.8"
   },

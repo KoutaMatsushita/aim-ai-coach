@@ -1,0 +1,65 @@
+{
+	"version": "6",
+	"dialect": "sqlite",
+	"id": "4e863a34-7a8e-40d1-973d-f7c1ef0ab357",
+	"prevId": "00000000-0000-0000-0000-000000000000",
+	"tables": {
+		"local_complete_aimlab_task": {
+			"name": "local_complete_aimlab_task",
+			"columns": {
+				"task_id": {
+					"name": "task_id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true,
+					"autoincrement": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {}
+		},
+		"local_complete_kovaaks_score": {
+			"name": "local_complete_kovaaks_score",
+			"columns": {
+				"file_name": {
+					"name": "file_name",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"file_hash": {
+					"name": "file_hash",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				}
+			},
+			"indexes": {
+				"local_complete_kovaaks_score_file_name_file_hash_idx": {
+					"name": "local_complete_kovaaks_score_file_name_file_hash_idx",
+					"columns": ["file_name", "file_hash"],
+					"isUnique": false
+				}
+			},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {}
+		}
+	},
+	"views": {},
+	"enums": {},
+	"_meta": {
+		"schemas": {},
+		"tables": {},
+		"columns": {}
+	},
+	"internal": {
+		"indexes": {}
+	}
+}

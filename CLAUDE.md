@@ -150,3 +150,29 @@ The AI coaching system is built on Mastra, which provides:
 - Edge-optimized database with Turso
 - Efficient indexing for time-series game performance data
 - Memory management for persistent user coaching relationships
+
+## AI Agent Improvement Guidelines
+
+### Current Development Focus
+**Individual Development Project** - This is a personal-use FPS coaching application in active development. Feel free to make bold changes and improvements without enterprise-level caution.
+
+### Agent Enhancement Strategy
+**Problem**: Current agent is overly focused on practice plan generation and underutilizes the powerful RAG system.
+
+**Solution Approach**:
+1. **Conversation Diversification**: Transform from plan-heavy to natural coaching dialogue
+2. **RAG Integration**: Seamlessly incorporate YouTube content analysis into conversations
+3. **Working Memory Utilization**: Leverage memory for personalized, continuous coaching relationships
+4. **Real-time Analysis**: Integrate data analysis naturally into conversation flow
+
+### Implementation Philosophy
+- **Bold Changes Encouraged**: Personal project allows for rapid iteration
+- **User Experience First**: Prioritize natural conversation over technical complexity
+- **RAG-First Approach**: Make high-performance vector search central to coaching
+- **Memory-Driven Personalization**: Build persistent coaching relationships
+
+### Technical Implementation Steps
+1. **Dynamic Instructions**: Convert static instructions to runtime-contextual functions
+2. **RAG Automation**: Automatically trigger knowledge search after data analysis
+3. **Conversation Patterns**: Implement diverse response types beyond practice plans
+4. **Memory Integration**: Use working memory for session continuity and personalization
