@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__codex__codex",
+      "mcp__sequential-thinking__sequentialthinking",
+      "Bash(aws sts:*)",
+      "Bash(aws cloudfront list-distributions:*)",
+      "Bash(aws support describe-cases:*)",
+      "mcp__serena__check_onboarding_performed",
+      "mcp__serena__onboarding",
+      "mcp__serena__list_dir",
+      "mcp__serena__write_memory",
+      "mcp__mastra-docs__mastraDocs",
+      "mcp__serena__find_symbol",
+      "mcp__serena__search_for_pattern"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

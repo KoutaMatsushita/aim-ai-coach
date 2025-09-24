@@ -1,0 +1,2 @@
+DROP VIEW `user_discord_data`;--> statement-breakpoint
+CREATE VIEW `user_discord_data` AS select "users"."id", "users"."name", "users"."email", "accounts"."account_id" from "users" inner join "accounts" on "accounts"."user_id" = "users"."id" where "accounts"."provider_id" = 'discord';
