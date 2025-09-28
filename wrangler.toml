@@ -1,0 +1,26 @@
+# Top-level configuration
+name = "aim-ai-coach"
+main = "api/index.ts"
+compatibility_flags = [ "nodejs_compat", "global_fetch_strictly_public" ]
+compatibility_date = "2025-09-24"
+
+workers_dev = false
+
+[assets]
+binding = "ASSETS"
+directory = "./dist"
+not_found_handling = "single-page-application"
+run_worker_first = [ "/api/*" ]
+
+[[routes]]
+pattern = "aim-ai-coach.mk2481.dev"
+custom_domain = true
+
+[[d1_databases]]
+binding = "D1Database"
+database_name = "aim-ai-coach-d1"
+database_id = "3172d14d-054d-4f9b-bf41-a724b7061fd7"
+
+[[vectorize]]
+binding = "Vectorize"
+index_name = "aim-ai-coach-vectorize"
