@@ -17,7 +17,6 @@ export const chatApp = new Hono<{ Variables: Variables }>()
                 z.record(z.any(), z.any()).transform((v) => v as MessageListInput),
                 z.array(z.record(z.any(), z.any()).transform((v) => v as MessageListInput)),
             ]),
-
         })),
         async (c) => {
             const currentUser = c.var.user

@@ -3,11 +3,11 @@
  * High-performance vector search for aim training content
  */
 
-import { google } from "@ai-sdk/google";
-import { embed } from "ai";
-import type { AimAnalysisResult } from "./content-analyzer";
-import type { YouTubeVideo } from "./youtube";
-import {Mastra, MastraVector } from "@mastra/core";
+import {google} from "@ai-sdk/google";
+import {embed} from "ai";
+import type {AimAnalysisResult} from "./content-analyzer";
+import type {YouTubeVideo} from "./youtube";
+import {MastraVector} from "@mastra/core";
 
 /**
  * ベクトル検索クエリの入力パラメータ
@@ -156,16 +156,14 @@ export interface PersonalizedRecommendation {
  * ```
  */
 export class RAGLibSQLService {
-	private readonly vectorStore: MastraVector;
-	private readonly embeddingModel = google.textEmbedding("text-embedding-004");
-	private readonly indexName = "aimTrainingContent";
-	private readonly embeddingDimension = 768;
-	private readonly maxPayloadSize = 30000; // 36KB制限より少し小さめに設定 (バイト数)
-	private readonly chunkOverlap = 200; // チャンク間のオーバーラップ文字数
-
-    constructor(mastra: Mastra) {
-        this.vectorStore = mastra.getVector("vector");
-    }
+    constructor(
+        private readonly vectorStore: MastraVector,
+        private readonly embeddingModel = google.textEmbedding("text-embedding-004"),
+        private readonly indexName = "aimTrainingContent",
+        private readonly embeddingDimension = 768,
+        private readonly maxPayloadSize = 30000,
+        private readonly chunkOverlap = 200,
+    ) {}
 
 	/**
 	 * ベクトルインデックスの初期化
@@ -689,11 +687,10 @@ export class RAGLibSQLService {
 	}> {
 		// インデックス統計取得
 		const indexes = await this.vectorStore.listIndexes();
-		const indexName = this.indexName;
 
-		// 基本的な統計情報を返す（詳細実装は必要に応じて拡張）
+        // 基本的な統計情報を返す（詳細実装は必要に応じて拡張）
 		return {
-			totalVideos: indexes.includes(indexName) ? 0 : 0, // 実装時に適切な統計取得
+			totalVideos: indexes.includes(this.indexName) ? 0 : 0, // 実装時に適切な統計取得
 			difficultyDistribution: {},
 			aimElementsDistribution: {},
 			gameDistribution: {},

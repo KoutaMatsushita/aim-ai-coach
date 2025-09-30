@@ -1,7 +1,14 @@
-import {drizzle} from "drizzle-orm/d1";
+import {drizzle} from "drizzle-orm/libsql";
 import * as schema from "./schema"
 
-export const createDB = (d1: D1Database) => drizzle(d1, {
+export const createDB = (
+    url: string,
+    authToken: string,
+) => drizzle({
+    connection: {
+        url,
+        authToken,
+    },
     schema,
     logger: process.env.NODE_ENV === "development",
 });

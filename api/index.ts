@@ -1,7 +1,6 @@
 import {Hono} from "hono";
 import {logger} from 'hono/logger'
-import {D1Store} from "@mastra/cloudflare-d1";
-import {CloudflareVector} from "@mastra/vectorize";
+import {LibSQLStore, LibSQLVector} from "@mastra/libsql";
 import type {Variables} from "./variables";
 import {createMastra} from "./mastra";
 import {threadApp} from "./threads"
@@ -9,13 +8,10 @@ import {chatApp} from "./chat";
 import {createAuth} from "./auth";
 import {createDB} from "./db";
 import {cors} from "hono/cors";
+import {knowledgesApp} from "./knowledges";
 
 type CloudflareBindings = {
     ASSETS: Fetcher
-    D1Database: D1Database
-
-    CLOUDFLARE_ACCOUNT_ID: string
-    CLOUDFLARE_RUNTIME_API_TOKEN: string
 
     GOOGLE_GENERATIVE_AI_API_KEY: string
     YOUTUBE_API_KEY: string
@@ -27,6 +23,9 @@ type CloudflareBindings = {
     BETTER_AUTH_SECRET: string
 
     FRONT_URL: string
+
+    TURSO_DATABASE_URL: string
+    TURSO_AUTH_TOKEN: string
 };
 
 const apiApp = new Hono<{
@@ -34,7 +33,17 @@ const apiApp = new Hono<{
     Variables: Variables,
 }>()
     .use("*", async (c, next) => {
-        c.set("db", createDB(c.env.D1Database));
+        return cors({
+            origin: [c.env.FRONT_URL],
+            allowHeaders: ["Content-Type", "Authorization"],
+            allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            exposeHeaders: ["Content-Length"],
+            credentials: true,
+            maxAge: 600,
+        })(c, next)
+    })
+    .use("*", async (c, next) => {
+        c.set("db", createDB(c.env.TURSO_DATABASE_URL, c.env.TURSO_AUTH_TOKEN));
         return next();
     })
     .use("*", async (c, next) => {
@@ -65,12 +74,13 @@ const apiApp = new Hono<{
     })
     .use("*", async (c, next) => {
         const mastra = createMastra(
-            new D1Store({
-                binding: c.env.D1Database,
+            new LibSQLStore({
+                url: c.env.TURSO_DATABASE_URL,
+                authToken: c.env.TURSO_AUTH_TOKEN,
             }),
-            new CloudflareVector({
-                accountId: c.env.CLOUDFLARE_ACCOUNT_ID,
-                apiToken: c.env.CLOUDFLARE_RUNTIME_API_TOKEN!,
+            new LibSQLVector({
+                connectionUrl: c.env.TURSO_DATABASE_URL,
+                authToken: c.env.TURSO_AUTH_TOKEN,
             }),
         )
         c.set("mastra", mastra);
@@ -78,13 +88,6 @@ const apiApp = new Hono<{
     })
     .basePath("/api")
     .use(logger())
-    .use("*", async (c, next) => {
-        return cors({
-            origin: c.env.FRONT_URL,
-            allowHeaders: ["Content-Type", "Authorization"],
-            credentials: true,
-        })(c, next)
-    })
     .on(
         ["POST", "GET"],
         "/auth/*",
@@ -93,6 +96,7 @@ const apiApp = new Hono<{
         })
     .route("/chat", chatApp)
     .route("/threads", threadApp)
+    .route("/knowledges", knowledgesApp)
 
 export type APIType = typeof apiApp;
 

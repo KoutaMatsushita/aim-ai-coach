@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
+import { Route as KnowledgesIndexRouteImport } from './routes/knowledges/index'
 import { Route as DeviceIndexRouteImport } from './routes/device/index'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const LoginIndexRoute = LoginIndexRouteImport.update({
   path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KnowledgesIndexRoute = KnowledgesIndexRouteImport.update({
+  id: '/knowledges/',
+  path: '/knowledges/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DeviceIndexRoute = DeviceIndexRouteImport.update({
   id: '/device/',
   path: '/device/',
@@ -32,30 +38,34 @@ const DeviceIndexRoute = DeviceIndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/device': typeof DeviceIndexRoute
+  '/knowledges': typeof KnowledgesIndexRoute
   '/login': typeof LoginIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/device': typeof DeviceIndexRoute
+  '/knowledges': typeof KnowledgesIndexRoute
   '/login': typeof LoginIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/device/': typeof DeviceIndexRoute
+  '/knowledges/': typeof KnowledgesIndexRoute
   '/login/': typeof LoginIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/device' | '/login'
+  fullPaths: '/' | '/device' | '/knowledges' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/device' | '/login'
-  id: '__root__' | '/' | '/device/' | '/login/'
+  to: '/' | '/device' | '/knowledges' | '/login'
+  id: '__root__' | '/' | '/device/' | '/knowledges/' | '/login/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DeviceIndexRoute: typeof DeviceIndexRoute
+  KnowledgesIndexRoute: typeof KnowledgesIndexRoute
   LoginIndexRoute: typeof LoginIndexRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/knowledges/': {
+      id: '/knowledges/'
+      path: '/knowledges'
+      fullPath: '/knowledges'
+      preLoaderRoute: typeof KnowledgesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/device/': {
       id: '/device/'
       path: '/device'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DeviceIndexRoute: DeviceIndexRoute,
+  KnowledgesIndexRoute: KnowledgesIndexRoute,
   LoginIndexRoute: LoginIndexRoute,
 }
 export const routeTree = rootRouteImport

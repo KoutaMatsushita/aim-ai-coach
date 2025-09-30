@@ -10,6 +10,7 @@ import { createVectorQueryTool, createGraphRAGTool } from "@mastra/rag";
 import { VECTORIZE_PROMPT } from "@mastra/vectorize";
 import {MastraVector} from "@mastra/core/vector";
 import {MastraStorage} from "@mastra/core/storage";
+import {addTextFileKnowledgeTool, addTextKnowledgeTool, addYoutubeContentTool} from "../tools/rag-tool";
 
 // Enhanced memory configuration for personalized coaching
 const createEnhancedMemory = (
@@ -126,14 +127,17 @@ ${VECTORIZE_PROMPT}
         vectorTool: createVectorQueryTool({
             vectorStoreName: "vector",
             indexName: "aimTrainingContent",
-            model: google.embedding("text-embedding-004"),
+            model: google.textEmbedding("text-embedding-004"),
         }),
         // @ts-ignore
         graphTool: createGraphRAGTool({
             vectorStoreName: "vector",
             indexName: "aimTrainingContent",
-            model: google.embedding("text-embedding-004"),
+            model: google.textEmbedding("text-embedding-004"),
         }),
+        addYoutubeContentTool,
+        addTextFileKnowledgeTool,
+        addTextKnowledgeTool,
 	},
 	memory: createEnhancedMemory(
         storage,

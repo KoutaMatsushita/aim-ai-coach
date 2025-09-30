@@ -1,4 +1,4 @@
-import { AuthLayout } from "@/components/layout/auth.tsx";
+import { AuthLayout } from "@/components/layout/auth";
 import HomePage from "@/components/page/HomePage.tsx";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -10,10 +10,12 @@ function App() {
 	return (
 		<AuthLayout>
 			{(user) => (
-				<div className="h-screen">
-					<HomePage resource={user.id} thread={user.id} />
-				</div>
+				<>
+					<div className="h-screen">
+						<HomePage resource={user.id} thread={user.id} />
+					</div>
+				</>
 			)}
 		</AuthLayout>
-	);
+	)
 }

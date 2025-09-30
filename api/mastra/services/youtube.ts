@@ -1,9 +1,8 @@
 /**
  * YouTube Data API v3 integration service
- * 4BangerKovaaks channel specialized content fetching
  */
 
-import { getEnv } from "../env";
+import {env} from "api/env.ts";
 
 /**
  * YouTube動画の基本情報
@@ -84,7 +83,6 @@ export class YouTubeService {
 	private readonly retryDelayMs = 1000;
 
 	constructor() {
-		const env = getEnv();
 		this.apiKey = env.YOUTUBE_API_KEY;
 	}
 

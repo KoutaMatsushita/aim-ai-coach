@@ -6,6 +6,9 @@ compatibility_date = "2025-09-24"
 
 workers_dev = false
 
+[observability]
+enabled = true
+
 [assets]
 binding = "ASSETS"
 directory = "./dist"
@@ -16,11 +19,11 @@ run_worker_first = [ "/api/*" ]
 pattern = "aim-ai-coach.mk2481.dev"
 custom_domain = true
 
-[[d1_databases]]
-binding = "D1Database"
-database_name = "aim-ai-coach-d1"
-database_id = "3172d14d-054d-4f9b-bf41-a724b7061fd7"
-
-[[vectorize]]
-binding = "Vectorize"
-index_name = "aim-ai-coach-vectorize"
+#[[d1_databases]]
+#binding = "D1Database"
+#database_name = "aim-ai-coach-d1"
+#database_id = "3172d14d-054d-4f9b-bf41-a724b7061fd7"
+#
+#[[vectorize]]
+#binding = "Vectorize"
+#index_name = "aim-ai-coach-vectorize"

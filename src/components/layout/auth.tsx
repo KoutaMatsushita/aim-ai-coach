@@ -3,17 +3,18 @@
 import { authClient } from "@/lib/auth/client";
 import type { Auth } from "../../../api/variables";
 
+export const { useSession } = authClient;
+
 export const AuthLayout = ({
 	children,
 }: {
-	children: (user: Auth["$Infer"]["Session"]["user"]) => any;
+	children: (user: Auth["$Infer"]["Session"]["user"]) => React.ReactNode;
 }) => {
-	const { useSession } = authClient;
-	const { data: session, isPending, error: authError } = useSession();
+	const { data, isPending, error: authError } = useSession();
 
 	if (isPending) return <span>loading...</span>;
 	if (authError) return <span>error: {String(authError)}</span>;
-	if (!session) return <a href="/login">Login</a>;
+	if (!data) return <a href="/login">Login</a>;
 
-	return <>{children(session.user)}</>;
+	return <>{children(data.user)}</>;
 };

@@ -26,9 +26,9 @@ import {
 	SourcesTrigger,
 } from "@/components/ai-elements/sources.tsx";
 import { env } from "@/env.ts";
+import { client } from "@/lib/client.ts";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { hc } from "hono/client";
 import {
 	type FormEvent,
 	Fragment,
@@ -37,7 +37,6 @@ import {
 	useState,
 } from "react";
 import useSWR from "swr";
-import type { APIType } from "../../../api";
 import type { PromptInputMessage } from "../ai-elements/prompt-input.tsx";
 import {
 	Tool,
@@ -46,12 +45,6 @@ import {
 	ToolInput,
 	ToolOutput,
 } from "../ai-elements/tool.tsx";
-
-const client = hc<APIType>(env.VITE_PUBLIC_API_URL, {
-	init: {
-		credentials: "include",
-	},
-});
 
 function useInitialMessage(threadId: string) {
 	return useSWR(["/api/threads/:threads/messages", threadId], async () => {
