@@ -1,6 +1,9 @@
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
+import "@radix-ui/themes/styles.css";
+import { Theme } from "@radix-ui/themes";
+import { ThemeProvider } from "next-themes";
 
 import * as TanStackQueryProvider from "./integrations/tanstack-query/root-provider.tsx";
 
@@ -37,9 +40,13 @@ if (rootElement && !rootElement.innerHTML) {
 	const root = ReactDOM.createRoot(rootElement);
 	root.render(
 		<StrictMode>
-			<TanStackQueryProvider.Provider {...TanStackQueryProviderContext}>
-				<RouterProvider router={router} />
-			</TanStackQueryProvider.Provider>
+			<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+				<Theme accentColor="cyan" grayColor="slate">
+					<TanStackQueryProvider.Provider {...TanStackQueryProviderContext}>
+						<RouterProvider router={router} />
+					</TanStackQueryProvider.Provider>
+				</Theme>
+			</ThemeProvider>
 		</StrictMode>,
 	);
 }

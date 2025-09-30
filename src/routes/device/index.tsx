@@ -1,10 +1,11 @@
 import { authClient } from "@/lib/auth/client.ts";
+import { Text } from "@radix-ui/themes";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 const DeviceSearchSchema = z.object({
-	userCode: z.string().min(1),
+	user_code: z.string().min(1),
 });
 
 export const Route = createFileRoute("/device/")({
@@ -13,7 +14,7 @@ export const Route = createFileRoute("/device/")({
 });
 
 function Device() {
-	const { userCode } = Route.useSearch();
+	const { user_code: userCode } = Route.useSearch();
 
 	const { data, error, isLoading } = useQuery({
 		queryKey: ["device-approve", userCode],
@@ -23,11 +24,11 @@ function Device() {
 		},
 	});
 
-	if (isLoading) return <p>processing…</p>;
+	if (isLoading) return <Text>processing…</Text>;
 
 	if (data?.data) {
-		return <p>success</p>;
+		return <Text>success</Text>;
 	}
 
-	return <p>error: {JSON.stringify(error ?? data?.error, null, 2)}</p>;
+	return <Text>error: {JSON.stringify(error ?? data?.error, null, 2)}</Text>;
 }

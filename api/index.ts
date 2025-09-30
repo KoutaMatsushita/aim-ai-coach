@@ -9,6 +9,8 @@ import {createAuth} from "./auth";
 import {createDB} from "./db";
 import {cors} from "hono/cors";
 import {knowledgesApp} from "./knowledges";
+import { aimlabsApp } from "./aimlabs";
+import { kovaaksApp } from "./kovaaks";
 
 type CloudflareBindings = {
     ASSETS: Fetcher
@@ -97,6 +99,8 @@ const apiApp = new Hono<{
     .route("/chat", chatApp)
     .route("/threads", threadApp)
     .route("/knowledges", knowledgesApp)
+    .route("/aimlabs", aimlabsApp)
+    .route("/kovaaks", kovaaksApp)
 
 export type APIType = typeof apiApp;
 

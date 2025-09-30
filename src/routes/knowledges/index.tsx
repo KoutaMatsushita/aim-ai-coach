@@ -2,9 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { AuthLayout } from "@/components/layout/auth";
 import { client } from "@/lib/client";
+import { Button, Text, TextField } from "@radix-ui/themes";
 import { useForm } from "@tanstack/react-form";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
 
 export const Route = createFileRoute("/knowledges/")({
 	component: Knowledge,
@@ -33,16 +32,10 @@ function Knowledge() {
 					<form.Field name="url">
 						{(field) => (
 							<>
-								<label htmlFor={field.name}>Youtube URL:</label>
-								<Input
-									required={true}
-									type="url"
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
+								<label htmlFor={field.name}>
+									<Text>Youtube URL:</Text>
+								</label>
+								<TextField.Root placeholder="Youtube URL" />
 							</>
 						)}
 					</form.Field>

@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button.tsx";
 import { authClient } from "@/lib/auth/client";
+import { Button } from "@radix-ui/themes";
 
 export default () => {
 	const handleLogin = async () => {
