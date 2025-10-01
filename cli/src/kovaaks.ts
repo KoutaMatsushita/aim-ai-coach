@@ -2,7 +2,6 @@ import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { basename } from "path";
 import { localCompleteKovaaksScore } from "api/db";
-import type { KovaaksScoreInsert } from "api/db";
 import type { User } from "./auth";
 import type { ClientType } from "./index";
 import { getDB } from "./local-db.ts";
