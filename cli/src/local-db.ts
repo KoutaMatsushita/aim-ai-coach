@@ -38,7 +38,8 @@ export const getDB = async () => {
 			localCompleteAimlabTask,
 		},
 	});
-	const drizzlePath = new URL("../drizzle", import.meta.url).pathname;
+	const drizzlePath = join(__dirname, "..", "drizzle");
+    console.log(drizzlePath);
 	await migrate(db, { migrationsFolder: drizzlePath });
 	return db;
 };

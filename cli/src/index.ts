@@ -49,15 +49,13 @@ program
 	.option(
 		"--endpoint <endpoint>",
 		"upload api base endpoint",
-		"http://localhost:4111/",
+		"https://aim-ai-coach.mk2481.dev",
 	)
 	.action(async (path: string, opts: { endpoint: string }) => {
-		const mastraClient = new MastraClient({
-			baseUrl: opts.endpoint,
-		});
+        const client = hc<APIType>(opts.endpoint);
 
-		const { user } = await getSessionOrLogin();
-		await uploadAimlab(path, mastraClient, user);
+        const { user } = await getSessionOrLogin();
+		await uploadAimlab(path, client, user);
 	});
 
 program.parse();
