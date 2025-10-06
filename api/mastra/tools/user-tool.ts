@@ -62,6 +62,8 @@ export const findKovaaksScoresByUserId = createTool({
                     return asc;
                 case "desc":
                     return desc;
+                default:
+                    return desc;
             }
         };
 
@@ -126,6 +128,8 @@ export const findAimlabTasksByUserId = createTool({
                 case "asc":
                     return asc;
                 case "desc":
+                    return desc;
+                default:
                     return desc;
             }
         };

@@ -7,4 +7,7 @@ import { createAuthClient } from "better-auth/react";
 export const authClient = createAuthClient({
 	baseURL: env.VITE_PUBLIC_AUTH_BASE_URL,
 	plugins: [deviceAuthorizationClient()],
+    fetchOptions: {
+        credentials: "include",
+    }
 });
