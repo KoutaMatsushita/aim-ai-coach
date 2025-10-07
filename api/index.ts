@@ -58,6 +58,7 @@ const apiApp = new Hono<{
                 discord: {
                     clientId: c.env.DISCORD_CLIENT_ID,
                     clientSecret: c.env.DISCORD_CLIENT_SECRET,
+                    redirectURI: `${c.env.AUTH_BASE_URL}/api/auth/callback/discord`
                 },
             },
         ));

@@ -11,6 +11,7 @@ export const env = createEnv({
 		FRONT_URL: z.string(),
 		TURSO_DATABASE_URL: z.string(),
 		TURSO_AUTH_TOKEN: z.string(),
+        AUTH_BASE_URL: z.string(),
 	},
 	runtimeEnvStrict: {
 		GOOGLE_GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
@@ -21,6 +22,7 @@ export const env = createEnv({
 		FRONT_URL:  process.env.FRONT_URL,
 		TURSO_DATABASE_URL: process.env.TURSO_DATABASE_URL,
 		TURSO_AUTH_TOKEN: process.env.TURSO_AUTH_TOKEN,
+        AUTH_BASE_URL: process.env.AUTH_BASE_URL,
 	},
 	emptyStringAsUndefined: true,
 });

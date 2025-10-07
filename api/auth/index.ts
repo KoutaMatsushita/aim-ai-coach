@@ -12,6 +12,7 @@ export const createAuth = (
         discord: {
             clientId: string,
             clientSecret: string,
+            redirectURI?: string,
         },
     }) =>
     betterAuth({
@@ -28,11 +29,6 @@ export const createAuth = (
                 deviceCodes: deviceCodes,
             },
         }),
-        advanced: {
-            crossSubDomainCookies: {
-                enabled: true
-            }
-        },
         socialProviders: {
             discord,
         },

@@ -5,6 +5,7 @@ import type { APIType } from "../../api";
 import { uploadAimlab } from "./aimlab.ts";
 import { getSessionOrLogin } from "./auth";
 import { uploadKovaaks } from "./kovaaks.ts";
+import {config} from "./config";
 
 const createHC = (endpoint: string) => hc<APIType>(endpoint);
 export type ClientType = ReturnType<typeof createHC>;
@@ -36,9 +37,16 @@ program
 		"https://aim-ai-coach.mk2481.dev",
 	)
 	.action(async (path: string, opts: { endpoint: string }) => {
-		const client = hc<APIType>(opts.endpoint);
+        const { user, session } = await getSessionOrLogin();
+        const client = hc<APIType>(
+            opts.endpoint,
+            {
+                headers: {
+                    "Authorization": `Bearer ${config.get("device.access_token")}`,
+                }
+            }
+        );
 
-		const { user } = await getSessionOrLogin();
 		await uploadKovaaks(path, client, user);
 	});
 
@@ -52,9 +60,16 @@ program
 		"https://aim-ai-coach.mk2481.dev",
 	)
 	.action(async (path: string, opts: { endpoint: string }) => {
-        const client = hc<APIType>(opts.endpoint);
-
         const { user } = await getSessionOrLogin();
+        const client = hc<APIType>(
+            opts.endpoint,
+            {
+                headers: {
+                    "Authorization": `Bearer ${config.get("device.access_token")}`,
+                }
+            }
+        );
+
 		await uploadAimlab(path, client, user);
 	});
 

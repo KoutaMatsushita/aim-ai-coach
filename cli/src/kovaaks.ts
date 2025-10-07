@@ -100,12 +100,17 @@ export const uploadKovaaks = async (
 
 		for (const chunk of chunks) {
 			try {
-				await client.api.kovaaks.$post(chunk);
-				uploadedChunks++;
-				logger.debug("Chunk uploaded successfully", {
-					progress: `${uploadedChunks}/${chunks.length}`,
-					recordCount: chunk.length,
-				});
+				const response = await client.api.kovaaks.$post(chunk);
+                if (response.ok) {
+                    uploadedChunks++;
+                    logger.debug("Chunk uploaded successfully", {
+                        progress: `${uploadedChunks}/${chunks.length}`,
+                        recordCount: chunk.length,
+                    });
+                } else {
+                    throw await response.json()
+                }
+
 			} catch (error) {
 				logger.error("Failed to upload chunk", {
 					chunkIndex: uploadedChunks,

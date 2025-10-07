@@ -71,12 +71,17 @@ export const uploadAimlab = async (
 
 		for (const chunked of chunks) {
 			try {
-				await apiClient.api.aimlabs.$post({ json: chunked });
-				uploadedChunks++;
-				logger.debug("Chunk uploaded successfully", {
-					progress: `${uploadedChunks}/${chunks.length}`,
-					taskCount: chunked.length,
-				});
+                chunked.forEach(c => logger.info("chunked", { taskId: c.taskId, startAt: c.startedAt }))
+				const response = await apiClient.api.aimlabs.$post({ json: chunked });
+                if (response.ok) {
+                    uploadedChunks++;
+                    logger.info("Chunk uploaded successfully", {
+                        progress: `${uploadedChunks}/${chunks.length}`,
+                        taskCount: chunked.length,
+                    });
+                } else {
+                    throw await response.text()
+                }
 			} catch (error) {
 				logger.error("Failed to upload Aimlab chunk", {
 					chunkIndex: uploadedChunks,
