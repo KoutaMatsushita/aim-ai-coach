@@ -2,11 +2,11 @@ import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { basename } from "path";
 import { localCompleteKovaaksScore } from "api/db";
-import type { User } from "./auth";
-import type { ClientType } from "./index";
-import { getDB } from "./local-db.ts";
-import { logger } from "./logger.ts";
-import { chunkArray, hashFile } from "./util.ts";
+import type { User } from "../auth";
+import type { ClientType } from "../index";
+import { getDB } from "../local-db.ts";
+import { logger } from "../logger.ts";
+import { chunkArray, hashFile } from "../util.ts";
 
 const FILENAME_RE =
 	/^(?<scenario>.+?) - (?<mode>.+?) - (?<dt>\d{4}\.\d{2}\.\d{2}-\d{2}\.\d{2}\.\d{2}) Stats\.csv$/u;
@@ -100,7 +100,8 @@ export const uploadKovaaks = async (
 
 		for (const chunk of chunks) {
 			try {
-				const response = await client.api.kovaaks.$post(chunk);
+                console.log(chunk)
+				const response = await client.api.kovaaks.$post({ json: chunk });
                 if (response.ok) {
                     uploadedChunks++;
                     logger.debug("Chunk uploaded successfully", {
@@ -108,7 +109,7 @@ export const uploadKovaaks = async (
                         recordCount: chunk.length,
                     });
                 } else {
-                    throw await response.json()
+                    throw await response.text()
                 }
 
 			} catch (error) {

@@ -3,8 +3,8 @@ import {z} from "zod";
 import {zValidator} from "@hono/zod-validator";
 import type {MessageListInput} from "@mastra/core/agent/message-list";
 import {RuntimeContext} from "@mastra/core/di";
-import type {Variables} from "./variables";
-import {requireUser} from "./middleware/require-user";
+import type {Variables} from "../variables";
+import {requireUser} from "../middleware/require-user";
 
 export const chatApp = new Hono<{ Variables: Variables }>()
     .use("*", requireUser)

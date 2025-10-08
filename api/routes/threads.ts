@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import type {StorageThreadType, MastraMemory} from "@mastra/core";
 import { convertMessages } from "@mastra/core/agent";
-import type { Variables } from "./variables";
-import { requireUser } from "./middleware/require-user";
+import type { Variables } from "../variables";
+import { requireUser } from "../middleware/require-user";
 
 type ThreadVariables = Variables & {
     memory: MastraMemory

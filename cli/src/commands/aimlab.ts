@@ -1,12 +1,12 @@
 import { Database } from "bun:sqlite";
 import { localCompleteAimlabTask } from "api/db";
 import { drizzle } from "drizzle-orm/bun-sqlite";
-import { taskData } from "../local-aimlab-schema/schema";
-import type { User } from "./auth";
-import type { ClientType } from "./index";
-import { getDB } from "./local-db.ts";
-import { logger } from "./logger.ts";
-import { chunkArray, findFirstWithExt } from "./util.ts";
+import { taskData } from "../../local-aimlab-schema/schema";
+import type { User } from "../auth";
+import type { ClientType } from "../index";
+import { getDB } from "../local-db.ts";
+import { logger } from "../logger.ts";
+import { chunkArray, findFirstWithExt } from "../util.ts";
 
 export const uploadAimlab = async (
 	path: string,

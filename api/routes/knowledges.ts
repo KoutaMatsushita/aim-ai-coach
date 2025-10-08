@@ -1,10 +1,10 @@
 import {Hono} from "hono";
-import type {RequiredAuthVariables} from "./variables";
+import type {RequiredAuthVariables} from "../variables";
 import {zValidator} from "@hono/zod-validator";
 import z from "zod";
-import {RAGLibSQLService} from "./mastra/services/rag-libsql";
-import {youtubeService} from "./mastra/services/youtube";
-import {contentAnalyzer} from "./mastra/services/content-analyzer";
+import {RAGLibSQLService} from "../mastra/services/rag-libsql";
+import {youtubeService} from "../mastra/services/youtube";
+import {contentAnalyzer} from "../mastra/services/content-analyzer";
 
 function extractVideoId(url: string): string | null {
     const patterns = [

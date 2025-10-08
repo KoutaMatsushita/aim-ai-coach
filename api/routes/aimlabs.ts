@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import type { Variables } from "./variables";
-import { aimlabTaskTable } from "./mastra/db";
-import { requireUser } from "./middleware/require-user";
+import type { Variables } from "../variables";
+import { aimlabTaskTable } from "../mastra/db";
+import { requireUser } from "../middleware/require-user";
 
 export const aimlabsApp = new Hono<{ Variables: Variables }>()
 	.use("*", requireUser)
