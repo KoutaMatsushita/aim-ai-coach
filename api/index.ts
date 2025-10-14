@@ -3,14 +3,14 @@ import {logger} from 'hono/logger'
 import {LibSQLStore, LibSQLVector} from "@mastra/libsql";
 import type {Variables} from "./variables";
 import {createMastra} from "./mastra";
-import {threadApp} from "./threads"
-import {chatApp} from "./chat";
+import {threadApp} from "./routes/threads"
+import {chatApp} from "./routes/chat";
 import {createAuth} from "./auth";
 import {createDB} from "./db";
 import {cors} from "hono/cors";
-import {knowledgesApp} from "./knowledges";
-import { aimlabsApp } from "./aimlabs";
-import { kovaaksApp } from "./kovaaks";
+import {knowledgesApp} from "./routes/knowledges";
+import { aimlabsApp } from "./routes/aimlabs";
+import { kovaaksApp } from "./routes/kovaaks";
 
 type CloudflareBindings = {
     ASSETS: Fetcher

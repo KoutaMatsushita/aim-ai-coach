@@ -25,7 +25,7 @@ export const chatApp = new Hono<{ Variables: Variables }>()
             const agentId = "aimAiCoachAgent";
             const agentObj = c.var.mastra.getAgent(agentId);
 
-            const result = await agentObj.streamVNext(messages, {
+            const result = await agentObj.stream(messages, {
                 format: "aisdk",
                 memory: {
                     resource: currentUser.id,

@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import type { Variables } from "./variables";
-import { kovaaksScoresTable } from "./mastra/db";
+import type { Variables } from "api/variables";
+import { kovaaksScoresTable } from "api/mastra/db";
 
 export const kovaaksApp = new Hono<{ Variables: Variables }>()
     .post(

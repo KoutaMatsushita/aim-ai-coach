@@ -1,5 +1,5 @@
 import { env } from "api/env";
-import { createDB } from "../../db";
+import { createDB } from "api/db";
 
 export const db = createDB(
     env.TURSO_DATABASE_URL!,
