@@ -15,6 +15,20 @@
       "when": 1759847838982,
       "tag": "0001_steep_goblin_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1760969370531,
+      "tag": "0002_complete_terrax",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1760969699099,
+      "tag": "0003_harsh_spitfire",
+      "breakpoints": true
     }
   ]
 }

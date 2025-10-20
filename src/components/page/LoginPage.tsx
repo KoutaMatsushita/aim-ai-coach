@@ -1,19 +1,11 @@
 "use client";
 
-import { authClient } from "@/lib/auth/client";
-import { Button } from "@radix-ui/themes";
+import { AuthView } from "@daveyplate/better-auth-ui"
 
 export default () => {
-	const handleLogin = async () => {
-		await authClient.signIn.social({
-			provider: "discord",
-			callbackURL: `${window.location.origin}/`,
-		});
-	};
-
 	return (
-		<div>
-			<Button onClick={handleLogin}>discord login</Button>
-		</div>
+        <main className="container flex grow flex-col items-center justify-center gap-3 self-center p-4 md:p-6">
+            <AuthView />
+        </main>
 	);
 };

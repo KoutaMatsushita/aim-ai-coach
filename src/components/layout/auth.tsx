@@ -2,6 +2,7 @@
 
 import { authClient } from "@/lib/auth/client";
 import type { Auth } from "../../../api/variables";
+import { AuthLoading, RedirectToSignIn, SignedIn, SignedOut } from "@daveyplate/better-auth-ui"
 
 export const { useSession } = authClient;
 
@@ -10,11 +11,17 @@ export const AuthLayout = ({
 }: {
 	children: (user: Auth["$Infer"]["Session"]["user"]) => React.ReactNode;
 }) => {
-	const { data, isPending, error: authError } = useSession();
+	const { data } = useSession();
 
-	if (isPending) return <span>loading...</span>;
-	if (authError) return <span>error: {String(authError)}</span>;
-	if (!data) return <a href="/login">Login</a>;
+	return <>
+        <AuthLoading>
+            <span>Loading...</span>
+        </AuthLoading>
 
-	return <>{children(data.user)}</>;
+        <SignedIn>{data?.user ? children(data?.user) : null}</SignedIn>
+
+        <SignedOut>
+            <RedirectToSignIn />
+        </SignedOut>
+    </>;
 };

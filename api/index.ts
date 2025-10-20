@@ -11,6 +11,8 @@ import {cors} from "hono/cors";
 import {knowledgesApp} from "./routes/knowledges";
 import { aimlabsApp } from "./routes/aimlabs";
 import { kovaaksApp } from "./routes/kovaaks";
+import { Resend } from "resend"
+import { EmailTemplate } from "@daveyplate/better-auth-ui/server"
 
 type CloudflareBindings = {
     ASSETS: Fetcher
@@ -28,6 +30,8 @@ type CloudflareBindings = {
 
     TURSO_DATABASE_URL: string
     TURSO_AUTH_TOKEN: string
+
+    RESEND_API_KEY: string
 };
 
 const apiApp = new Hono<{
@@ -49,6 +53,8 @@ const apiApp = new Hono<{
         return next();
     })
     .use("*", async (c, next) => {
+        const resend = new Resend(c.env.RESEND_API_KEY)
+
         c.set("auth", createAuth(
             {
                 db: c.var.db,
@@ -60,6 +66,21 @@ const apiApp = new Hono<{
                     clientSecret: c.env.DISCORD_CLIENT_SECRET,
                     redirectURI: `${c.env.AUTH_BASE_URL}/api/auth/callback/discord`
                 },
+                sendMail: async ({ email, url }) => {
+                    await resend.emails.send({
+                        from: "no-reply@mk2481.dev",
+                        to: email,
+                        subject: "Verify your email address",
+                        react: EmailTemplate({
+                            action: "Verify Email",
+                            content: "",
+                            heading: "Verify Email",
+                            siteName: "aim-ai-coach",
+                            baseUrl: c.env.FRONT_URL,
+                            url
+                        }),
+                    })
+                }
             },
         ));
         return next();

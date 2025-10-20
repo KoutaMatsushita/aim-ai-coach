@@ -119,6 +119,23 @@ export const deviceCodes = sqliteTable(
 	]
 );
 
+export const passkeys = sqliteTable(
+    "passkeys",
+    {
+        id: text("id").primaryKey(),
+        name: text("name"),
+        publicKey: text("publicKey").notNull(),
+        userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
+        credentialID: text("credentialID").notNull(),
+        counter: integer("counter"),
+        deviceType: text("deviceType").notNull(),
+        backedUp: integer("backedUp", { mode: 'boolean' }).notNull(),
+        transports: text("transports").notNull(),
+        createdAt: integer("created_at", { mode: "timestamp" }).defaultNow().notNull(),
+        aaguid: text("aaguid")
+    },
+);
+
 // ========================================
 // AIM AI Coach データテーブル
 // ========================================

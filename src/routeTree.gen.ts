@@ -10,18 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as KnowledgesIndexRouteImport } from './routes/knowledges/index'
 import { Route as DeviceIndexRouteImport } from './routes/device/index'
+import { Route as AuthAuthViewRouteImport } from './routes/auth/$authView'
+import { Route as AccountSettingsRouteImport } from './routes/account/settings'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginIndexRoute = LoginIndexRouteImport.update({
-  id: '/login/',
-  path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KnowledgesIndexRoute = KnowledgesIndexRouteImport.update({
@@ -34,39 +30,64 @@ const DeviceIndexRoute = DeviceIndexRouteImport.update({
   path: '/device/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthAuthViewRoute = AuthAuthViewRouteImport.update({
+  id: '/auth/$authView',
+  path: '/auth/$authView',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountSettingsRoute = AccountSettingsRouteImport.update({
+  id: '/account/settings',
+  path: '/account/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account/settings': typeof AccountSettingsRoute
+  '/auth/$authView': typeof AuthAuthViewRoute
   '/device': typeof DeviceIndexRoute
   '/knowledges': typeof KnowledgesIndexRoute
-  '/login': typeof LoginIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account/settings': typeof AccountSettingsRoute
+  '/auth/$authView': typeof AuthAuthViewRoute
   '/device': typeof DeviceIndexRoute
   '/knowledges': typeof KnowledgesIndexRoute
-  '/login': typeof LoginIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account/settings': typeof AccountSettingsRoute
+  '/auth/$authView': typeof AuthAuthViewRoute
   '/device/': typeof DeviceIndexRoute
   '/knowledges/': typeof KnowledgesIndexRoute
-  '/login/': typeof LoginIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/device' | '/knowledges' | '/login'
+  fullPaths:
+    | '/'
+    | '/account/settings'
+    | '/auth/$authView'
+    | '/device'
+    | '/knowledges'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/device' | '/knowledges' | '/login'
-  id: '__root__' | '/' | '/device/' | '/knowledges/' | '/login/'
+  to: '/' | '/account/settings' | '/auth/$authView' | '/device' | '/knowledges'
+  id:
+    | '__root__'
+    | '/'
+    | '/account/settings'
+    | '/auth/$authView'
+    | '/device/'
+    | '/knowledges/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountSettingsRoute: typeof AccountSettingsRoute
+  AuthAuthViewRoute: typeof AuthAuthViewRoute
   DeviceIndexRoute: typeof DeviceIndexRoute
   KnowledgesIndexRoute: typeof KnowledgesIndexRoute
-  LoginIndexRoute: typeof LoginIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -76,13 +97,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login/': {
-      id: '/login/'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/knowledges/': {
@@ -99,14 +113,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DeviceIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/$authView': {
+      id: '/auth/$authView'
+      path: '/auth/$authView'
+      fullPath: '/auth/$authView'
+      preLoaderRoute: typeof AuthAuthViewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account/settings': {
+      id: '/account/settings'
+      path: '/account/settings'
+      fullPath: '/account/settings'
+      preLoaderRoute: typeof AccountSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountSettingsRoute: AccountSettingsRoute,
+  AuthAuthViewRoute: AuthAuthViewRoute,
   DeviceIndexRoute: DeviceIndexRoute,
   KnowledgesIndexRoute: KnowledgesIndexRoute,
-  LoginIndexRoute: LoginIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

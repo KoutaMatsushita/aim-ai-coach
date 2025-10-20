@@ -1,10 +1,11 @@
 import {betterAuth} from "better-auth";
 import {type DB, drizzleAdapter} from "better-auth/adapters/drizzle";
-import {accounts, deviceCodes, sessions, users, verifications} from "../db";
-import {bearer, deviceAuthorization} from "better-auth/plugins";
+import {accounts, deviceCodes, passkeys, sessions, users, verifications} from "../db";
+import {bearer, deviceAuthorization, magicLink} from "better-auth/plugins";
+import { passkey } from "better-auth/plugins/passkey";
 
 export const createAuth = (
-    {db, baseURL, secret, trustedOrigins, discord}: {
+    {db, baseURL, secret, trustedOrigins, discord, sendMail}: {
         db: DB,
         baseURL: string,
         secret: string,
@@ -14,6 +15,11 @@ export const createAuth = (
             clientSecret: string,
             redirectURI?: string,
         },
+        sendMail: (data: {
+            email: string;
+            url: string;
+            token: string;
+        }, request?: Request) => Promise<void> | void,
     }) =>
     betterAuth({
         secret,
@@ -27,6 +33,7 @@ export const createAuth = (
                 accounts: accounts,
                 verifications: verifications,
                 deviceCodes: deviceCodes,
+                passkeys: passkeys,
             },
         }),
         session: {
@@ -42,7 +49,15 @@ export const createAuth = (
         },
         baseURL: baseURL!,
         emailAndPassword: {
-            enabled: false,
+            enabled: true,
+            requireEmailVerification: true,
+        },
+        emailVerification: {
+            sendVerificationEmail: async ({ user, url, token }, request) => {
+                await sendMail({ email: user.email, url, token }, request)
+            },
+            autoSignInAfterVerification: true,
+            sendOnSignUp: true
         },
         plugins: [
             deviceAuthorization({
@@ -50,5 +65,11 @@ export const createAuth = (
                 interval: "5s",
             }),
             bearer(),
+            passkey(),
+            magicLink({
+                sendMagicLink: async ({ email, token, url }, request) => {
+                    await sendMail({ email, token, url }, request)
+                }
+            })
         ],
     });

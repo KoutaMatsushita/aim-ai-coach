@@ -1,18 +1,13 @@
-import { authClient } from "@/lib/auth/client";
 import { client } from "@/lib/client";
 import { AlertDialog, Button, Flex, Heading } from "@radix-ui/themes";
 import { Link } from "@tanstack/react-router";
+import { UserButton } from "@daveyplate/better-auth-ui";
 
 type HeaderProps = {
 	threadId?: string;
 };
 
 export const Header = ({ threadId }: HeaderProps) => {
-	const handleLogout = async () => {
-		await authClient.signOut();
-		window.location.href = "/login";
-	};
-
 	const handleReset = async () => {
 		if (!threadId) return;
 		await client.api.threads[":threadId"].$delete({
@@ -30,7 +25,9 @@ export const Header = ({ threadId }: HeaderProps) => {
 							size="6"
 							className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
 						>
-							AIM AI Coach
+                            <Link to="/">
+							    AIM AI Coach
+                            </Link>
 						</Heading>
 					</Flex>
 
@@ -70,33 +67,8 @@ export const Header = ({ threadId }: HeaderProps) => {
 								</AlertDialog.Root>
 							)}
 
-							<AlertDialog.Root>
-								<AlertDialog.Trigger>
-									<Button variant="ghost" size="2">
-										Logout
-									</Button>
-								</AlertDialog.Trigger>
-								<AlertDialog.Content maxWidth="450px">
-									<AlertDialog.Title>Logout</AlertDialog.Title>
-									<AlertDialog.Description size="2">
-										Are you sure you want to logout?
-									</AlertDialog.Description>
-
-									<Flex gap="3" mt="4" justify="end">
-										<AlertDialog.Cancel>
-											<Button variant="soft" color="gray">
-												Cancel
-											</Button>
-										</AlertDialog.Cancel>
-										<AlertDialog.Action>
-											<Button variant="solid" color="red" onClick={handleLogout}>
-												Logout
-											</Button>
-										</AlertDialog.Action>
-									</Flex>
-								</AlertDialog.Content>
-							</AlertDialog.Root>
-						</Flex>
+                            <UserButton size={"icon"} />
+                        </Flex>
 					</nav>
 				</Flex>
 			</div>
