@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import type { Variables } from "../variables";
 import { aimlabTaskTable } from "../mastra/db";
 import { requireUser } from "../middleware/require-user";
+import type { Variables } from "../variables";
 
 export const aimlabsApp = new Hono<{ Variables: Variables }>()
 	.use("*", requireUser)
@@ -13,4 +13,4 @@ export const aimlabsApp = new Hono<{ Variables: Variables }>()
 			: [{ ...data, userId }];
 		await c.var.db.insert(aimlabTaskTable).values(dataWithUserId);
 		return c.json({ success: true, count: dataWithUserId.length });
-	})
+	});

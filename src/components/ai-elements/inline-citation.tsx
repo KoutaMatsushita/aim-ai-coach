@@ -1,18 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge.tsx";
-import {
-	Carousel,
-	type CarouselApi,
-	CarouselContent,
-	CarouselItem,
-} from "@/components/ui/carousel.tsx";
-import {
-	HoverCard,
-	HoverCardContent,
-	HoverCardTrigger,
-} from "@/components/ui/hover-card.tsx";
-import { cn } from "@/lib/utils.ts";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import {
 	type ComponentProps,
@@ -22,6 +9,19 @@ import {
 	useEffect,
 	useState,
 } from "react";
+import { Badge } from "@/components/ui/badge";
+import {
+	Carousel,
+	type CarouselApi,
+	CarouselContent,
+	CarouselItem,
+} from "@/components/ui/carousel";
+import {
+	HoverCard,
+	HoverCardContent,
+	HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { cn } from "@/lib/utils";
 
 export type InlineCitationProps = ComponentProps<"span">;
 
@@ -68,7 +68,7 @@ export const InlineCitationCardTrigger = ({
 			variant="secondary"
 			{...props}
 		>
-			{sources.length ? (
+			{sources[0] ? (
 				<>
 					{new URL(sources[0]).hostname}{" "}
 					{sources.length > 1 && `+${sources.length - 1}`}

@@ -49,7 +49,7 @@ export const AimAnalysisSchema = z.object({
 				"reaction_time",
 				"crosshair_placement",
 				"micro_adjustments",
-			])
+			]),
 		)
 		.describe("動画で扱われるエイム要素"),
 
@@ -80,7 +80,7 @@ export const AimAnalysisSchema = z.object({
 				"PUBG",
 				"COD",
 				"GENERAL_FPS",
-			])
+			]),
 		)
 		.describe("対象ゲーム"),
 
@@ -105,7 +105,7 @@ export const AimAnalysisSchema = z.object({
 				focus: z.string().describe("練習の焦点"),
 				/** 推奨される練習時間 */
 				duration: z.string().describe("推奨時間"),
-			})
+			}),
 		)
 		.describe("練習推奨事項"),
 
@@ -114,7 +114,9 @@ export const AimAnalysisSchema = z.object({
 	 *
 	 * @description コンテンツが想定する視聴者の熟練度
 	 */
-	targetAudience: z.enum(["beginners", "intermediate", "advanced", "all"]).describe("対象視聴者"),
+	targetAudience: z
+		.enum(["beginners", "intermediate", "advanced", "all"])
+		.describe("対象視聴者"),
 
 	/**
 	 * 動画タイトル（解析から推定または取得）
@@ -227,7 +229,9 @@ export class ContentAnalyzer {
 	/**
 	 * 動画URLを使用したGemini直接解析
 	 */
-	private async analyzeVideoByUrl(input: AnalysisInput): Promise<AimAnalysisResult> {
+	private async analyzeVideoByUrl(
+		input: AnalysisInput,
+	): Promise<AimAnalysisResult> {
 		const { videoUrl, description } = input;
 
 		if (!videoUrl) {
@@ -236,7 +240,9 @@ export class ContentAnalyzer {
 
 		// YouTube URLの形式検証
 		if (!ContentAnalyzer.isValidYouTubeUrl(videoUrl)) {
-			throw new Error("Invalid YouTube URL format. Please provide a valid YouTube video URL.");
+			throw new Error(
+				"Invalid YouTube URL format. Please provide a valid YouTube video URL.",
+			);
 		}
 
 		// 動画URL用のプロンプト構築
@@ -355,7 +361,10 @@ JSON形式で、指定されたスキーマに従って構造化してくださ�
 	/**
 	 * 動画URL解析専用プロンプトの構築
 	 */
-	private buildVideoUrlAnalysisPrompt(videoUrl: string, description?: string): string {
+	private buildVideoUrlAnalysisPrompt(
+		videoUrl: string,
+		description?: string,
+	): string {
 		return `
 あなたはFPSゲームのエイム練習専門のコンテンツアナライザーです。
 YouTube動画を直接解析し、エイム練習に関する情報を構造化して抽出してください。
@@ -452,7 +461,7 @@ JSON形式で、指定されたスキーマに従って構造化してくださ�
 	 */
 	async batchAnalyze(
 		inputs: AnalysisInput[],
-		concurrency: number = 3
+		concurrency: number = 3,
 	): Promise<AimAnalysisResult[]> {
 		const results: AimAnalysisResult[] = [];
 
@@ -460,7 +469,9 @@ JSON形式で、指定されたスキーマに従って構造化してくださ�
 		for (let i = 0; i < inputs.length; i += concurrency) {
 			const chunk = inputs.slice(i, i + concurrency);
 
-			const chunkResults = await Promise.all(chunk.map((input) => this.analyzeContent(input)));
+			const chunkResults = await Promise.all(
+				chunk.map((input) => this.analyzeContent(input)),
+			);
 
 			results.push(...chunkResults);
 
@@ -494,7 +505,9 @@ JSON形式で、指定されたスキーマに従って構造化してくださ�
 	 *
 	 * @static
 	 */
-	static evaluateAimElementImportance(elements: string[]): Record<string, number> {
+	static evaluateAimElementImportance(
+		elements: string[],
+	): Record<string, number> {
 		const weights: Record<string, number> = {
 			flick: 0.9,
 			tracking: 0.9,
@@ -513,7 +526,7 @@ JSON形式で、指定されたスキーマに従って構造化してくださ�
 				acc[element] = weights[element] || 0.5;
 				return acc;
 			},
-			{} as Record<string, number>
+			{} as Record<string, number>,
 		);
 	}
 
@@ -546,7 +559,7 @@ JSON形式で、指定されたスキーマに従って構造化してくださ�
 	 */
 	static filterByDifficulty(
 		analyses: AimAnalysisResult[],
-		userSkillLevel: "Beginner" | "Intermediate" | "Advanced" | "Expert"
+		userSkillLevel: "Beginner" | "Intermediate" | "Advanced" | "Expert",
 	): AimAnalysisResult[] {
 		const difficultyMapping = {
 			Beginner: ["beginner", "intermediate"],
@@ -557,7 +570,9 @@ JSON形式で、指定されたスキーマに従って構造化してくださ�
 
 		const allowedDifficulties = difficultyMapping[userSkillLevel];
 
-		return analyses.filter((analysis) => allowedDifficulties.includes(analysis.difficultyLevel));
+		return analyses.filter((analysis) =>
+			allowedDifficulties.includes(analysis.difficultyLevel),
+		);
 	}
 
 	/**
@@ -587,13 +602,16 @@ JSON形式で、指定されたスキーマに従って構造化してくださ�
 	 *
 	 * @static
 	 */
-	static filterByGame(analyses: AimAnalysisResult[], targetGame?: string): AimAnalysisResult[] {
+	static filterByGame(
+		analyses: AimAnalysisResult[],
+		targetGame?: string,
+	): AimAnalysisResult[] {
 		if (!targetGame) return analyses;
 
 		return analyses.filter(
 			(analysis) =>
 				analysis.targetGames.includes(targetGame as any) ||
-				analysis.targetGames.includes("GENERAL_FPS")
+				analysis.targetGames.includes("GENERAL_FPS"),
 		);
 	}
 
@@ -622,7 +640,10 @@ JSON形式で、指定されたスキーマに従って構造化してくださ�
 	 * @see analyzeContent
 	 * @see isValidYouTubeUrl
 	 */
-	async analyzeVideoUrl(videoUrl: string, description?: string): Promise<AimAnalysisResult> {
+	async analyzeVideoUrl(
+		videoUrl: string,
+		description?: string,
+	): Promise<AimAnalysisResult> {
 		return this.analyzeContent({ videoUrl, description });
 	}
 

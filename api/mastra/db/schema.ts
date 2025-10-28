@@ -19,9 +19,13 @@ export const users = sqliteTable("users", {
 	id: text("id").primaryKey(),
 	name: text("name").notNull(),
 	email: text("email").notNull().unique(),
-	emailVerified: integer("email_verified", { mode: "boolean" }).default(false).notNull(),
+	emailVerified: integer("email_verified", { mode: "boolean" })
+		.default(false)
+		.notNull(),
 	image: text("image"),
-	createdAt: integer("created_at", { mode: "timestamp" }).defaultNow().notNull(),
+	createdAt: integer("created_at", { mode: "timestamp" })
+		.defaultNow()
+		.notNull(),
 	updatedAt: integer("updated_at", { mode: "timestamp" })
 		.defaultNow()
 		.$onUpdate(() => new Date())
@@ -34,7 +38,9 @@ export const sessions = sqliteTable(
 		id: text("id").primaryKey(),
 		expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
 		token: text("token").notNull().unique(),
-		createdAt: integer("created_at", { mode: "timestamp" }).defaultNow().notNull(),
+		createdAt: integer("created_at", { mode: "timestamp" })
+			.defaultNow()
+			.notNull(),
 		updatedAt: integer("updated_at", { mode: "timestamp" })
 			.$onUpdate(() => new Date())
 			.notNull(),
@@ -49,7 +55,7 @@ export const sessions = sqliteTable(
 		index("sessions_user_id_idx").on(t.userId),
 		// セッション期限切れクリーンアップ用
 		index("sessions_expires_at_idx").on(t.expiresAt),
-	]
+	],
 );
 
 export const accounts = sqliteTable(
@@ -72,7 +78,9 @@ export const accounts = sqliteTable(
 		}),
 		scope: text("scope"),
 		password: text("password"),
-		createdAt: integer("created_at", { mode: "timestamp" }).defaultNow().notNull(),
+		createdAt: integer("created_at", { mode: "timestamp" })
+			.defaultNow()
+			.notNull(),
 		updatedAt: integer("updated_at", { mode: "timestamp" })
 			.$onUpdate(() => new Date())
 			.notNull(),
@@ -82,7 +90,7 @@ export const accounts = sqliteTable(
 		index("accounts_provider_account_idx").on(t.providerId, t.accountId),
 		// Better Auth標準的なJOIN用（user_id外部キー）
 		index("accounts_user_id_idx").on(t.userId),
-	]
+	],
 );
 
 export const verifications = sqliteTable("verifications", {
@@ -90,7 +98,9 @@ export const verifications = sqliteTable("verifications", {
 	identifier: text("identifier").notNull(),
 	value: text("value").notNull(),
 	expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
-	createdAt: integer("created_at", { mode: "timestamp" }).defaultNow().notNull(),
+	createdAt: integer("created_at", { mode: "timestamp" })
+		.defaultNow()
+		.notNull(),
 	updatedAt: integer("updated_at", { mode: "timestamp" })
 		.defaultNow()
 		.$onUpdate(() => new Date())
@@ -107,16 +117,22 @@ export const deviceCodes = sqliteTable(
 		clientId: text("client_id"),
 		scope: text("scope"),
 		status: text("status").notNull(),
-		expiresAt: integer("expires_at", { mode: "timestamp" }).defaultNow().notNull(),
+		expiresAt: integer("expires_at", { mode: "timestamp" })
+			.defaultNow()
+			.notNull(),
 		lastPolledAt: integer("last_polled_at", { mode: "timestamp" }),
 		pollingInterval: integer("polling_interval"),
-		createdAt: integer("created_at", { mode: "timestamp" }).defaultNow().notNull(),
-		updatedAt: integer("updated_at", { mode: "timestamp" }).defaultNow().notNull(),
+		createdAt: integer("created_at", { mode: "timestamp" })
+			.defaultNow()
+			.notNull(),
+		updatedAt: integer("updated_at", { mode: "timestamp" })
+			.defaultNow()
+			.notNull(),
 	},
 	(t) => [
 		// Better Auth標準的なJOIN用（user_id外部キー）
 		index("device_codes_user_id_idx").on(t.userId),
-	]
+	],
 );
 
 // ========================================
@@ -158,7 +174,7 @@ export const kovaaksScoresTable = sqliteTable(
 		index("kovaaks_scores_epoch_idx").on(t.runEpochSec),
 		// User ID + 時系列の複合検索用
 		index("kovaaks_scores_user_epoch_idx").on(t.userId, t.runEpochSec),
-	]
+	],
 );
 
 export const aimlabTaskTable = sqliteTable(
@@ -194,7 +210,7 @@ export const aimlabTaskTable = sqliteTable(
 		index("aimlab_task_started_at_idx").on(t.startedAt),
 		// Discord ID + 時系列の複合検索用
 		index("aimlab_task_user_started_idx").on(t.userId, t.startedAt),
-	]
+	],
 );
 
 // ========================================
@@ -231,12 +247,15 @@ export const deviceCodesRelations = relations(deviceCodes, ({ one }) => ({
 }));
 
 // 独自のリレーション
-export const kovaaksScoresRelation = relations(kovaaksScoresTable, ({ one }) => ({
-	user: one(users, {
-		fields: [kovaaksScoresTable.userId],
-		references: [users.id],
+export const kovaaksScoresRelation = relations(
+	kovaaksScoresTable,
+	({ one }) => ({
+		user: one(users, {
+			fields: [kovaaksScoresTable.userId],
+			references: [users.id],
+		}),
 	}),
-}));
+);
 
 export const aimlabTaskRelation = relations(aimlabTaskTable, ({ one }) => ({
 	user: one(users, {
@@ -256,13 +275,21 @@ export const localCompleteKovaaksScore = sqliteTable(
 		fileName: text("file_name").primaryKey(),
 		fileHash: text("file_hash").notNull(),
 	},
-	(t) => [index("local_complete_kovaaks_score_file_name_file_hash_idx").on(t.fileName, t.fileHash)]
+	(t) => [
+		index("local_complete_kovaaks_score_file_name_file_hash_idx").on(
+			t.fileName,
+			t.fileHash,
+		),
+	],
 );
 
 // AimLab タスク処理完了追跡用
-export const localCompleteAimlabTask = sqliteTable("local_complete_aimlab_task", {
-	taskId: integer("task_id").primaryKey(),
-});
+export const localCompleteAimlabTask = sqliteTable(
+	"local_complete_aimlab_task",
+	{
+		taskId: integer("task_id").primaryKey(),
+	},
+);
 
 // ========================================
 // Zod Schemas for Type Safety
@@ -287,12 +314,28 @@ export type AimlabTask = z.infer<typeof AimlabTaskSelectSchema>;
 export type AimlabTaskInsert = z.infer<typeof AimlabTaskInsertSchema>;
 
 // Local Processing
-export const LocalCompleteKovaaksScoreInsertSchema = createInsertSchema(localCompleteKovaaksScore);
-export const LocalCompleteKovaaksScoreSelectSchema = createSelectSchema(localCompleteKovaaksScore);
-export type LocalCompleteKovaaksScore = z.infer<typeof LocalCompleteKovaaksScoreSelectSchema>;
-export type LocalCompleteKovaaksScoreInsert = z.infer<typeof LocalCompleteKovaaksScoreInsertSchema>;
+export const LocalCompleteKovaaksScoreInsertSchema = createInsertSchema(
+	localCompleteKovaaksScore,
+);
+export const LocalCompleteKovaaksScoreSelectSchema = createSelectSchema(
+	localCompleteKovaaksScore,
+);
+export type LocalCompleteKovaaksScore = z.infer<
+	typeof LocalCompleteKovaaksScoreSelectSchema
+>;
+export type LocalCompleteKovaaksScoreInsert = z.infer<
+	typeof LocalCompleteKovaaksScoreInsertSchema
+>;
 
-export const LocalCompleteAimlabTaskInsertSchema = createInsertSchema(localCompleteAimlabTask);
-export const LocalCompleteAimlabTaskSelectSchema = createSelectSchema(localCompleteAimlabTask);
-export type LocalCompleteAimlabTask = z.infer<typeof LocalCompleteAimlabTaskSelectSchema>;
-export type LocalCompleteAimlabTaskInsert = z.infer<typeof LocalCompleteAimlabTaskInsertSchema>;
+export const LocalCompleteAimlabTaskInsertSchema = createInsertSchema(
+	localCompleteAimlabTask,
+);
+export const LocalCompleteAimlabTaskSelectSchema = createSelectSchema(
+	localCompleteAimlabTask,
+);
+export type LocalCompleteAimlabTask = z.infer<
+	typeof LocalCompleteAimlabTaskSelectSchema
+>;
+export type LocalCompleteAimlabTaskInsert = z.infer<
+	typeof LocalCompleteAimlabTaskInsertSchema
+>;

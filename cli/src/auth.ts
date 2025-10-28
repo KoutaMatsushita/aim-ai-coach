@@ -3,7 +3,7 @@ import { deviceAuthorizationClient } from "better-auth/client/plugins";
 import open from "open";
 import { config } from "./config.ts";
 
-const clientId = "aim-ai-coach-cli"
+const clientId = "aim-ai-coach-cli";
 
 export type Session = typeof authClient.$Infer.Session;
 export type User = (typeof authClient.$Infer.Session)["user"];
@@ -24,7 +24,7 @@ export const login = async (): Promise<Session> => {
 		client_id: clientId,
 		scope: "test",
 	});
-    console.log("device: ", { data, error })
+	console.log("device: ", { data, error });
 
 	if (error) throw error;
 
@@ -37,7 +37,7 @@ export const login = async (): Promise<Session> => {
 				device_code: data.device_code,
 				client_id: clientId,
 			});
-            console.log("token: ", token)
+			console.log("token: ", token);
 
 			let interval = data.interval;
 

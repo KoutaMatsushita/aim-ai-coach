@@ -1,5 +1,15 @@
 "use client";
 
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport, type ToolUIPart, type UIMessage } from "ai";
+import {
+	type FormEvent,
+	Fragment,
+	useCallback,
+	useEffect,
+	useState,
+} from "react";
+import useSWR from "swr";
 import {
 	Conversation,
 	ConversationContent,
@@ -9,9 +19,10 @@ import { Loader } from "@/components/ai-elements/loader.tsx";
 import { Message, MessageContent } from "@/components/ai-elements/message.tsx";
 import {
 	PromptInput,
+	PromptInputFooter,
 	PromptInputSubmit,
 	PromptInputTextarea,
-	PromptInputToolbar,
+	PromptInputTools,
 } from "@/components/ai-elements/prompt-input.tsx";
 import {
 	Reasoning,
@@ -27,16 +38,6 @@ import {
 } from "@/components/ai-elements/sources.tsx";
 import { env } from "@/env.ts";
 import { client } from "@/lib/client.ts";
-import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport, type UIMessage } from "ai";
-import {
-	type FormEvent,
-	Fragment,
-	useCallback,
-	useEffect,
-	useState,
-} from "react";
-import useSWR from "swr";
 import type { PromptInputMessage } from "../ai-elements/prompt-input.tsx";
 import {
 	Tool,
@@ -56,7 +57,7 @@ function useInitialMessage(threadId: string) {
 		const messagesResponse = await client.api.threads[
 			":threadId"
 		].messages.$get({ param: { threadId: currentThread.id } });
-		// @ts-ignore
+		// @ts-expect-error
 		const messages: UIMessage[] = await messagesResponse.json();
 
 		return messages;
@@ -160,38 +161,32 @@ export default function HomePage({
 													<ReasoningContent>{part.text}</ReasoningContent>
 												</Reasoning>
 											);
-										case "tool-invocation": {
-											const toolInvocation: {
-												args: { queryText: string; topK: number };
-												result: {
-													relevantContext: any[];
-													sources: any[];
-												};
-												state: string;
-												toolCallId: string;
-												toolName: string;
-											} = (part as any).toolInvocation;
-											if (!toolInvocation) return null;
-											return (
-												<Tool key={toolInvocation.toolCallId}>
-													<ToolHeader
-														type={part.type}
-														state={toolInvocation.state as any}
-														title={toolInvocation.toolName}
-													/>
-													<ToolContent>
-														<ToolInput input={toolInvocation.args} />
-														{toolInvocation.result && (
-															<ToolOutput
-																errorText={part.errorText}
-																output={toolInvocation.result}
-															/>
-														)}
-													</ToolContent>
-												</Tool>
-											);
-										}
 										default:
+											if (part.type?.startsWith("tool-")) {
+												const toolPart = part as ToolUIPart<any>;
+												const toolName = toolPart.type.replace(/^tool-/, "");
+
+												return (
+													<Tool key={toolPart.toolCallId}>
+														<ToolHeader
+															type={toolPart.type}
+															state={toolPart.state}
+															title={toolName}
+														/>
+														<ToolContent>
+															{toolPart?.input && (
+																<ToolInput input={toolPart.input} />
+															)}
+															{toolPart?.output && (
+																<ToolOutput
+																	errorText={toolPart.errorText}
+																	output={toolPart.output}
+																/>
+															)}
+														</ToolContent>
+													</Tool>
+												);
+											}
 											return null;
 									}
 								})}
@@ -207,9 +202,9 @@ export default function HomePage({
 						onChange={(e) => setInput(e.target.value)}
 						value={input}
 					/>
-					<PromptInputToolbar>
+					<PromptInputFooter>
 						<PromptInputSubmit disabled={!input} status={status} />
-					</PromptInputToolbar>
+					</PromptInputFooter>
 				</PromptInput>
 			</div>
 		</div>

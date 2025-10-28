@@ -1,8 +1,8 @@
-import { authClient } from "@/lib/auth/client.ts";
 import { Text } from "@radix-ui/themes";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import * as z from "zod";
+import { authClient } from "@/lib/auth/client.ts";
 
 const DeviceSearchSchema = z.object({
 	user_code: z.string().min(1),

@@ -1,7 +1,7 @@
-import { client } from "@/lib/client";
+import { UserButton } from "@daveyplate/better-auth-ui";
 import { AlertDialog, Button, Flex, Heading } from "@radix-ui/themes";
 import { Link } from "@tanstack/react-router";
-import { UserButton } from "@daveyplate/better-auth-ui";
+import { client } from "@/lib/client";
 
 type HeaderProps = {
 	threadId?: string;
@@ -25,9 +25,7 @@ export const Header = ({ threadId }: HeaderProps) => {
 							size="6"
 							className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
 						>
-                            <Link to="/">
-							    AIM AI Coach
-                            </Link>
+							<Link to="/">AIM AI Coach</Link>
 						</Heading>
 					</Flex>
 
@@ -58,7 +56,11 @@ export const Header = ({ threadId }: HeaderProps) => {
 												</Button>
 											</AlertDialog.Cancel>
 											<AlertDialog.Action>
-												<Button variant="solid" color="red" onClick={handleReset}>
+												<Button
+													variant="solid"
+													color="red"
+													onClick={handleReset}
+												>
 													Delete All
 												</Button>
 											</AlertDialog.Action>
@@ -67,8 +69,8 @@ export const Header = ({ threadId }: HeaderProps) => {
 								</AlertDialog.Root>
 							)}
 
-                            <UserButton size={"icon"} />
-                        </Flex>
+							<UserButton size={"icon"} />
+						</Flex>
 					</nav>
 				</Flex>
 			</div>

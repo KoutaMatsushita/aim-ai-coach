@@ -2,9 +2,9 @@
 import { Command } from "commander";
 import { hc } from "hono/client";
 import type { APIType } from "../../api";
-import { uploadAimlab, uploadKovaaks, applySeeds } from "./commands";
 import { getSessionOrLogin } from "./auth";
-import {config} from "./config";
+import { applySeeds, uploadAimlab, uploadKovaaks } from "./commands";
+import { config } from "./config";
 
 const createHC = (endpoint: string) => hc<APIType>(endpoint);
 export type ClientType = ReturnType<typeof createHC>;
@@ -36,15 +36,12 @@ program
 		"https://aim-ai-coach.mk2481.dev",
 	)
 	.action(async (path: string, opts: { endpoint: string }) => {
-        const { user } = await getSessionOrLogin();
-        const client = hc<APIType>(
-            opts.endpoint,
-            {
-                headers: {
-                    "Authorization": `Bearer ${config.get("device.access_token")}`,
-                }
-            }
-        );
+		const { user } = await getSessionOrLogin();
+		const client = hc<APIType>(opts.endpoint, {
+			headers: {
+				Authorization: `Bearer ${config.get("device.access_token")}`,
+			},
+		});
 
 		await uploadKovaaks(path, client, user);
 	});
@@ -59,39 +56,33 @@ program
 		"https://aim-ai-coach.mk2481.dev",
 	)
 	.action(async (path: string, opts: { endpoint: string }) => {
-        const { user } = await getSessionOrLogin();
-        const client = hc<APIType>(
-            opts.endpoint,
-            {
-                headers: {
-                    "Authorization": `Bearer ${config.get("device.access_token")}`,
-                }
-            }
-        );
+		const { user } = await getSessionOrLogin();
+		const client = hc<APIType>(opts.endpoint, {
+			headers: {
+				Authorization: `Bearer ${config.get("device.access_token")}`,
+			},
+		});
 
 		await uploadAimlab(path, client, user);
 	});
 
 program
-    .command("seed")
-    .description("apply seed")
-    .option(
-        "--endpoint <endpoint>",
-        "upload api base endpoint",
-        "https://aim-ai-coach.mk2481.dev",
-    )
-    .action(async (opts: { endpoint: string }) => {
-        await getSessionOrLogin();
-        const client = hc<APIType>(
-            opts.endpoint,
-            {
-                headers: {
-                    "Authorization": `Bearer ${config.get("device.access_token")}`,
-                }
-            }
-        );
+	.command("seed")
+	.description("apply seed")
+	.option(
+		"--endpoint <endpoint>",
+		"upload api base endpoint",
+		"https://aim-ai-coach.mk2481.dev",
+	)
+	.action(async (opts: { endpoint: string }) => {
+		await getSessionOrLogin();
+		const client = hc<APIType>(opts.endpoint, {
+			headers: {
+				Authorization: `Bearer ${config.get("device.access_token")}`,
+			},
+		});
 
-        await applySeeds(client);
-    });
+		await applySeeds(client);
+	});
 
 program.parse();

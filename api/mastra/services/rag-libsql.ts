@@ -3,11 +3,11 @@
  * High-performance vector search for aim training content
  */
 
-import {google} from "@ai-sdk/google";
-import {embed} from "ai";
-import type {AimAnalysisResult} from "./content-analyzer";
-import type {YouTubeVideo} from "./youtube";
-import {MastraVector} from "@mastra/core";
+import { google } from "@ai-sdk/google";
+import type { MastraVector } from "@mastra/core";
+import { embed } from "ai";
+import type { AimAnalysisResult } from "./content-analyzer";
+import type { YouTubeVideo } from "./youtube";
 
 /**
  * ベクトル検索クエリの入力パラメータ
@@ -156,14 +156,16 @@ export interface PersonalizedRecommendation {
  * ```
  */
 export class RAGLibSQLService {
-    constructor(
-        private readonly vectorStore: MastraVector,
-        private readonly embeddingModel = google.textEmbedding("text-embedding-004"),
-        private readonly indexName = "aimTrainingContent",
-        private readonly embeddingDimension = 768,
-        private readonly maxPayloadSize = 30000,
-        private readonly chunkOverlap = 200,
-    ) {}
+	constructor(
+		private readonly vectorStore: MastraVector,
+		private readonly embeddingModel = google.textEmbedding(
+			"text-embedding-004",
+		),
+		private readonly indexName = "aimTrainingContent",
+		private readonly embeddingDimension = 768,
+		private readonly maxPayloadSize = 30000,
+		private readonly chunkOverlap = 200,
+	) {}
 
 	/**
 	 * ベクトルインデックスの初期化
@@ -200,7 +202,10 @@ export class RAGLibSQLService {
 	/**
 	 * テキストをチャンクに分割（バイト数制限対応）
 	 */
-	private chunkText(text: string, maxBytes: number = this.maxPayloadSize): string[] {
+	private chunkText(
+		text: string,
+		maxBytes: number = this.maxPayloadSize,
+	): string[] {
 		const textBytes = Buffer.byteLength(text, "utf8");
 
 		if (textBytes <= maxBytes) {
@@ -270,7 +275,7 @@ export class RAGLibSQLService {
 		}
 
 		console.log(
-			`Generating embeddings for ${chunks.length} chunks (total: ${Buffer.byteLength(text, "utf8")} bytes)`
+			`Generating embeddings for ${chunks.length} chunks (total: ${Buffer.byteLength(text, "utf8")} bytes)`,
 		);
 
 		// 各チャンクの埋め込みを生成
@@ -330,7 +335,7 @@ export class RAGLibSQLService {
 	async addVideoContent(
 		video: YouTubeVideo,
 		analysis: AimAnalysisResult,
-		transcript?: string
+		transcript?: string,
 	): Promise<void> {
 		// 2. 検索用メタデータの構築
 		const metadata: VideoMetadata = {
@@ -359,15 +364,21 @@ export class RAGLibSQLService {
 				: video.description,
 			analysis.summary,
 			analysis.keyInsights.join(". "),
-			analysis.practiceRecommendations.map((r) => `${r.scenario}: ${r.focus}`).join(". "),
+			analysis.practiceRecommendations
+				.map((r) => `${r.scenario}: ${r.focus}`)
+				.join(". "),
 			// 字幕を制限（最初の5000文字のみ）
-			transcript ? (transcript.length > 5000 ? transcript.slice(0, 5000) + "..." : transcript) : "",
+			transcript
+				? transcript.length > 5000
+					? transcript.slice(0, 5000) + "..."
+					: transcript
+				: "",
 		];
 
 		const searchableContent = contentParts.filter(Boolean).join(" ");
 
 		console.log(
-			`Content size: ${Buffer.byteLength(searchableContent, "utf8")} bytes for video ${video.id}`
+			`Content size: ${Buffer.byteLength(searchableContent, "utf8")} bytes for video ${video.id}`,
 		);
 
 		// 4. チャンク対応のベクトル埋め込み生成
@@ -425,7 +436,9 @@ export class RAGLibSQLService {
 				});
 
 				if (existingResults.length > 0) {
-					console.log(`Text knowledge "${textData.title}" already exists, skipping...`);
+					console.log(
+						`Text knowledge "${textData.title}" already exists, skipping...`,
+					);
 					return;
 				}
 			} catch (error) {
@@ -441,7 +454,9 @@ export class RAGLibSQLService {
 		const metadata: VideoMetadata = {
 			videoId: textId,
 			title: textData.title,
-			description: textData.content.slice(0, 500) + (textData.content.length > 500 ? "..." : ""),
+			description:
+				textData.content.slice(0, 500) +
+				(textData.content.length > 500 ? "..." : ""),
 			difficultyLevel: textData.difficultyLevel,
 			aimElements: textData.analysis.aimElements,
 			targetGames: textData.analysis.targetGames,
@@ -464,15 +479,19 @@ export class RAGLibSQLService {
 			textData.category,
 			textData.analysis.summary,
 			textData.analysis.keyInsights.join(". "),
-			textData.analysis.practiceRecommendations.map((r) => `${r.scenario}: ${r.focus}`).join(". "),
+			textData.analysis.practiceRecommendations
+				.map((r) => `${r.scenario}: ${r.focus}`)
+				.join(". "),
 			// コンテンツ全体を含める（制限あり）
-			textData.content.length > 8000 ? textData.content.slice(0, 8000) + "..." : textData.content,
+			textData.content.length > 8000
+				? textData.content.slice(0, 8000) + "..."
+				: textData.content,
 		]
 			.filter(Boolean)
 			.join(" ");
 
 		console.log(
-			`Text knowledge size: ${Buffer.byteLength(searchableContent, "utf8")} bytes for "${textData.title}"`
+			`Text knowledge size: ${Buffer.byteLength(searchableContent, "utf8")} bytes for "${textData.title}"`,
 		);
 
 		// チャンク対応のベクトル埋め込み生成
@@ -548,14 +567,18 @@ export class RAGLibSQLService {
 		if (query.aimElements?.length) {
 			// エイム要素でフィルタ（配列の交差チェック）
 			filteredResults = filteredResults.filter((result) =>
-				query.aimElements?.some((element) => result.metadata?.aimElements?.includes(element))
+				query.aimElements?.some((element) =>
+					result.metadata?.aimElements?.includes(element),
+				),
 			);
 		}
 
 		if (query.targetGames?.length) {
 			// ゲームでフィルタ（配列の交差チェック）
 			filteredResults = filteredResults.filter((result) =>
-				query.targetGames?.some((game) => result.metadata?.targetGames?.includes(game))
+				query.targetGames?.some((game) =>
+					result.metadata?.targetGames?.includes(game),
+				),
 			);
 		}
 
@@ -574,8 +597,8 @@ export class RAGLibSQLService {
 						practiceRecommendations: result.metadata?.practiceRecommendations,
 						matchedContent: `${result.metadata?.title}: ${result.metadata?.keyInsights.slice(0, 2).join(", ")}`,
 						metadata: result.metadata as VideoMetadata,
-					}) satisfies SearchResult
-			)
+					}) satisfies SearchResult,
+			),
 		);
 	}
 
@@ -608,7 +631,7 @@ export class RAGLibSQLService {
 		userSkillLevel: string,
 		weakAreas: string[],
 		targetGame?: string,
-		limit: number = 5
+		limit: number = 5,
 	): Promise<PersonalizedRecommendation> {
 		// 弱点エリアを組み合わせた検索クエリを構築
 		const weakAreasText = weakAreas.join(" ");
@@ -631,15 +654,18 @@ export class RAGLibSQLService {
 			Expert: ["advanced", "expert"],
 		};
 
-		const allowedDifficulties = difficultyMapping[userSkillLevel] || ["beginner", "intermediate"];
+		const allowedDifficulties = difficultyMapping[userSkillLevel] || [
+			"beginner",
+			"intermediate",
+		];
 		const filteredByDifficulty = searchResults.filter((result) =>
-			allowedDifficulties.includes(result.difficultyLevel)
+			allowedDifficulties.includes(result.difficultyLevel),
 		);
 
 		// 弱点エリアとの関連度でソート
 		const scoredResults = filteredByDifficulty.map((result) => {
 			const aimElementsScore = result.aimElements.filter((element) =>
-				weakAreas.includes(element)
+				weakAreas.includes(element),
 			).length;
 			const totalScore = result.relevanceScore + aimElementsScore * 0.1; // エイム要素のボーナス
 			return { ...result, totalScore };
@@ -688,7 +714,7 @@ export class RAGLibSQLService {
 		// インデックス統計取得
 		const indexes = await this.vectorStore.listIndexes();
 
-        // 基本的な統計情報を返す（詳細実装は必要に応じて拡張）
+		// 基本的な統計情報を返す（詳細実装は必要に応じて拡張）
 		return {
 			totalVideos: indexes.includes(this.indexName) ? 0 : 0, // 実装時に適切な統計取得
 			difficultyDistribution: {},
@@ -766,7 +792,7 @@ export class RAGLibSQLService {
 			video: YouTubeVideo;
 			analysis: AimAnalysisResult;
 			transcript?: string;
-		}>
+		}>,
 	): Promise<{ successful: number; failed: number }> {
 		let successful = 0;
 		let failed = 0;
@@ -781,7 +807,9 @@ export class RAGLibSQLService {
 			}
 		}
 
-		console.log(`Batch add completed: ${successful} successful, ${failed} failed`);
+		console.log(
+			`Batch add completed: ${successful} successful, ${failed} failed`,
+		);
 		return { successful, failed };
 	}
 }

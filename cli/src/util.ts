@@ -1,4 +1,4 @@
-import { lstat, readFile, readdir, stat } from "node:fs/promises";
+import { lstat, readdir, readFile, stat } from "node:fs/promises";
 import { extname, join, resolve } from "node:path";
 
 export const chunkArray = <T>(arr: T[], size: number): T[][] => {

@@ -2,7 +2,7 @@
  * YouTube Data API v3 integration service
  */
 
-import {env} from "api/env.ts";
+import { env } from "api/env.ts";
 
 /**
  * YouTube動画の基本情報
@@ -92,7 +92,7 @@ export class YouTubeService {
 	private async retryApiCall<T>(
 		operation: () => Promise<T>,
 		context: string,
-		retryCount = 0
+		retryCount = 0,
 	): Promise<T> {
 		try {
 			return await operation();
@@ -104,14 +104,17 @@ export class YouTubeService {
 				const delay = this.retryDelayMs * 2 ** retryCount;
 				console.warn(
 					`${context} failed (attempt ${retryCount + 1}/${this.maxRetries + 1}), retrying in ${delay}ms...`,
-					error
+					error,
 				);
 
 				await new Promise((resolve) => setTimeout(resolve, delay));
 				return this.retryApiCall(operation, context, retryCount + 1);
 			}
 
-			console.error(`${context} failed after ${retryCount + 1} attempts:`, error);
+			console.error(
+				`${context} failed after ${retryCount + 1} attempts:`,
+				error,
+			);
 			throw error;
 		}
 	}
@@ -157,7 +160,7 @@ export class YouTubeService {
 						const response = await fetch(url.toString());
 						if (!response.ok) {
 							const error = new Error(
-								`YouTube API error: ${response.status} ${response.statusText}`
+								`YouTube API error: ${response.status} ${response.statusText}`,
 							);
 							(error as any).status = response.status;
 							throw error;
@@ -173,15 +176,20 @@ export class YouTubeService {
 							duration: item.contentDetails?.duration || "PT0S",
 							viewCount: parseInt(item.statistics?.viewCount || "0"),
 							thumbnailUrl:
-								item.snippet?.thumbnails?.high?.url || item.snippet?.thumbnails?.default?.url || "",
+								item.snippet?.thumbnails?.high?.url ||
+								item.snippet?.thumbnails?.default?.url ||
+								"",
 						}));
 					},
-					`getVideoDetails batch ${Math.floor(i / batchSize) + 1}`
+					`getVideoDetails batch ${Math.floor(i / batchSize) + 1}`,
 				);
 
 				results.push(...batchResults);
 			} catch (error) {
-				console.warn(`Failed to get details for batch starting at index ${i}:`, error);
+				console.warn(
+					`Failed to get details for batch starting at index ${i}:`,
+					error,
+				);
 				// Continue with next batch instead of failing completely
 			}
 
@@ -212,7 +220,9 @@ export class YouTubeService {
 			}
 
 			// Fallback: Use video description for content analysis
-			console.warn(`No transcript available for ${videoId}, using description fallback`);
+			console.warn(
+				`No transcript available for ${videoId}, using description fallback`,
+			);
 			const videoDetails = await this.getVideoDetails([videoId]);
 
 			if (videoDetails.length > 0 && videoDetails[0].description) {
@@ -259,7 +269,8 @@ export class YouTubeService {
 			}
 
 			const playerData: any = await playerResponse.json();
-			const captions = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+			const captions =
+				playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
 
 			if (!captions || captions.length === 0) {
 				return null;
@@ -268,7 +279,8 @@ export class YouTubeService {
 			// Find English auto-generated captions or any available captions
 			const englishCaption =
 				captions.find(
-					(caption: any) => caption.languageCode === "en" || caption.languageCode === "en-US"
+					(caption: any) =>
+						caption.languageCode === "en" || caption.languageCode === "en-US",
 				) || captions[0];
 
 			if (!englishCaption?.baseUrl) {
@@ -319,7 +331,10 @@ export class YouTubeService {
 			"&nbsp;": " ",
 		};
 
-		return text.replace(/&[a-zA-Z0-9#]+;/g, (entity) => entities[entity] || entity);
+		return text.replace(
+			/&[a-zA-Z0-9#]+;/g,
+			(entity) => entities[entity] || entity,
+		);
 	}
 
 	/**
@@ -328,7 +343,7 @@ export class YouTubeService {
 	async searchAimVideos(
 		channelId: string,
 		query: string,
-		maxResults: number = 20
+		maxResults: number = 20,
 	): Promise<YouTubeVideo[]> {
 		return this.retryApiCall(async () => {
 			const url = new URL(`${this.baseUrl}/search`);
@@ -342,7 +357,9 @@ export class YouTubeService {
 
 			const response = await fetch(url.toString());
 			if (!response.ok) {
-				const error = new Error(`YouTube API error: ${response.status} ${response.statusText}`);
+				const error = new Error(
+					`YouTube API error: ${response.status} ${response.statusText}`,
+				);
 				(error as any).status = response.status;
 				throw error;
 			}

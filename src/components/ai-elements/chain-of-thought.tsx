@@ -1,12 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge.tsx";
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "@/components/ui/collapsible.tsx";
-import { cn } from "@/lib/utils.ts";
 import { useControllableState } from "@radix-ui/react-use-controllable-state";
 import {
 	BrainIcon,
@@ -15,7 +8,14 @@ import {
 	type LucideIcon,
 } from "lucide-react";
 import type { ComponentProps } from "react";
-import { createContext, memo, useContext } from "react";
+import { createContext, memo, useContext, useMemo } from "react";
+import { Badge } from "@/components/ui/badge";
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 
 type ChainOfThoughtContextValue = {
 	isOpen: boolean;
@@ -57,8 +57,13 @@ export const ChainOfThought = memo(
 			onChange: onOpenChange,
 		});
 
+		const chainOfThoughtContext = useMemo(
+			() => ({ isOpen, setIsOpen }),
+			[isOpen, setIsOpen],
+		);
+
 		return (
-			<ChainOfThoughtContext.Provider value={{ isOpen, setIsOpen }}>
+			<ChainOfThoughtContext.Provider value={chainOfThoughtContext}>
 				<div
 					className={cn("not-prose max-w-prose space-y-4", className)}
 					{...props}

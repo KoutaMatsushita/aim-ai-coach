@@ -1,38 +1,41 @@
 import { google } from "@ai-sdk/google";
 import { Agent } from "@mastra/core/agent";
+import type { MastraStorage } from "@mastra/core/storage";
+import type { MastraVector } from "@mastra/core/vector";
 import { Memory } from "@mastra/memory";
-import {
-    findAimlabTasksByUserId,
-    findUser,
-    findKovaaksScoresByUserId,
-} from "../tools/user-tool";
-import { createVectorQueryTool, createGraphRAGTool } from "@mastra/rag";
 import { VECTORIZE_PROMPT } from "@mastra/vectorize";
-import {MastraVector} from "@mastra/core/vector";
-import {MastraStorage} from "@mastra/core/storage";
-import {addTextFileKnowledgeTool, addTextKnowledgeTool, addYoutubeContentTool} from "../tools/rag-tool";
+import {
+	addTextFileKnowledgeTool,
+	addTextKnowledgeTool,
+	addYoutubeContentTool,
+	graphTool,
+	vectorTool,
+} from "../tools/rag-tool";
+import {
+	findAimlabTasksByUserId,
+	findKovaaksScoresByUserId,
+	findUser,
+} from "../tools/user-tool";
 
 // Enhanced memory configuration for personalized coaching
-const createEnhancedMemory = (
-    storage: MastraStorage,
-    vector: MastraVector,
-) => new Memory({
-	storage: storage,
-	vector: vector,
-	embedder: google.textEmbedding("text-embedding-004"),
-	options: {
-		lastMessages: 50,
-		semanticRecall: {
-			topK: 5,
-			messageRange: {
-				before: 3,
-				after: 2,
+const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
+	new Memory({
+		storage: storage,
+		vector: vector,
+		embedder: google.textEmbedding("text-embedding-004"),
+		options: {
+			lastMessages: 50,
+			semanticRecall: {
+				topK: 5,
+				messageRange: {
+					before: 3,
+					after: 2,
+				},
+				scope: "resource",
 			},
-			scope: "resource",
-		},
-		workingMemory: {
-			enabled: true,
-			template: `
+			workingMemory: {
+				enabled: true,
+				template: `
 # エイム練習者プロファイル
 
 ## 基本情報
@@ -76,20 +79,21 @@ const createEnhancedMemory = (
 - コーチング効果: [high/medium/low - 最近の指導の効果測定結果]
 - 推奨の遵守率: [0-100% - 前回推奨事項の実行度]
 `,
+			},
 		},
-	},
-});
+	});
 
 export const createAimAiCoachAgent = (
-    storage: MastraStorage,
-    vector: MastraVector,
-) => new Agent({
-	name: "Aim Ai Coach Agent",
-	instructions: ({runtimeContext}) => {
-        const userId = runtimeContext.get("userId") as string | null;
-        if (!userId) return ""
+	storage: MastraStorage,
+	vector: MastraVector,
+) =>
+	new Agent({
+		name: "Aim Ai Coach Agent",
+		instructions: ({ runtimeContext }) => {
+			const userId = runtimeContext.get("userId") as string | null;
+			if (!userId) return "";
 
-		return  `
+			return `
 あなたは「Aim AI Coach」。FPS プレイヤーのエイム上達をデータ駆動で指導する userId: ${userId} の専属パーソナルコーチ。
 ワーキングメモリで個人の特性を学習し、継続的な関係性を築いてパーソナライズした指導を行う。
 
@@ -115,32 +119,19 @@ export const createAimAiCoachAgent = (
 ref for vectorTool and graphTool:
 ${VECTORIZE_PROMPT}
 `;
-	},
-	model: google("gemini-2.5-pro"),
-	tools: {
-        findUser,
-        findKovaaksScoresByUserId,
-		findAimlabTasksByUserId,
-		// getKovaaksStatsByUserId,
-		// getAimlabStatsByUserId,
-        // @ts-ignore
-        vectorTool: createVectorQueryTool({
-            vectorStoreName: "vector",
-            indexName: "aimTrainingContent",
-            model: google.textEmbedding("text-embedding-004"),
-        }),
-        // @ts-ignore
-        graphTool: createGraphRAGTool({
-            vectorStoreName: "vector",
-            indexName: "aimTrainingContent",
-            model: google.textEmbedding("text-embedding-004"),
-        }),
-        addYoutubeContentTool,
-        addTextFileKnowledgeTool,
-        addTextKnowledgeTool,
-	},
-	memory: createEnhancedMemory(
-        storage,
-        vector,
-    ),
-});
+		},
+		model: google("gemini-2.5-pro"),
+		tools: {
+			findUser,
+			findKovaaksScoresByUserId,
+			findAimlabTasksByUserId,
+			// getKovaaksStatsByUserId,
+			// getAimlabStatsByUserId,
+			vectorTool: vectorTool,
+			graphTool: graphTool,
+			addYoutubeContentTool,
+			addTextFileKnowledgeTool,
+			addTextKnowledgeTool,
+		},
+		memory: createEnhancedMemory(storage, vector),
+	});

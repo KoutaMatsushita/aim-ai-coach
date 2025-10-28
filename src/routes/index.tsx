@@ -1,7 +1,7 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { AuthLayout } from "@/components/layout/auth";
 import { Header } from "@/components/layout/header";
 import HomePage from "@/components/page/HomePage.tsx";
-import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
 	component: App,

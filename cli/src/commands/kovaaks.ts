@@ -1,7 +1,7 @@
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
-import { basename } from "path";
 import { localCompleteKovaaksScore } from "api/db";
+import { basename } from "path";
 import type { User } from "../auth";
 import type { ClientType } from "../index";
 import { getDB } from "../local-db.ts";
@@ -100,18 +100,17 @@ export const uploadKovaaks = async (
 
 		for (const chunk of chunks) {
 			try {
-                console.log(chunk)
+				console.log(chunk);
 				const response = await client.api.kovaaks.$post({ json: chunk });
-                if (response.ok) {
-                    uploadedChunks++;
-                    logger.debug("Chunk uploaded successfully", {
-                        progress: `${uploadedChunks}/${chunks.length}`,
-                        recordCount: chunk.length,
-                    });
-                } else {
-                    throw await response.text()
-                }
-
+				if (response.ok) {
+					uploadedChunks++;
+					logger.debug("Chunk uploaded successfully", {
+						progress: `${uploadedChunks}/${chunks.length}`,
+						recordCount: chunk.length,
+					});
+				} else {
+					throw await response.text();
+				}
 			} catch (error) {
 				logger.error("Failed to upload chunk", {
 					chunkIndex: uploadedChunks,

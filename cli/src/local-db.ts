@@ -39,7 +39,7 @@ export const getDB = async () => {
 		},
 	});
 	const drizzlePath = join(__dirname, "..", "drizzle");
-    console.log(drizzlePath);
+	console.log(drizzlePath);
 	await migrate(db, { migrationsFolder: drizzlePath });
 	return db;
 };
