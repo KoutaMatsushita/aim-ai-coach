@@ -12,8 +12,10 @@ export const createMastra = (storage: MastraStorage, vector: MastraVector) =>
 		vectors: {
 			vector,
 		},
-		telemetry: {
-			enabled: process.env.NODE_ENV === "production",
+        observability: {
+            default: {
+                enabled: process.env.NODE_ENV === "production"
+            },
 		},
 		// server: {
 		// 	apiRoutes: [

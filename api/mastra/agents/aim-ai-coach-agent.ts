@@ -16,6 +16,7 @@ import {
 	findKovaaksScoresByUserId,
 	findUser,
 } from "../tools/user-tool";
+import { ToolCallFilter, TokenLimiter } from "@mastra/memory/processors";
 
 // Enhanced memory configuration for personalized coaching
 const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
@@ -24,13 +25,10 @@ const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
 		vector: vector,
 		embedder: google.textEmbedding("text-embedding-004"),
 		options: {
-			lastMessages: 50,
+			lastMessages: 10,
 			semanticRecall: {
-				topK: 5,
-				messageRange: {
-					before: 3,
-					after: 2,
-				},
+				topK: 3,
+				messageRange: 2,
 				scope: "resource",
 			},
 			workingMemory: {
@@ -81,7 +79,11 @@ const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
 `,
 			},
 		},
-	});
+        processors: [
+            new ToolCallFilter(),
+            new TokenLimiter(1_048_576), // gemini 2.5 pro
+        ],
+    });
 
 export const createAimAiCoachAgent = (
 	storage: MastraStorage,
