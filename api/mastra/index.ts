@@ -12,10 +12,10 @@ export const createMastra = (storage: MastraStorage, vector: MastraVector) =>
 		vectors: {
 			vector,
 		},
-        observability: {
-            default: {
-                enabled: process.env.NODE_ENV === "production"
-            },
+		observability: {
+			default: {
+				enabled: process.env.NODE_ENV === "production",
+			},
 		},
 		// server: {
 		// 	apiRoutes: [

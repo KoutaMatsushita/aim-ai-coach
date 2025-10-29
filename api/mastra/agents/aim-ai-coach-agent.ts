@@ -2,8 +2,9 @@ import { google } from "@ai-sdk/google";
 import { Agent } from "@mastra/core/agent";
 import type { MastraStorage } from "@mastra/core/storage";
 import type { MastraVector } from "@mastra/core/vector";
+import { LIBSQL_PROMPT } from "@mastra/libsql";
 import { Memory } from "@mastra/memory";
-import { VECTORIZE_PROMPT } from "@mastra/vectorize";
+import { TokenLimiter, ToolCallFilter } from "@mastra/memory/processors";
 import {
 	addTextFileKnowledgeTool,
 	addTextKnowledgeTool,
@@ -16,7 +17,6 @@ import {
 	findKovaaksScoresByUserId,
 	findUser,
 } from "../tools/user-tool";
-import { ToolCallFilter, TokenLimiter } from "@mastra/memory/processors";
 
 // Enhanced memory configuration for personalized coaching
 const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
@@ -79,11 +79,11 @@ const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
 `,
 			},
 		},
-        processors: [
-            new ToolCallFilter(),
-            new TokenLimiter(1_048_576), // gemini 2.5 pro
-        ],
-    });
+		processors: [
+			new ToolCallFilter(),
+			new TokenLimiter(1_048_576), // gemini 2.5 pro
+		],
+	});
 
 export const createAimAiCoachAgent = (
 	storage: MastraStorage,
@@ -119,7 +119,7 @@ export const createAimAiCoachAgent = (
 - graphTool: RAG に対して GraphRag を用いた検索を行う
 
 ref for vectorTool and graphTool:
-${VECTORIZE_PROMPT}
+${LIBSQL_PROMPT}
 `;
 		},
 		model: google("gemini-2.5-pro"),
