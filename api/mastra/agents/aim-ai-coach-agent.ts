@@ -25,10 +25,10 @@ const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
 		vector: vector,
 		embedder: google.textEmbedding("text-embedding-004"),
 		options: {
-			lastMessages: 10,
+			lastMessages: 5,
 			semanticRecall: {
-				topK: 3,
-				messageRange: 2,
+				topK: 2,
+				messageRange: 1,
 				scope: "resource",
 			},
 			workingMemory: {
