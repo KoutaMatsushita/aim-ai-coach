@@ -22,7 +22,6 @@ import {
 	PromptInputFooter,
 	PromptInputSubmit,
 	PromptInputTextarea,
-	PromptInputTools,
 } from "@/components/ai-elements/prompt-input.tsx";
 import {
 	Reasoning,
@@ -36,7 +35,6 @@ import {
 	SourcesContent,
 	SourcesTrigger,
 } from "@/components/ai-elements/sources.tsx";
-import { env } from "@/env.ts";
 import { client } from "@/lib/client.ts";
 import type { PromptInputMessage } from "../ai-elements/prompt-input.tsx";
 import {
@@ -75,7 +73,7 @@ export default function HomePage({
 
 	const { messages, sendMessage, setMessages, status } = useChat({
 		transport: new DefaultChatTransport({
-			api: `${env.VITE_PUBLIC_API_URL}/api/chat`,
+			api: "/api/chat",
 			credentials: "include",
 		}),
 	});

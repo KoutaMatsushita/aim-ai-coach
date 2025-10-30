@@ -11,3 +11,4 @@ count.txt
 .idea
 .wrangler
 seeds/*
+.output

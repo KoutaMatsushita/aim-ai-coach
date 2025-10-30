@@ -17,6 +17,12 @@ To build this application for production:
 bunx --bun run build
 ```
 
+## Deploy
+
+```bash
+docker buildx build --platform linux/amd64  -t asia-northeast1-docker.pkg.dev/valorant-coaching-465213/aim-ai-coach/app:latest . && docker push asia-northeast1-docker.pkg.dev/valorant-coaching-465213/aim-ai-coach/app:latest
+```
+
 ## Testing
 
 This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:

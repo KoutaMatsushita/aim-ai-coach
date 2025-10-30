@@ -8,7 +8,7 @@ export const createDB = (url: string, authToken: string) =>
 			authToken,
 		},
 		schema,
-		logger: process.env.NODE_ENV === "development",
+		logger: true,
 	});
 
 export * from "./schema";

@@ -12,10 +12,10 @@ export const createMastra = (storage: MastraStorage, vector: MastraVector) =>
 		vectors: {
 			vector,
 		},
-        telemetry: {
-            enabled: false,
-        },
-        observability: {
-            default: { enabled: false },
-        },
-    });
+		telemetry: {
+			enabled: false,
+		},
+		observability: {
+			default: { enabled: false },
+		},
+	});
