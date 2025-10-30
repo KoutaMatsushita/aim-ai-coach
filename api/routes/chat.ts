@@ -2,7 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import { toAISdkFormat } from "@mastra/ai-sdk";
 import type { MessageListInput } from "@mastra/core/agent/message-list";
 import { RuntimeContext } from "@mastra/core/di";
-import { createUIMessageStream, createUIMessageStreamResponse } from "ai";
+import { createUIMessageStream, pruneMessages } from "ai";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import { z } from "zod";
@@ -33,7 +33,14 @@ export const chatApp = new Hono<{ Variables: Variables }>()
 			const agentId = "aimAiCoachAgent";
 			const agentObj = c.var.mastra.getAgent(agentId);
 
-			const result = await agentObj.stream(messages, {
+			const prunedMessages = pruneMessages({
+				messages,
+				reasoning: 'before-last-message',
+				toolCalls: 'before-last-2-messages',
+				emptyMessages: 'remove',
+			});
+
+			const result = await agentObj.stream(prunedMessages, {
 				memory: {
 					resource: currentUser.id,
 					thread: currentUser.id,

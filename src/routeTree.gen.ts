@@ -8,171 +8,170 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as AccountSettingsRouteImport } from "./routes/account/settings";
-import { Route as ApiSplatRouteImport } from "./routes/api/$";
-import { Route as AuthAuthViewRouteImport } from "./routes/auth/$authView";
-import { Route as DeviceIndexRouteImport } from "./routes/device/index";
-import { Route as IndexRouteImport } from "./routes/index";
-import { Route as KnowledgesIndexRouteImport } from "./routes/knowledges/index";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as KnowledgesIndexRouteImport } from './routes/knowledges/index'
+import { Route as DeviceIndexRouteImport } from './routes/device/index'
+import { Route as AuthAuthViewRouteImport } from './routes/auth/$authView'
+import { Route as ApiSplatRouteImport } from './routes/api/$'
+import { Route as AccountSettingsRouteImport } from './routes/account/settings'
 
 const IndexRoute = IndexRouteImport.update({
-	id: "/",
-	path: "/",
-	getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const KnowledgesIndexRoute = KnowledgesIndexRouteImport.update({
-	id: "/knowledges/",
-	path: "/knowledges/",
-	getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/knowledges/',
+  path: '/knowledges/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DeviceIndexRoute = DeviceIndexRouteImport.update({
-	id: "/device/",
-	path: "/device/",
-	getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/device/',
+  path: '/device/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthAuthViewRoute = AuthAuthViewRouteImport.update({
-	id: "/auth/$authView",
-	path: "/auth/$authView",
-	getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/auth/$authView',
+  path: '/auth/$authView',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiSplatRoute = ApiSplatRouteImport.update({
-	id: "/api/$",
-	path: "/api/$",
-	getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/api/$',
+  path: '/api/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AccountSettingsRoute = AccountSettingsRouteImport.update({
-	id: "/account/settings",
-	path: "/account/settings",
-	getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/account/settings',
+  path: '/account/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
-	"/": typeof IndexRoute;
-	"/account/settings": typeof AccountSettingsRoute;
-	"/api/$": typeof ApiSplatRoute;
-	"/auth/$authView": typeof AuthAuthViewRoute;
-	"/device": typeof DeviceIndexRoute;
-	"/knowledges": typeof KnowledgesIndexRoute;
+  '/': typeof IndexRoute
+  '/account/settings': typeof AccountSettingsRoute
+  '/api/$': typeof ApiSplatRoute
+  '/auth/$authView': typeof AuthAuthViewRoute
+  '/device': typeof DeviceIndexRoute
+  '/knowledges': typeof KnowledgesIndexRoute
 }
 export interface FileRoutesByTo {
-	"/": typeof IndexRoute;
-	"/account/settings": typeof AccountSettingsRoute;
-	"/api/$": typeof ApiSplatRoute;
-	"/auth/$authView": typeof AuthAuthViewRoute;
-	"/device": typeof DeviceIndexRoute;
-	"/knowledges": typeof KnowledgesIndexRoute;
+  '/': typeof IndexRoute
+  '/account/settings': typeof AccountSettingsRoute
+  '/api/$': typeof ApiSplatRoute
+  '/auth/$authView': typeof AuthAuthViewRoute
+  '/device': typeof DeviceIndexRoute
+  '/knowledges': typeof KnowledgesIndexRoute
 }
 export interface FileRoutesById {
-	__root__: typeof rootRouteImport;
-	"/": typeof IndexRoute;
-	"/account/settings": typeof AccountSettingsRoute;
-	"/api/$": typeof ApiSplatRoute;
-	"/auth/$authView": typeof AuthAuthViewRoute;
-	"/device/": typeof DeviceIndexRoute;
-	"/knowledges/": typeof KnowledgesIndexRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/account/settings': typeof AccountSettingsRoute
+  '/api/$': typeof ApiSplatRoute
+  '/auth/$authView': typeof AuthAuthViewRoute
+  '/device/': typeof DeviceIndexRoute
+  '/knowledges/': typeof KnowledgesIndexRoute
 }
 export interface FileRouteTypes {
-	fileRoutesByFullPath: FileRoutesByFullPath;
-	fullPaths:
-		| "/"
-		| "/account/settings"
-		| "/api/$"
-		| "/auth/$authView"
-		| "/device"
-		| "/knowledges";
-	fileRoutesByTo: FileRoutesByTo;
-	to:
-		| "/"
-		| "/account/settings"
-		| "/api/$"
-		| "/auth/$authView"
-		| "/device"
-		| "/knowledges";
-	id:
-		| "__root__"
-		| "/"
-		| "/account/settings"
-		| "/api/$"
-		| "/auth/$authView"
-		| "/device/"
-		| "/knowledges/";
-	fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/account/settings'
+    | '/api/$'
+    | '/auth/$authView'
+    | '/device'
+    | '/knowledges'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/account/settings'
+    | '/api/$'
+    | '/auth/$authView'
+    | '/device'
+    | '/knowledges'
+  id:
+    | '__root__'
+    | '/'
+    | '/account/settings'
+    | '/api/$'
+    | '/auth/$authView'
+    | '/device/'
+    | '/knowledges/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-	IndexRoute: typeof IndexRoute;
-	AccountSettingsRoute: typeof AccountSettingsRoute;
-	ApiSplatRoute: typeof ApiSplatRoute;
-	AuthAuthViewRoute: typeof AuthAuthViewRoute;
-	DeviceIndexRoute: typeof DeviceIndexRoute;
-	KnowledgesIndexRoute: typeof KnowledgesIndexRoute;
+  IndexRoute: typeof IndexRoute
+  AccountSettingsRoute: typeof AccountSettingsRoute
+  ApiSplatRoute: typeof ApiSplatRoute
+  AuthAuthViewRoute: typeof AuthAuthViewRoute
+  DeviceIndexRoute: typeof DeviceIndexRoute
+  KnowledgesIndexRoute: typeof KnowledgesIndexRoute
 }
 
-declare module "@tanstack/react-router" {
-	interface FileRoutesByPath {
-		"/": {
-			id: "/";
-			path: "/";
-			fullPath: "/";
-			preLoaderRoute: typeof IndexRouteImport;
-			parentRoute: typeof rootRouteImport;
-		};
-		"/knowledges/": {
-			id: "/knowledges/";
-			path: "/knowledges";
-			fullPath: "/knowledges";
-			preLoaderRoute: typeof KnowledgesIndexRouteImport;
-			parentRoute: typeof rootRouteImport;
-		};
-		"/device/": {
-			id: "/device/";
-			path: "/device";
-			fullPath: "/device";
-			preLoaderRoute: typeof DeviceIndexRouteImport;
-			parentRoute: typeof rootRouteImport;
-		};
-		"/auth/$authView": {
-			id: "/auth/$authView";
-			path: "/auth/$authView";
-			fullPath: "/auth/$authView";
-			preLoaderRoute: typeof AuthAuthViewRouteImport;
-			parentRoute: typeof rootRouteImport;
-		};
-		"/api/$": {
-			id: "/api/$";
-			path: "/api/$";
-			fullPath: "/api/$";
-			preLoaderRoute: typeof ApiSplatRouteImport;
-			parentRoute: typeof rootRouteImport;
-		};
-		"/account/settings": {
-			id: "/account/settings";
-			path: "/account/settings";
-			fullPath: "/account/settings";
-			preLoaderRoute: typeof AccountSettingsRouteImport;
-			parentRoute: typeof rootRouteImport;
-		};
-	}
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/knowledges/': {
+      id: '/knowledges/'
+      path: '/knowledges'
+      fullPath: '/knowledges'
+      preLoaderRoute: typeof KnowledgesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/device/': {
+      id: '/device/'
+      path: '/device'
+      fullPath: '/device'
+      preLoaderRoute: typeof DeviceIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/$authView': {
+      id: '/auth/$authView'
+      path: '/auth/$authView'
+      fullPath: '/auth/$authView'
+      preLoaderRoute: typeof AuthAuthViewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/$': {
+      id: '/api/$'
+      path: '/api/$'
+      fullPath: '/api/$'
+      preLoaderRoute: typeof ApiSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account/settings': {
+      id: '/account/settings'
+      path: '/account/settings'
+      fullPath: '/account/settings'
+      preLoaderRoute: typeof AccountSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-	IndexRoute: IndexRoute,
-	AccountSettingsRoute: AccountSettingsRoute,
-	ApiSplatRoute: ApiSplatRoute,
-	AuthAuthViewRoute: AuthAuthViewRoute,
-	DeviceIndexRoute: DeviceIndexRoute,
-	KnowledgesIndexRoute: KnowledgesIndexRoute,
-};
+  IndexRoute: IndexRoute,
+  AccountSettingsRoute: AccountSettingsRoute,
+  ApiSplatRoute: ApiSplatRoute,
+  AuthAuthViewRoute: AuthAuthViewRoute,
+  DeviceIndexRoute: DeviceIndexRoute,
+  KnowledgesIndexRoute: KnowledgesIndexRoute,
+}
 export const routeTree = rootRouteImport
-	._addFileChildren(rootRouteChildren)
-	._addFileTypes<FileRouteTypes>();
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
 
-import type { createStart } from "@tanstack/react-start";
-import type { getRouter } from "./router.tsx";
-
-declare module "@tanstack/react-start" {
-	interface Register {
-		ssr: true;
-		router: Awaited<ReturnType<typeof getRouter>>;
-	}
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
 }

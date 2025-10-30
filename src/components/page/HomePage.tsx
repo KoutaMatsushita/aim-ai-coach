@@ -44,6 +44,7 @@ import {
 	ToolInput,
 	ToolOutput,
 } from "../ai-elements/tool.tsx";
+import { Text } from "@radix-ui/themes";
 
 function useInitialMessage(threadId: string) {
 	return useSWR(["/api/threads/:threads/messages", threadId], async () => {
@@ -140,6 +141,7 @@ export default function HomePage({
 													<Message from={message.role}>
 														<MessageContent>
 															<Response>{part.text}</Response>
+															<Text size="1" className="pt-4">{new Date((message.metadata as { createdAt: string })?.createdAt).toLocaleString()}</Text>
 														</MessageContent>
 													</Message>
 												</Fragment>
