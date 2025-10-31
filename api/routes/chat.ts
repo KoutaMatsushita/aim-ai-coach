@@ -1,8 +1,12 @@
 import { zValidator } from "@hono/zod-validator";
 import { toAISdkFormat } from "@mastra/ai-sdk";
-import type { MessageListInput } from "@mastra/core/agent/message-list";
 import { RuntimeContext } from "@mastra/core/di";
-import { createUIMessageStream, pruneMessages } from "ai";
+import {
+	convertToModelMessages,
+	createUIMessageStream,
+	pruneMessages,
+	type UIMessage,
+} from "ai";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import { z } from "zod";
@@ -16,28 +20,34 @@ export const chatApp = new Hono<{ Variables: Variables }>()
 		zValidator(
 			"json",
 			z.object({
-				messages: z.union([
-					z.string(),
-					z.array(z.string()),
-					z.record(z.any(), z.any()).transform((v) => v as MessageListInput),
-					z.array(
-						z.record(z.any(), z.any()).transform((v) => v as MessageListInput),
-					),
-				]),
+				id: z.string(),
+				messages: z.array(
+					z.object({
+						id: z.string(),
+						role: z.string(),
+						metadata: z
+							.object({
+								createdAt: z.string(),
+							})
+							.optional(),
+						parts: z.array(z.any()),
+					}),
+				),
+				trigger: z.string().optional(),
 			}),
 		),
 		async (c) => {
 			const currentUser = c.var.user;
-			const { messages } = await c.req.json();
+			const { messages } = await c.req.json<{ messages: UIMessage[] }>();
 
 			const agentId = "aimAiCoachAgent";
 			const agentObj = c.var.mastra.getAgent(agentId);
 
 			const prunedMessages = pruneMessages({
-				messages,
-				reasoning: 'before-last-message',
-				toolCalls: 'before-last-2-messages',
-				emptyMessages: 'remove',
+				messages: convertToModelMessages(messages),
+				reasoning: "before-last-message",
+				toolCalls: "before-last-2-messages",
+				emptyMessages: "remove",
 			});
 
 			const result = await agentObj.stream(prunedMessages, {

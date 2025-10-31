@@ -1,6 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
+import { Text } from "@radix-ui/themes";
 import { DefaultChatTransport, type ToolUIPart, type UIMessage } from "ai";
 import {
 	type FormEvent,
@@ -44,23 +45,28 @@ import {
 	ToolInput,
 	ToolOutput,
 } from "../ai-elements/tool.tsx";
-import { Text } from "@radix-ui/themes";
 
 function useInitialMessage(threadId: string) {
-	return useSWR(["/api/threads/:threads/messages", threadId], async () => {
-		const currentThreadResponse = await client.api.threads[":threadId"].$get({
-			param: { threadId },
-		});
-		const currentThread = await currentThreadResponse.json();
+	return useSWR(
+		["/api/threads/:threads/messages", threadId],
+		async () => {
+			const currentThreadResponse = await client.api.threads[":threadId"].$get({
+				param: { threadId },
+			});
+			const currentThread = await currentThreadResponse.json();
 
-		const messagesResponse = await client.api.threads[
-			":threadId"
-		].messages.$get({ param: { threadId: currentThread.id } });
-		// @ts-expect-error
-		const messages: UIMessage[] = await messagesResponse.json();
+			const messagesResponse = await client.api.threads[
+				":threadId"
+			].messages.$get({ param: { threadId: currentThread.id } });
+			// @ts-expect-error
+			const messages: UIMessage[] = await messagesResponse.json();
 
-		return messages;
-	});
+			return messages;
+		},
+		{
+			revalidateOnFocus: false,
+		},
+	);
 }
 
 export default function HomePage({
@@ -141,7 +147,12 @@ export default function HomePage({
 													<Message from={message.role}>
 														<MessageContent>
 															<Response>{part.text}</Response>
-															<Text size="1" className="pt-4">{new Date((message.metadata as { createdAt: string })?.createdAt).toLocaleString()}</Text>
+															<Text size="1" className="pt-4">
+																{new Date(
+																	(message.metadata as { createdAt: string })
+																		?.createdAt,
+																).toLocaleString()}
+															</Text>
 														</MessageContent>
 													</Message>
 												</Fragment>
