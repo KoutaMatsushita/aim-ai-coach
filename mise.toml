@@ -1,8 +1,13 @@
 [env]
 _.file = [
-    '.env'
+    '.env.development'
 ]
 
 [tools]
 bun = "1.2"
+docker-cli = "latest"
+docker-compose = "latest"
+gcloud = "latest"
+lazydocker = "latest"
+lazyssh = "latest"
 node = "22"

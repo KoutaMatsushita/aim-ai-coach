@@ -45,7 +45,10 @@ export const threadApp = new Hono<{ Variables: ThreadVariables }>()
 		const memory = await agent.getMemory();
 		if (!memory) throw new Error("memory is not found");
 
-		const result = await memory.query({ threadId: c.var.thread.id });
+		const result = await memory.query({
+			threadId: c.var.thread.id,
+			selectBy: { last: 50 },
+		});
 		const messages = convertMessages(result?.uiMessages || []).to("AIV5.UI");
 
 		return c.json(messages);

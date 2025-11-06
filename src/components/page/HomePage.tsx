@@ -1,6 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
+import { Text } from "@radix-ui/themes";
 import { DefaultChatTransport, type ToolUIPart, type UIMessage } from "ai";
 import {
 	type FormEvent,
@@ -22,7 +23,6 @@ import {
 	PromptInputFooter,
 	PromptInputSubmit,
 	PromptInputTextarea,
-	PromptInputTools,
 } from "@/components/ai-elements/prompt-input.tsx";
 import {
 	Reasoning,
@@ -36,7 +36,6 @@ import {
 	SourcesContent,
 	SourcesTrigger,
 } from "@/components/ai-elements/sources.tsx";
-import { env } from "@/env.ts";
 import { client } from "@/lib/client.ts";
 import type { PromptInputMessage } from "../ai-elements/prompt-input.tsx";
 import {
@@ -48,20 +47,26 @@ import {
 } from "../ai-elements/tool.tsx";
 
 function useInitialMessage(threadId: string) {
-	return useSWR(["/api/threads/:threads/messages", threadId], async () => {
-		const currentThreadResponse = await client.api.threads[":threadId"].$get({
-			param: { threadId },
-		});
-		const currentThread = await currentThreadResponse.json();
+	return useSWR(
+		["/api/threads/:threads/messages", threadId],
+		async () => {
+			const currentThreadResponse = await client.api.threads[":threadId"].$get({
+				param: { threadId },
+			});
+			const currentThread = await currentThreadResponse.json();
 
-		const messagesResponse = await client.api.threads[
-			":threadId"
-		].messages.$get({ param: { threadId: currentThread.id } });
-		// @ts-expect-error
-		const messages: UIMessage[] = await messagesResponse.json();
+			const messagesResponse = await client.api.threads[
+				":threadId"
+			].messages.$get({ param: { threadId: currentThread.id } });
+			// @ts-expect-error
+			const messages: UIMessage[] = await messagesResponse.json();
 
-		return messages;
-	});
+			return messages;
+		},
+		{
+			revalidateOnFocus: false,
+		},
+	);
 }
 
 export default function HomePage({
@@ -75,7 +80,7 @@ export default function HomePage({
 
 	const { messages, sendMessage, setMessages, status } = useChat({
 		transport: new DefaultChatTransport({
-			api: `${env.VITE_PUBLIC_API_URL}/api/chat`,
+			api: "/api/chat",
 			credentials: "include",
 		}),
 	});
@@ -142,6 +147,12 @@ export default function HomePage({
 													<Message from={message.role}>
 														<MessageContent>
 															<Response>{part.text}</Response>
+															<Text size="1" className="pt-4">
+																{new Date(
+																	(message.metadata as { createdAt: string })
+																		?.createdAt,
+																).toLocaleString()}
+															</Text>
 														</MessageContent>
 													</Message>
 												</Fragment>

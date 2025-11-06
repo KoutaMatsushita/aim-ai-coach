@@ -1,5 +1,6 @@
 import { EmailTemplate } from "@daveyplate/better-auth-ui/server";
 import type { CloudflareBindings } from "api/bindings";
+import { env } from "hono/adapter";
 import { createMiddleware } from "hono/factory";
 import { Resend } from "resend";
 import { createAuth } from "../auth";
@@ -9,19 +10,27 @@ export const setupAuth = createMiddleware<{
 	Bindings: CloudflareBindings;
 	Variables: Variables;
 }>(async (c, next) => {
-	const resend = new Resend(c.env.RESEND_API_KEY);
+	const {
+		RESEND_API_KEY,
+		AUTH_BASE_URL,
+		BETTER_AUTH_SECRET,
+		FRONT_URL,
+		DISCORD_CLIENT_ID,
+		DISCORD_CLIENT_SECRET,
+	} = env<CloudflareBindings>(c);
+	const resend = new Resend(RESEND_API_KEY);
 
 	c.set(
 		"auth",
 		createAuth({
 			db: c.var.db,
-			baseURL: c.env.AUTH_BASE_URL,
-			secret: c.env.BETTER_AUTH_SECRET,
-			trustedOrigins: [c.env.FRONT_URL],
+			baseURL: AUTH_BASE_URL,
+			secret: BETTER_AUTH_SECRET,
+			trustedOrigins: [FRONT_URL],
 			discord: {
-				clientId: c.env.DISCORD_CLIENT_ID,
-				clientSecret: c.env.DISCORD_CLIENT_SECRET,
-				redirectURI: `${c.env.AUTH_BASE_URL}/api/auth/callback/discord`,
+				clientId: DISCORD_CLIENT_ID,
+				clientSecret: DISCORD_CLIENT_SECRET,
+				redirectURI: `${AUTH_BASE_URL}/api/auth/callback/discord`,
 			},
 			sendMail: async ({ email, url }) => {
 				await resend.emails.send({
@@ -33,7 +42,7 @@ export const setupAuth = createMiddleware<{
 						content: "",
 						heading: "Verify Email",
 						siteName: "aim-ai-coach",
-						baseUrl: c.env.FRONT_URL,
+						baseUrl: FRONT_URL,
 						url,
 					}),
 				});
