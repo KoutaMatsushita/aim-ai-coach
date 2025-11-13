@@ -1,0 +1,22 @@
+{
+	"feature_name": "aim-coach-ai-agent",
+	"created_at": "2025-11-10T21:37:00.000Z",
+	"updated_at": "2025-11-10T23:45:00.000Z",
+	"language": "ja",
+	"phase": "tasks-generated",
+	"approvals": {
+		"requirements": {
+			"generated": true,
+			"approved": true
+		},
+		"design": {
+			"generated": true,
+			"approved": true
+		},
+		"tasks": {
+			"generated": true,
+			"approved": true
+		}
+	},
+	"ready_for_implementation": true
+}

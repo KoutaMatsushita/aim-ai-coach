@@ -1,10 +1,20 @@
 import { zValidator } from "@hono/zod-validator";
+import { LibSQLVector } from "@mastra/libsql";
 import { Hono } from "hono";
 import z from "zod";
+import { env } from "../env";
 import { contentAnalyzer } from "../mastra/services/content-analyzer";
 import { RAGLibSQLService } from "../mastra/services/rag-libsql";
 import { youtubeService } from "../mastra/services/youtube";
 import type { RequiredAuthVariables } from "../variables";
+
+// Helper to get vector store
+function getVectorStore() {
+	return new LibSQLVector({
+		connectionUrl: env.TURSO_DATABASE_URL,
+		authToken: env.TURSO_AUTH_TOKEN,
+	});
+}
 
 function extractVideoId(url: string): string | null {
 	const patterns = [
@@ -36,9 +46,8 @@ export const knowledgesApp = new Hono<{
 			const { url } = await c.req.json();
 
 			try {
-				const ragLibSQLService = new RAGLibSQLService(
-					c.var.mastra.getVector("vector"),
-				);
+				const vectorStore = getVectorStore();
+				const ragLibSQLService = new RAGLibSQLService(vectorStore);
 				await ragLibSQLService.initializeIndex();
 
 				// YouTube URLからvideo IDを抽出
@@ -109,9 +118,8 @@ export const knowledgesApp = new Hono<{
 			const { title, content, forceOverwrite } = await c.req.json();
 
 			try {
-				const ragLibSQLService = new RAGLibSQLService(
-					c.var.mastra.getVector("vector"),
-				);
+				const vectorStore = getVectorStore();
+				const ragLibSQLService = new RAGLibSQLService(vectorStore);
 				await ragLibSQLService.initializeIndex();
 
 				// Gemini解析実行（テキスト内容を解析）

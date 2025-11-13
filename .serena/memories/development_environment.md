@@ -16,7 +16,7 @@ CLOUDFLARE_D1_DATABASE_ID=your_database_id
 CLOUDFLARE_RUNTIME_API_TOKEN=your_runtime_token
 
 # AI Services
-GOOGLE_GENERATIVE_AI_API_KEY=your_google_ai_key
+GOOGLE_API_KEY=your_google_ai_key
 YOUTUBE_API_KEY=your_youtube_key
 
 # Authentication

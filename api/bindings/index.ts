@@ -1,7 +1,7 @@
 export type CloudflareBindings = {
 	ASSETS: Fetcher;
 
-	GOOGLE_GENERATIVE_AI_API_KEY: string;
+	GOOGLE_API_KEY: string;
 	YOUTUBE_API_KEY: string;
 
 	DISCORD_CLIENT_ID: string;

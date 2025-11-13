@@ -214,6 +214,98 @@ export const aimlabTaskTable = sqliteTable(
 );
 
 // ========================================
+// AI Coach Feature テーブル (Task 8)
+// ========================================
+
+/**
+ * Playlists テーブル
+ * Task 8.1: プレイリストの永続化
+ */
+export const playlistsTable = sqliteTable(
+	"playlists",
+	{
+		id: text("id").primaryKey(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		title: text("title").notNull(),
+		description: text("description").notNull(),
+		// JSON 型フィールド（scenarios, targetWeaknesses）
+		scenarios: text("scenarios", { mode: "json" }).notNull().$type<
+			Array<{
+				scenarioName: string;
+				platform: "kovaaks" | "aimlab";
+				purpose: string;
+				expectedEffect: string;
+				duration: number;
+				order: number;
+				difficultyLevel: "beginner" | "intermediate" | "advanced" | "expert";
+			}>
+		>(),
+		targetWeaknesses: text("target_weaknesses", { mode: "json" })
+			.notNull()
+			.$type<string[]>(),
+		totalDuration: integer("total_duration").notNull(),
+		reasoning: text("reasoning").notNull(),
+		createdAt: integer("created_at", { mode: "timestamp" })
+			.defaultNow()
+			.notNull(),
+		isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
+	},
+	(t) => [
+		// userId と isActive のインデックス
+		index("playlists_user_id_idx").on(t.userId),
+		index("playlists_is_active_idx").on(t.isActive),
+		// 複合インデックス（アクティブなプレイリスト検索）
+		index("playlists_user_active_idx").on(t.userId, t.isActive),
+	],
+);
+
+/**
+ * Daily Reports テーブル
+ * Task 8.2: デイリーレポートの永続化
+ */
+export const dailyReportsTable = sqliteTable(
+	"daily_reports",
+	{
+		id: text("id").primaryKey(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		date: integer("date", { mode: "timestamp" }).notNull(),
+		sessionsCount: integer("sessions_count").notNull(),
+		totalDuration: integer("total_duration").notNull(),
+		performanceRating: text("performance_rating", {
+			enum: ["good", "normal", "needs_improvement"],
+		}).notNull(),
+		// JSON 型フィールド（achievements, challenges, tomorrowRecommendations）
+		achievements: text("achievements", { mode: "json" })
+			.notNull()
+			.$type<string[]>(),
+		challenges: text("challenges", { mode: "json" })
+			.notNull()
+			.$type<string[]>(),
+		tomorrowRecommendations: text("tomorrow_recommendations", { mode: "json" })
+			.notNull()
+			.$type<{
+				focusSkills: string[];
+				recommendedScenarios: string[];
+				recommendedDuration: number;
+			}>(),
+		createdAt: integer("created_at", { mode: "timestamp" })
+			.defaultNow()
+			.notNull(),
+	},
+	(t) => [
+		// userId と date のインデックス
+		index("daily_reports_user_id_idx").on(t.userId),
+		index("daily_reports_date_idx").on(t.date),
+		// 複合インデックス（ユーザーごとの日次レポート検索）
+		index("daily_reports_user_date_idx").on(t.userId, t.date),
+	],
+);
+
+// ========================================
 // Relations
 // ========================================
 
@@ -223,6 +315,8 @@ export const usersRelations = relations(users, ({ many }) => ({
 	accounts: many(accounts),
 	kovaaksScores: many(kovaaksScoresTable),
 	aimlabTasks: many(aimlabTaskTable),
+	playlists: many(playlistsTable),
+	dailyReports: many(dailyReportsTable),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -260,6 +354,21 @@ export const kovaaksScoresRelation = relations(
 export const aimlabTaskRelation = relations(aimlabTaskTable, ({ one }) => ({
 	user: one(users, {
 		fields: [aimlabTaskTable.userId],
+		references: [users.id],
+	}),
+}));
+
+// AI Coach Feature リレーション
+export const playlistsRelation = relations(playlistsTable, ({ one }) => ({
+	user: one(users, {
+		fields: [playlistsTable.userId],
+		references: [users.id],
+	}),
+}));
+
+export const dailyReportsRelation = relations(dailyReportsTable, ({ one }) => ({
+	user: one(users, {
+		fields: [dailyReportsTable.userId],
 		references: [users.id],
 	}),
 }));
@@ -339,3 +448,14 @@ export type LocalCompleteAimlabTask = z.infer<
 export type LocalCompleteAimlabTaskInsert = z.infer<
 	typeof LocalCompleteAimlabTaskInsertSchema
 >;
+
+// AI Coach Features
+export const PlaylistInsertSchema = createInsertSchema(playlistsTable);
+export const PlaylistSelectSchema = createSelectSchema(playlistsTable);
+export type Playlist = z.infer<typeof PlaylistSelectSchema>;
+export type PlaylistInsert = z.infer<typeof PlaylistInsertSchema>;
+
+export const DailyReportInsertSchema = createInsertSchema(dailyReportsTable);
+export const DailyReportSelectSchema = createSelectSchema(dailyReportsTable);
+export type DailyReport = z.infer<typeof DailyReportSelectSchema>;
+export type DailyReportInsert = z.infer<typeof DailyReportInsertSchema>;

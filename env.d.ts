@@ -8,7 +8,7 @@ declare namespace Cloudflare {
 	interface Env {
 		TURSO_DATABASE_URL: string;
 		TURSO_AUTH_TOKEN: string;
-		GOOGLE_GENERATIVE_AI_API_KEY: string;
+		GOOGLE_API_KEY: string;
 		YOUTUBE_API_KEY: string;
 		DISCORD_CLIENT_ID: string;
 		DISCORD_CLIENT_SECRET: string;
@@ -34,7 +34,7 @@ declare namespace NodeJS {
 				Cloudflare.Env,
 				| "TURSO_DATABASE_URL"
 				| "TURSO_AUTH_TOKEN"
-				| "GOOGLE_GENERATIVE_AI_API_KEY"
+				| "GOOGLE_API_KEY"
 				| "YOUTUBE_API_KEY"
 				| "DISCORD_CLIENT_ID"
 				| "DISCORD_CLIENT_SECRET"
