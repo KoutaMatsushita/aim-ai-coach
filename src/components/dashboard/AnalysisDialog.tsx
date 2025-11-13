@@ -1,12 +1,12 @@
 import {
-	Dialog,
-	Flex,
-	Text,
 	Badge,
 	Button,
+	Dialog,
+	Flex,
 	ScrollArea,
+	Text,
 } from "@radix-ui/themes";
-import { TrendingUp, TrendingDown, Minus, ListPlus } from "lucide-react";
+import { ListPlus, Minus, TrendingDown, TrendingUp } from "lucide-react";
 import type { ScoreAnalysis } from "../../../api/langgraph/types";
 import { AnalysisChart } from "./AnalysisChart";
 
@@ -122,13 +122,12 @@ export function AnalysisDialog({
 						)}
 
 						{/* チャート */}
-						{analysis.chartData &&
-							analysis.chartData.labels.length > 0 && (
-								<Flex direction="column" gap="2">
-									<Text weight="medium">パフォーマンス推移</Text>
-									<AnalysisChart chartData={analysis.chartData} />
-								</Flex>
-							)}
+						{analysis.chartData && analysis.chartData.labels.length > 0 && (
+							<Flex direction="column" gap="2">
+								<Text weight="medium">パフォーマンス推移</Text>
+								<AnalysisChart chartData={analysis.chartData} />
+							</Flex>
+						)}
 
 						{/* プレイリスト生成への導線 */}
 						<Flex justify="end" gap="2" mt="4">

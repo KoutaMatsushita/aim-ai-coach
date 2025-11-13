@@ -1,13 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock all the components
 vi.mock("@/components/dashboard/CoachingContextProvider", () => ({
 	CoachingContextProvider: ({
 		children,
 		userId,
-	}: { children: React.ReactNode; userId: string }) => (
+	}: {
+		children: React.ReactNode;
+		userId: string;
+	}) => (
 		<div data-testid="coaching-context-provider" data-userid={userId}>
 			{children}
 		</div>
@@ -50,7 +53,10 @@ vi.mock("@/components/dashboard/ProgressReviewCard", () => ({
 	ProgressReviewCard: ({
 		userId,
 		userContext,
-	}: { userId: string; userContext: string }) => (
+	}: {
+		userId: string;
+		userContext: string;
+	}) => (
 		<div data-testid="progress-review-card">
 			Progress Review for {userId} ({userContext})
 		</div>
@@ -90,8 +96,11 @@ describe("DashboardPage", () => {
 
 		// Mock AuthLayout to provide user
 		vi.mock("@/components/layout/auth", () => ({
-			AuthLayout: ({ children }: { children: (user: any) => React.ReactNode }) =>
-				children({ id: "test-user", name: "Test User" }),
+			AuthLayout: ({
+				children,
+			}: {
+				children: (user: any) => React.ReactNode;
+			}) => children({ id: "test-user", name: "Test User" }),
 		}));
 
 		renderWithProvider(<Component />);
@@ -106,8 +115,11 @@ describe("DashboardPage", () => {
 		const Component = Route.options.component as React.ComponentType;
 
 		vi.mock("@/components/layout/auth", () => ({
-			AuthLayout: ({ children }: { children: (user: any) => React.ReactNode }) =>
-				children({ id: "test-user", name: "Test User" }),
+			AuthLayout: ({
+				children,
+			}: {
+				children: (user: any) => React.ReactNode;
+			}) => children({ id: "test-user", name: "Test User" }),
 		}));
 
 		renderWithProvider(<Component />);
@@ -119,15 +131,19 @@ describe("DashboardPage", () => {
 		const Component = Route.options.component as React.ComponentType;
 
 		vi.mock("@/components/layout/auth", () => ({
-			AuthLayout: ({ children }: { children: (user: any) => React.ReactNode }) =>
-				children({ id: "test-user", name: "Test User" }),
+			AuthLayout: ({
+				children,
+			}: {
+				children: (user: any) => React.ReactNode;
+			}) => children({ id: "test-user", name: "Test User" }),
 		}));
 
 		renderWithProvider(<Component />);
 
 		expect(screen.getByTestId("coaching-context-provider")).toBeInTheDocument();
-		expect(
-			screen.getByTestId("coaching-context-provider"),
-		).toHaveAttribute("data-userid", "test-user");
+		expect(screen.getByTestId("coaching-context-provider")).toHaveAttribute(
+			"data-userid",
+			"test-user",
+		);
 	});
 });

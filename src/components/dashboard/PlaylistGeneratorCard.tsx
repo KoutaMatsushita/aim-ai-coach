@@ -1,7 +1,14 @@
-import { Card, Flex, Text, Button, TextArea, TextField } from "@radix-ui/themes";
+import {
+	Button,
+	Card,
+	Flex,
+	Text,
+	TextArea,
+	TextField,
+} from "@radix-ui/themes";
 import { ListPlus } from "lucide-react";
+import { Suspense, useState } from "react";
 import { usePlaylistGenerator } from "./hooks/usePlaylistGenerator";
-import { useState, Suspense } from "react";
 import { LazyPlaylistDialog } from "./LazyComponents";
 import { DialogSkeleton } from "./SuspenseFallback";
 

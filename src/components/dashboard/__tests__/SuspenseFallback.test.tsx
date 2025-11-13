@@ -1,9 +1,6 @@
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import {
-	DialogSkeleton,
-	ChatModalSkeleton,
-} from "../SuspenseFallback";
+import { describe, expect, it } from "vitest";
+import { ChatModalSkeleton, DialogSkeleton } from "../SuspenseFallback";
 
 describe("Suspense Fallback Components", () => {
 	describe("DialogSkeleton", () => {

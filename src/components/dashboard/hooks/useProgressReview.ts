@@ -12,7 +12,7 @@ export interface UseProgressReviewResult {
 
 export function useProgressReview(
 	userId: string,
-	enabled: boolean
+	enabled: boolean,
 ): UseProgressReviewResult {
 	const {
 		data: review,

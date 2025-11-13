@@ -48,8 +48,7 @@ export function useDashboardInitialLoad(
 				staleTime: 5 * 60 * 1000, // 5分
 				gcTime: 10 * 60 * 1000, // 10分
 				retry: 3,
-				retryDelay: (attemptIndex) =>
-					Math.min(1000 * 2 ** attemptIndex, 30000),
+				retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
 			},
 			// Query 2: Daily Report
 			{
@@ -68,8 +67,7 @@ export function useDashboardInitialLoad(
 				staleTime: 5 * 60 * 1000,
 				gcTime: 10 * 60 * 1000,
 				retry: 3,
-				retryDelay: (attemptIndex) =>
-					Math.min(1000 * 2 ** attemptIndex, 30000),
+				retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
 			},
 			// Query 3: Coaching Context
 			{
@@ -88,8 +86,7 @@ export function useDashboardInitialLoad(
 				staleTime: 5 * 60 * 1000,
 				gcTime: 10 * 60 * 1000,
 				retry: 3,
-				retryDelay: (attemptIndex) =>
-					Math.min(1000 * 2 ** attemptIndex, 30000),
+				retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
 			},
 		],
 	});

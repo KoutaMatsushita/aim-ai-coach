@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ErrorDisplay } from "../ErrorDisplay";
 
 // Mock useNavigate from TanStack Router
@@ -64,10 +64,10 @@ describe("ErrorDisplay", () => {
 
 		render(<ErrorDisplay error={error} onRetry={vi.fn()} />);
 
-		expect(screen.getByText(/サーバーエラーが発生しました/i)).toBeInTheDocument();
 		expect(
-			screen.getByRole("button", { name: /再試行/i }),
+			screen.getByText(/サーバーエラーが発生しました/i),
 		).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: /再試行/i })).toBeInTheDocument();
 	});
 
 	it("HTTPステータスコードが指定されている場合、コードを表示する", () => {
@@ -115,7 +115,11 @@ describe("ErrorDisplay", () => {
 		const error404 = new Error("Not found");
 		(error404 as any).status = 404;
 		rerender(
-			<ErrorDisplay error={error404} onRetry={vi.fn()} data-testid="error-404" />,
+			<ErrorDisplay
+				error={error404}
+				onRetry={vi.fn()}
+				data-testid="error-404"
+			/>,
 		);
 		expect(screen.getByTestId("error-404")).toBeInTheDocument();
 	});

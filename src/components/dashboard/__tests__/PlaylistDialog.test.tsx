@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { PlaylistDialog } from "../PlaylistDialog";
+import { describe, expect, it, vi } from "vitest";
 import type { Playlist } from "../../../../api/langgraph/types";
+import { PlaylistDialog } from "../PlaylistDialog";
 
 describe("PlaylistDialog", () => {
 	const mockPlaylist: Playlist = {
@@ -31,7 +31,8 @@ describe("PlaylistDialog", () => {
 		],
 		targetWeaknesses: ["tracking", "small target accuracy"],
 		totalDuration: 35,
-		reasoning: "スコア分析の結果、トラッキング精度に課題があることが判明したため",
+		reasoning:
+			"スコア分析の結果、トラッキング精度に課題があることが判明したため",
 		createdAt: new Date("2025-01-10"),
 		isActive: true,
 	};
@@ -45,7 +46,9 @@ describe("PlaylistDialog", () => {
 			/>,
 		);
 
-		expect(screen.getByText("トラッキング改善プレイリスト")).toBeInTheDocument();
+		expect(
+			screen.getByText("トラッキング改善プレイリスト"),
+		).toBeInTheDocument();
 	});
 
 	it("プレイリスト説明を表示する", () => {
@@ -57,7 +60,9 @@ describe("PlaylistDialog", () => {
 			/>,
 		);
 
-		expect(screen.getByText("トラッキング精度を向上させる練習プラン")).toBeInTheDocument();
+		expect(
+			screen.getByText("トラッキング精度を向上させる練習プラン"),
+		).toBeInTheDocument();
 	});
 
 	it("対象弱点を表示する", () => {
@@ -95,7 +100,9 @@ describe("PlaylistDialog", () => {
 		);
 
 		expect(screen.getByText("1w6ts reload small")).toBeInTheDocument();
-		expect(screen.getByText("Close Long Strafes Invincible")).toBeInTheDocument();
+		expect(
+			screen.getByText("Close Long Strafes Invincible"),
+		).toBeInTheDocument();
 	});
 
 	it("各シナリオの目的と期待効果を表示する", () => {
@@ -108,7 +115,9 @@ describe("PlaylistDialog", () => {
 		);
 
 		expect(screen.getByText("トラッキング精度向上")).toBeInTheDocument();
-		expect(screen.getByText("小さい目標への追従性が改善される")).toBeInTheDocument();
+		expect(
+			screen.getByText("小さい目標への追従性が改善される"),
+		).toBeInTheDocument();
 	});
 
 	it("推論理由を表示する", () => {
@@ -121,7 +130,9 @@ describe("PlaylistDialog", () => {
 		);
 
 		expect(
-			screen.getByText(/スコア分析の結果、トラッキング精度に課題があることが判明したため/i),
+			screen.getByText(
+				/スコア分析の結果、トラッキング精度に課題があることが判明したため/i,
+			),
 		).toBeInTheDocument();
 	});
 });

@@ -1,5 +1,5 @@
-import { Card, Badge, Flex, Text, Skeleton, Button } from "@radix-ui/themes";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Badge, Button, Card, Flex, Skeleton, Text } from "@radix-ui/themes";
+import { Minus, TrendingDown, TrendingUp } from "lucide-react";
 import { useCoachingStatus } from "./hooks/useCoachingStatus";
 
 interface CoachingStatusCardProps {
@@ -29,7 +29,11 @@ export function CoachingStatusCard({ userId }: CoachingStatusCardProps) {
 			<Card>
 				<Flex direction="column" gap="3" align="center">
 					<Text color="red">エラーが発生しました</Text>
-					{error && <Text size="2" color="gray">{error.message}</Text>}
+					{error && (
+						<Text size="2" color="gray">
+							{error.message}
+						</Text>
+					)}
 					<Button onClick={() => refetch()}>リトライ</Button>
 				</Flex>
 			</Card>
@@ -83,7 +87,15 @@ export function CoachingStatusCard({ userId }: CoachingStatusCardProps) {
 						<Flex align="center" gap="2">
 							<Text weight="medium">トレンド</Text>
 							{getTrendIcon(status.scoreTrendSummary.trend)}
-							<Badge color={status.scoreTrendSummary.trend === "improving" ? "green" : status.scoreTrendSummary.trend === "declining" ? "red" : "gray"}>
+							<Badge
+								color={
+									status.scoreTrendSummary.trend === "improving"
+										? "green"
+										: status.scoreTrendSummary.trend === "declining"
+											? "red"
+											: "gray"
+								}
+							>
 								{status.scoreTrendSummary.trend}
 							</Badge>
 						</Flex>
@@ -107,7 +119,8 @@ export function CoachingStatusCard({ userId }: CoachingStatusCardProps) {
 							アクティブプレイリスト
 						</Text>
 						<Text size="2">
-							{status.activePlaylist.title} ({status.activePlaylist.scenariosCount}
+							{status.activePlaylist.title} (
+							{status.activePlaylist.scenariosCount}
 							シナリオ)
 						</Text>
 					</Flex>

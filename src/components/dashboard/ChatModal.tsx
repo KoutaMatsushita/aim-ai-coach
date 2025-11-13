@@ -1,4 +1,4 @@
-import { Dialog, IconButton, Flex } from "@radix-ui/themes";
+import { Dialog, Flex, IconButton } from "@radix-ui/themes";
 import { MessageCircle, X } from "lucide-react";
 import { useState } from "react";
 import { AimAssistant } from "../AimAssistant";

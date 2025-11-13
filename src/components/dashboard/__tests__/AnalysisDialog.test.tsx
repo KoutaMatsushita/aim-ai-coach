@@ -1,8 +1,8 @@
-import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { AnalysisDialog } from "../AnalysisDialog";
+import { describe, expect, it, vi } from "vitest";
 import type { ScoreAnalysis } from "../../../../api/langgraph/types";
+import { AnalysisDialog } from "../AnalysisDialog";
 
 describe("AnalysisDialog", () => {
 	const mockAnalysis: ScoreAnalysis = {

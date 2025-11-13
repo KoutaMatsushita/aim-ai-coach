@@ -1,6 +1,6 @@
 import { AreaChart } from "@tremor/react";
-import type { ScoreAnalysis } from "../../../api/langgraph/types";
 import { chartDataToTremorFormat } from "@/lib/chartDataUtils";
+import type { ScoreAnalysis } from "../../../api/langgraph/types";
 
 interface AnalysisChartProps {
 	chartData: ScoreAnalysis["chartData"];

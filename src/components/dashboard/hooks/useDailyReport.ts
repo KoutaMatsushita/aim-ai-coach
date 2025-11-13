@@ -12,7 +12,7 @@ export interface UseDailyReportResult {
 
 export function useDailyReport(
 	userId: string,
-	date?: Date
+	date?: Date,
 ): UseDailyReportResult {
 	const {
 		data: report,

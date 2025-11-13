@@ -1,9 +1,9 @@
 "use client";
 
-import { createContext, useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { createContext, useContext } from "react";
 import { client } from "@/lib/client";
-import type { UserContext, CoachingPhase } from "../../../api/langgraph/types";
+import type { CoachingPhase, UserContext } from "../../../api/langgraph/types";
 
 // コンテキスト値の型定義
 export interface CoachingContextValue {
@@ -27,7 +27,7 @@ export interface CoachingContextValue {
 
 // React Context作成
 const CoachingContext = createContext<CoachingContextValue | undefined>(
-	undefined
+	undefined,
 );
 
 // Provider Props
@@ -106,7 +106,7 @@ export function useCoachingContext(): CoachingContextValue {
 
 	if (context === undefined) {
 		throw new Error(
-			"useCoachingContext must be used within a CoachingContextProvider (CoachingContextProviderでラップされていません)"
+			"useCoachingContext must be used within a CoachingContextProvider (CoachingContextProviderでラップされていません)",
 		);
 	}
 

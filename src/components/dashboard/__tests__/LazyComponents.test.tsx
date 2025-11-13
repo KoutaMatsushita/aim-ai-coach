@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { Suspense } from "react";
+import { describe, expect, it, vi } from "vitest";
 
 // Mock the actual components before importing lazy versions
 vi.mock("../AnalysisDialog", () => ({

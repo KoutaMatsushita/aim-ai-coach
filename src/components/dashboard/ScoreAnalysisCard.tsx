@@ -1,5 +1,12 @@
-import { Card, Flex, Text, Button, Badge, ScrollArea } from "@radix-ui/themes";
-import { Play, X, TrendingUp, TrendingDown, Minus, ListPlus } from "lucide-react";
+import { Badge, Button, Card, Flex, ScrollArea, Text } from "@radix-ui/themes";
+import {
+	ListPlus,
+	Minus,
+	Play,
+	TrendingDown,
+	TrendingUp,
+	X,
+} from "lucide-react";
 import { useScoreAnalysis } from "./hooks/useScoreAnalysis";
 
 interface ScoreAnalysisCardProps {
@@ -7,8 +14,14 @@ interface ScoreAnalysisCardProps {
 }
 
 export function ScoreAnalysisCard({ userId }: ScoreAnalysisCardProps) {
-	const { analysis, isLoading, isError, error, executeAnalysis, cancelAnalysis } =
-		useScoreAnalysis(userId);
+	const {
+		analysis,
+		isLoading,
+		isError,
+		error,
+		executeAnalysis,
+		cancelAnalysis,
+	} = useScoreAnalysis(userId);
 
 	const getTrendIcon = (trend: "improving" | "stable" | "declining") => {
 		switch (trend) {
@@ -69,11 +82,7 @@ export function ScoreAnalysisCard({ userId }: ScoreAnalysisCardProps) {
 				{isLoading ? (
 					<Flex direction="column" gap="3" align="center">
 						<Text>分析中...</Text>
-						<Button
-							color="red"
-							variant="soft"
-							onClick={() => cancelAnalysis()}
-						>
+						<Button color="red" variant="soft" onClick={() => cancelAnalysis()}>
 							<X size={16} />
 							キャンセル
 						</Button>

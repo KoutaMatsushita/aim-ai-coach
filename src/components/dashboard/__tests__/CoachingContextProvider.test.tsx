@@ -1,7 +1,10 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { CoachingContextProvider, useCoachingContext } from "../CoachingContextProvider";
+import { render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it } from "vitest";
+import {
+	CoachingContextProvider,
+	useCoachingContext,
+} from "../CoachingContextProvider";
 
 // テスト用コンポーネント
 function TestConsumer() {
@@ -45,7 +48,7 @@ describe("CoachingContextProvider", () => {
 				<CoachingContextProvider userId={testUserId}>
 					<TestConsumer />
 				</CoachingContextProvider>
-			</QueryClientProvider>
+			</QueryClientProvider>,
 		);
 
 		// ローディング状態を確認

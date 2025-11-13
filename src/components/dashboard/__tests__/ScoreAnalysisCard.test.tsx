@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ScoreAnalysisCard } from "../ScoreAnalysisCard";
 
 // Mock useScoreAnalysis hook
@@ -43,7 +43,9 @@ describe("ScoreAnalysisCard", () => {
 
 		renderWithProvider(<ScoreAnalysisCard userId="test-user" />);
 
-		expect(screen.getByRole("button", { name: /分析実行/i })).toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: /分析実行/i }),
+		).toBeInTheDocument();
 	});
 
 	it("ローディング中はスピナーとキャンセルボタンを表示する", () => {
@@ -59,7 +61,9 @@ describe("ScoreAnalysisCard", () => {
 		renderWithProvider(<ScoreAnalysisCard userId="test-user" />);
 
 		expect(screen.getByText(/分析中/i)).toBeInTheDocument();
-		expect(screen.getByRole("button", { name: /キャンセル/i })).toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: /キャンセル/i }),
+		).toBeInTheDocument();
 	});
 
 	it("エラー時はエラーメッセージとリトライボタンを表示する", () => {
@@ -75,7 +79,9 @@ describe("ScoreAnalysisCard", () => {
 		renderWithProvider(<ScoreAnalysisCard userId="test-user" />);
 
 		expect(screen.getByText(/エラーが発生しました/i)).toBeInTheDocument();
-		expect(screen.getByRole("button", { name: /リトライ/i })).toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: /リトライ/i }),
+		).toBeInTheDocument();
 	});
 
 	it("分析ボタンクリックでexecuteAnalysisを呼び出す", async () => {

@@ -1,15 +1,15 @@
 import {
+	Badge,
+	Button,
 	Card,
 	Flex,
-	Text,
-	Skeleton,
-	Button,
 	Progress,
-	Badge,
+	Skeleton,
+	Text,
 } from "@radix-ui/themes";
-import { Calendar, TrendingUp, Target } from "lucide-react";
-import { useProgressReview } from "./hooks/useProgressReview";
+import { Calendar, Target, TrendingUp } from "lucide-react";
 import type { UserContext } from "../../../api/langgraph/types";
+import { useProgressReview } from "./hooks/useProgressReview";
 
 interface ProgressReviewCardProps {
 	userId: string;
@@ -97,7 +97,8 @@ export function ProgressReviewCard({
 					</Flex>
 					<Text size="2" color="gray">
 						{new Date(review.reviewPeriod.start).toLocaleDateString("ja-JP")} 〜{" "}
-						{new Date(review.reviewPeriod.end).toLocaleDateString("ja-JP")} ({review.reviewPeriod.days}
+						{new Date(review.reviewPeriod.end).toLocaleDateString("ja-JP")} (
+						{review.reviewPeriod.days}
 						日間)
 					</Text>
 				</Flex>
@@ -150,7 +151,8 @@ export function ProgressReviewCard({
 								</Flex>
 								<Progress value={goal.progressPercent} />
 								<Text size="1" color="gray">
-									{goal.currentValue} / {goal.targetValue} ({goal.progressPercent}
+									{goal.currentValue} / {goal.targetValue} (
+									{goal.progressPercent}
 									%)
 								</Text>
 							</Flex>

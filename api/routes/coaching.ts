@@ -113,7 +113,10 @@ export const coachingApp = new Hono<{ Variables: Variables }>()
 						periodStart = new Date(Date.now() - 24 * 60 * 60 * 1000);
 					} else if (analysisData.period === "last_7d") {
 						periodStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-					} else if (analysisData.period && analysisData.period.includes(" - ")) {
+					} else if (
+						analysisData.period &&
+						analysisData.period.includes(" - ")
+					) {
 						// "YYYY-MM-DD - YYYY-MM-DD" 形式
 						const [startStr, endStr] = analysisData.period.split(" - ");
 						periodStart = new Date(startStr);
@@ -131,7 +134,8 @@ export const coachingApp = new Hono<{ Variables: Variables }>()
 						},
 						trend: analysisData.trend || "stable",
 						strengths: analysisData.strengths || [],
-						challenges: analysisData.weaknesses || analysisData.challenges || [],
+						challenges:
+							analysisData.weaknesses || analysisData.challenges || [],
 						milestones: analysisData.recommendations || [],
 						chartData: {
 							labels: [],
@@ -538,7 +542,8 @@ export const coachingApp = new Hono<{ Variables: Variables }>()
 					goalProgress: [],
 					rehabilitationPlan: reviewData.nextGoals || [],
 					motivationalMessage:
-						reviewData.progressSummary || "お帰りなさい！一緒に頑張りましょう。",
+						reviewData.progressSummary ||
+						"お帰りなさい！一緒に頑張りましょう。",
 					generatedAt: new Date(),
 				};
 

@@ -16,7 +16,7 @@ export interface UsePlaylistGeneratorResult {
 }
 
 export function usePlaylistGenerator(
-	userId: string
+	userId: string,
 ): UsePlaylistGeneratorResult {
 	const queryClient = useQueryClient();
 

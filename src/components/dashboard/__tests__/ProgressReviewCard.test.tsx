@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ProgressReviewCard } from "../ProgressReviewCard";
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UserContext } from "../../../../api/langgraph/types";
+import { ProgressReviewCard } from "../ProgressReviewCard";
 
 // Mock hooks
 vi.mock("../hooks/useProgressReview", () => ({
@@ -122,7 +122,9 @@ describe("ProgressReviewCard", () => {
 		);
 
 		expect(screen.getByText(/エラーが発生しました/i)).toBeInTheDocument();
-		expect(screen.getByRole("button", { name: /リトライ/i })).toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: /リトライ/i }),
+		).toBeInTheDocument();
 	});
 
 	it("目標進捗をProgressバーで表示する", () => {

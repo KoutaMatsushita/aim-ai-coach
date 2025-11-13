@@ -1,6 +1,5 @@
+import { Container, Flex, Grid } from "@radix-ui/themes";
 import { createFileRoute } from "@tanstack/react-router";
-import { AuthLayout } from "@/components/layout/auth";
-import { Container, Grid, Flex } from "@radix-ui/themes";
 import { Suspense } from "react";
 import {
 	CoachingContextProvider,
@@ -8,11 +7,12 @@ import {
 } from "@/components/dashboard/CoachingContextProvider";
 import { CoachingStatusCard } from "@/components/dashboard/CoachingStatusCard";
 import { DailyReportCard } from "@/components/dashboard/DailyReportCard";
-import { ScoreAnalysisCard } from "@/components/dashboard/ScoreAnalysisCard";
+import { LazyChatModal } from "@/components/dashboard/LazyComponents";
 import { PlaylistGeneratorCard } from "@/components/dashboard/PlaylistGeneratorCard";
 import { ProgressReviewCard } from "@/components/dashboard/ProgressReviewCard";
-import { LazyChatModal } from "@/components/dashboard/LazyComponents";
+import { ScoreAnalysisCard } from "@/components/dashboard/ScoreAnalysisCard";
 import { ChatModalSkeleton } from "@/components/dashboard/SuspenseFallback";
+import { AuthLayout } from "@/components/layout/auth";
 
 export const Route = createFileRoute("/dashboard/")({
 	component: DashboardPage,
@@ -35,10 +35,7 @@ function DashboardContent({ userId }: { userId: string }) {
 						<ScoreAnalysisCard userId={userId} />
 						<PlaylistGeneratorCard userId={userId} />
 						{userContext && (
-							<ProgressReviewCard
-								userId={userId}
-								userContext={userContext}
-							/>
+							<ProgressReviewCard userId={userId} userContext={userContext} />
 						)}
 					</Grid>
 				</Flex>

@@ -130,9 +130,7 @@ async function playlistBuilderNode(
 		);
 
 		// LLM呼び出し (Structured Output使用)
-		const { ChatGoogleGenerativeAI } = await import(
-			"@langchain/google-genai"
-		);
+		const { ChatGoogleGenerativeAI } = await import("@langchain/google-genai");
 		const { HumanMessage } = await import("@langchain/core/messages");
 
 		const model = new ChatGoogleGenerativeAI({
@@ -169,7 +167,13 @@ async function playlistBuilderNode(
 				description: { type: "string" },
 				reasoning: { type: "string" },
 			},
-			required: ["weaknesses", "scenarios", "title", "description", "reasoning"],
+			required: [
+				"weaknesses",
+				"scenarios",
+				"title",
+				"description",
+				"reasoning",
+			],
 		});
 
 		const prompt = `あなたはFPSエイムコーチの専門家です。以下のユーザーのスコアデータを分析し、最適な練習プレイリストを構築してください。
@@ -316,9 +320,7 @@ async function scoreAnalysisNode(
 		};
 
 		// LLM呼び出し (Structured Output使用)
-		const { ChatGoogleGenerativeAI } = await import(
-			"@langchain/google-genai"
-		);
+		const { ChatGoogleGenerativeAI } = await import("@langchain/google-genai");
 		const { HumanMessage } = await import("@langchain/core/messages");
 
 		const model = new ChatGoogleGenerativeAI({
@@ -446,7 +448,9 @@ async function progressReviewNode(
 			? new Date(latestScore.runEpochSec * 1000)
 			: null;
 		const daysInactive = lastActivity
-			? Math.floor((Date.now() - lastActivity.getTime()) / (1000 * 60 * 60 * 24))
+			? Math.floor(
+					(Date.now() - lastActivity.getTime()) / (1000 * 60 * 60 * 24),
+				)
 			: 999;
 
 		if (weekScores.length === 0 && monthScores.length === 0) {
@@ -497,9 +501,7 @@ async function progressReviewNode(
 		};
 
 		// LLM呼び出し (Structured Output使用)
-		const { ChatGoogleGenerativeAI } = await import(
-			"@langchain/google-genai"
-		);
+		const { ChatGoogleGenerativeAI } = await import("@langchain/google-genai");
 		const { HumanMessage } = await import("@langchain/core/messages");
 
 		const model = new ChatGoogleGenerativeAI({
@@ -522,7 +524,12 @@ async function progressReviewNode(
 					items: { type: "string" },
 				},
 			},
-			required: ["progressSummary", "achievements", "areasForImprovement", "nextGoals"],
+			required: [
+				"progressSummary",
+				"achievements",
+				"areasForImprovement",
+				"nextGoals",
+			],
 		});
 
 		const prompt = `あなたはFPSエイムコーチの専門家です。以下のユーザーの練習データをレビューし、進捗状況を評価してください。
@@ -628,8 +635,7 @@ async function dailyReportNode(
 				achievements: [],
 				performance: "none",
 				tomorrowGoals: ["本日の練習を開始しましょう！"],
-				motivationalMessage:
-					"今日はまだ練習していません。さあ、始めましょう！",
+				motivationalMessage: "今日はまだ練習していません。さあ、始めましょう！",
 			};
 
 			return {
@@ -683,9 +689,7 @@ async function dailyReportNode(
 		};
 
 		// LLM呼び出し (Structured Output使用)
-		const { ChatGoogleGenerativeAI } = await import(
-			"@langchain/google-genai"
-		);
+		const { ChatGoogleGenerativeAI } = await import("@langchain/google-genai");
 		const { HumanMessage } = await import("@langchain/core/messages");
 
 		const model = new ChatGoogleGenerativeAI({
@@ -708,7 +712,12 @@ async function dailyReportNode(
 				},
 				motivationalMessage: { type: "string" },
 			},
-			required: ["achievements", "performance", "tomorrowGoals", "motivationalMessage"],
+			required: [
+				"achievements",
+				"performance",
+				"tomorrowGoals",
+				"motivationalMessage",
+			],
 		});
 
 		const prompt = `あなたはFPSエイムコーチの専門家です。以下のユーザーの本日の練習データをレビューし、デイリーレポートを作成してください。

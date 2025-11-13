@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { Button, Callout, Flex, Text } from "@radix-ui/themes";
 import { useNavigate } from "@tanstack/react-router";
-import { Callout, Button, Flex, Text } from "@radix-ui/themes";
-import { AlertCircle, RefreshCw, FileQuestion } from "lucide-react";
+import { AlertCircle, FileQuestion, RefreshCw } from "lucide-react";
+import { useEffect } from "react";
 
 interface ErrorDisplayProps {
 	error: Error | string;
@@ -16,11 +16,7 @@ interface ErrorDisplayProps {
  * - 500: リトライボタン表示
  * - その他: エラーメッセージとリトライボタン
  */
-export function ErrorDisplay({
-	error,
-	onRetry,
-	...props
-}: ErrorDisplayProps) {
+export function ErrorDisplay({ error, onRetry, ...props }: ErrorDisplayProps) {
 	const navigate = useNavigate();
 
 	// エラーメッセージとステータスコードを抽出
@@ -46,7 +42,9 @@ export function ErrorDisplay({
 					<FileQuestion size={20} />
 				</Callout.Icon>
 				<Flex direction="column" gap="2">
-					<Callout.Text weight="bold">データが見つかりませんでした</Callout.Text>
+					<Callout.Text weight="bold">
+						データが見つかりませんでした
+					</Callout.Text>
 					<Text size="2" color="gray">
 						{errorMessage}
 					</Text>

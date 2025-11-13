@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PlaylistGeneratorCard } from "../PlaylistGeneratorCard";
 
 // Mock usePlaylistGenerator hook
@@ -72,7 +72,9 @@ describe("PlaylistGeneratorCard", () => {
 		renderWithProvider(<PlaylistGeneratorCard userId="test-user" />);
 
 		expect(screen.getByText(/エラーが発生しました/i)).toBeInTheDocument();
-		expect(screen.getByRole("button", { name: /リトライ/i })).toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: /リトライ/i }),
+		).toBeInTheDocument();
 	});
 
 	it("フォーム送信でgeneratePlaylistを呼び出す", async () => {
