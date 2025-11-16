@@ -11,3 +11,13 @@ gcloud = "latest"
 lazydocker = "latest"
 lazyssh = "latest"
 node = "22"
+"npm:kiri-mcp-server" = "latest"
+
+[tasks.dockerBuild]
+description = "docker build"
+run = "docker buildx build --platform linux/amd64 -t asia-northeast1-docker.pkg.dev/valorant-coaching-465213/aim-ai-coach/app:latest ."
+
+[tasks.deploy]
+description = "deploy prod"
+depends = "dockerBuild"
+run = "docker push asia-northeast1-docker.pkg.dev/valorant-coaching-465213/aim-ai-coach/app:latest"

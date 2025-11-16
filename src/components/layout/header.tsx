@@ -32,6 +32,10 @@ export const Header = ({ threadId }: HeaderProps) => {
 					<nav>
 						<Flex gap="4" align="center">
 							<Button variant="ghost" size="2" asChild>
+								<Link to="/reports">Report</Link>
+							</Button>
+
+							<Button variant="ghost" size="2" asChild>
 								<Link to="/knowledges">Knowledges</Link>
 							</Button>
 

@@ -1,6 +1,6 @@
 # Top-level configuration
 name = "aim-ai-coach"
-main = "api/index.ts"
+main = "api/index.tsx"
 compatibility_flags = [ "nodejs_compat", "global_fetch_strictly_public" ]
 compatibility_date = "2025-09-24"
 

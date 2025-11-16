@@ -12,3 +12,4 @@ export const createDB = (url: string, authToken: string) =>
 	});
 
 export * from "./schema";
+export type DBType = ReturnType<typeof createDB>;

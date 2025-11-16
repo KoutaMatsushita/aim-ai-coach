@@ -10,6 +10,7 @@ import { aimlabsApp } from "./routes/aimlabs";
 import { chatApp } from "./routes/chat";
 import { knowledgesApp } from "./routes/knowledges";
 import { kovaaksApp } from "./routes/kovaaks";
+import { reportsApp } from "./routes/reports.ts";
 import { threadApp } from "./routes/threads";
 import type { Variables } from "./variables";
 
@@ -30,14 +31,17 @@ const apiApp = new Hono<{
 	.use("/chat/*", setupSession)
 	.use("/threads/*", setupSession)
 	.use("/knowledges/*", setupSession)
+	.use("/reports/*", setupSession)
 	.route("/aimlabs", aimlabsApp)
 	.route("/kovaaks", kovaaksApp)
 	.use("/chat/*", setupMastra)
 	.use("/threads/*", setupMastra)
 	.use("/knowledges/*", setupMastra)
+	.use("/reports/*", setupMastra)
 	.route("/chat", chatApp)
 	.route("/threads", threadApp)
-	.route("/knowledges", knowledgesApp);
+	.route("/knowledges", knowledgesApp)
+	.route("/reports", reportsApp);
 
 export type APIType = typeof apiApp;
 
