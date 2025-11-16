@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as KnowledgesIndexRouteImport } from './routes/knowledges/index'
 import { Route as DeviceIndexRouteImport } from './routes/device/index'
-import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as AuthAuthViewRouteImport } from './routes/auth/$authView'
 import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as AccountSettingsRouteImport } from './routes/account/settings'
@@ -32,9 +32,9 @@ const DeviceIndexRoute = DeviceIndexRouteImport.update({
   path: '/device/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/dashboard/',
-  path: '/dashboard/',
+const ChatIndexRoute = ChatIndexRouteImport.update({
+  id: '/chat/',
+  path: '/chat/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthAuthViewRoute = AuthAuthViewRouteImport.update({
@@ -58,7 +58,7 @@ export interface FileRoutesByFullPath {
   '/account/settings': typeof AccountSettingsRoute
   '/api/$': typeof ApiSplatRoute
   '/auth/$authView': typeof AuthAuthViewRoute
-  '/dashboard': typeof DashboardIndexRoute
+  '/chat': typeof ChatIndexRoute
   '/device': typeof DeviceIndexRoute
   '/knowledges': typeof KnowledgesIndexRoute
 }
@@ -67,7 +67,7 @@ export interface FileRoutesByTo {
   '/account/settings': typeof AccountSettingsRoute
   '/api/$': typeof ApiSplatRoute
   '/auth/$authView': typeof AuthAuthViewRoute
-  '/dashboard': typeof DashboardIndexRoute
+  '/chat': typeof ChatIndexRoute
   '/device': typeof DeviceIndexRoute
   '/knowledges': typeof KnowledgesIndexRoute
 }
@@ -77,7 +77,7 @@ export interface FileRoutesById {
   '/account/settings': typeof AccountSettingsRoute
   '/api/$': typeof ApiSplatRoute
   '/auth/$authView': typeof AuthAuthViewRoute
-  '/dashboard/': typeof DashboardIndexRoute
+  '/chat/': typeof ChatIndexRoute
   '/device/': typeof DeviceIndexRoute
   '/knowledges/': typeof KnowledgesIndexRoute
 }
@@ -88,7 +88,7 @@ export interface FileRouteTypes {
     | '/account/settings'
     | '/api/$'
     | '/auth/$authView'
-    | '/dashboard'
+    | '/chat'
     | '/device'
     | '/knowledges'
   fileRoutesByTo: FileRoutesByTo
@@ -97,7 +97,7 @@ export interface FileRouteTypes {
     | '/account/settings'
     | '/api/$'
     | '/auth/$authView'
-    | '/dashboard'
+    | '/chat'
     | '/device'
     | '/knowledges'
   id:
@@ -106,7 +106,7 @@ export interface FileRouteTypes {
     | '/account/settings'
     | '/api/$'
     | '/auth/$authView'
-    | '/dashboard/'
+    | '/chat/'
     | '/device/'
     | '/knowledges/'
   fileRoutesById: FileRoutesById
@@ -116,7 +116,7 @@ export interface RootRouteChildren {
   AccountSettingsRoute: typeof AccountSettingsRoute
   ApiSplatRoute: typeof ApiSplatRoute
   AuthAuthViewRoute: typeof AuthAuthViewRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
+  ChatIndexRoute: typeof ChatIndexRoute
   DeviceIndexRoute: typeof DeviceIndexRoute
   KnowledgesIndexRoute: typeof KnowledgesIndexRoute
 }
@@ -144,11 +144,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DeviceIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/': {
-      id: '/dashboard/'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardIndexRouteImport
+    '/chat/': {
+      id: '/chat/'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/$authView': {
@@ -180,7 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountSettingsRoute: AccountSettingsRoute,
   ApiSplatRoute: ApiSplatRoute,
   AuthAuthViewRoute: AuthAuthViewRoute,
-  DashboardIndexRoute: DashboardIndexRoute,
+  ChatIndexRoute: ChatIndexRoute,
   DeviceIndexRoute: DeviceIndexRoute,
   KnowledgesIndexRoute: KnowledgesIndexRoute,
 }

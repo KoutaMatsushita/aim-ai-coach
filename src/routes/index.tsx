@@ -1,20 +1,66 @@
+import { Container, Flex, Grid } from "@radix-ui/themes";
 import { createFileRoute } from "@tanstack/react-router";
+import { Suspense } from "react";
+import {
+	CoachingContextProvider,
+	useCoachingContext,
+} from "@/components/dashboard/CoachingContextProvider";
+import { CoachingStatusCard } from "@/components/dashboard/CoachingStatusCard";
+import { DailyReportCard } from "@/components/dashboard/DailyReportCard";
+import { LazyChatModal } from "@/components/dashboard/LazyComponents";
+import { PlaylistGeneratorCard } from "@/components/dashboard/PlaylistGeneratorCard";
+import { ProgressReviewCard } from "@/components/dashboard/ProgressReviewCard";
+import { ScoreAnalysisCard } from "@/components/dashboard/ScoreAnalysisCard";
+import { ChatModalSkeleton } from "@/components/dashboard/SuspenseFallback";
 import { AuthLayout } from "@/components/layout/auth";
-import { ChatPage } from "@/components/page/ChatPage";
+import { Header } from "@/components/layout/header";
 
 export const Route = createFileRoute("/")({
-	component: App,
+	component: DashboardPage,
 });
 
-function App() {
+function DashboardContent({ userId }: { userId: string }) {
+	const { userContext } = useCoachingContext();
+
+	return (
+		<>
+			<Header />
+			<Container
+				size="4"
+				px={{ initial: "4", sm: "6", lg: "8" }}
+			>
+				<Flex direction="column" gap="4" py="6">
+					<Grid
+						columns={{ initial: "1", sm: "1", md: "2", lg: "3" }}
+						gap="4"
+						width="auto"
+					>
+						<CoachingStatusCard userId={userId} />
+						<DailyReportCard userId={userId} />
+						<ScoreAnalysisCard userId={userId} />
+						<PlaylistGeneratorCard userId={userId} />
+						{userContext && (
+							<ProgressReviewCard userId={userId} userContext={userContext} />
+						)}
+					</Grid>
+				</Flex>
+			</Container>
+
+			{/* 固定チャットボタンとモーダル（遅延ロード） */}
+			<Suspense fallback={<ChatModalSkeleton />}>
+				<LazyChatModal userId={userId} />
+			</Suspense>
+		</>
+	);
+}
+
+function DashboardPage() {
 	return (
 		<AuthLayout>
 			{(user) => (
-				<div className="h-svh flex flex-col">
-					<div className="flex-1 overflow-hidden">
-						<ChatPage userId={user.id} />
-					</div>
-				</div>
+				<CoachingContextProvider userId={user.id}>
+					<DashboardContent userId={user.id} />
+				</CoachingContextProvider>
 			)}
 		</AuthLayout>
 	);

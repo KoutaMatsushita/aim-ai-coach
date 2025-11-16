@@ -85,9 +85,7 @@ function RootComponent() {
 								magicLink={true}
 								persistClient={true}
 							>
-								<Container className="pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
-									<Outlet />
-								</Container>
+								<Outlet />
 							</AuthUIProviderTanstack>
 						</AuthQueryProvider>
 					</QueryClientProvider>
@@ -103,7 +101,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 			<head>
 				<HeadContent />
 			</head>
-			<body>
+			<body className="pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
 				{children}
 				<Scripts />
 			</body>

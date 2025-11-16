@@ -32,16 +32,18 @@ export function PlaylistDialog({
 				<ScrollArea style={{ maxHeight: "60vh" }}>
 					<Flex direction="column" gap="4">
 						{/* 対象弱点 */}
-						<Flex direction="column" gap="2">
-							<Text weight="medium">対象弱点</Text>
-							<Flex gap="2" wrap="wrap">
-								{playlist.targetWeaknesses.map((weakness, index) => (
-									<Badge key={index} color="orange">
-										{weakness}
-									</Badge>
-								))}
+						{playlist.targetWeaknesses && playlist.targetWeaknesses.length > 0 && (
+							<Flex direction="column" gap="2">
+								<Text weight="medium">対象弱点</Text>
+								<Flex gap="2" wrap="wrap">
+									{playlist.targetWeaknesses.map((weakness, index) => (
+										<Badge key={index} color="orange">
+											{weakness}
+										</Badge>
+									))}
+								</Flex>
 							</Flex>
-						</Flex>
+						)}
 
 						{/* 総所要時間 */}
 						<Flex align="center" gap="2">
@@ -52,12 +54,13 @@ export function PlaylistDialog({
 						</Flex>
 
 						{/* シナリオリスト */}
-						<Flex direction="column" gap="2">
-							<Text weight="medium">練習シナリオ</Text>
-							<Flex direction="column" gap="3">
-								{playlist.scenarios
-									.sort((a, b) => a.order - b.order)
-									.map((scenario, index) => (
+						{playlist.scenarios && playlist.scenarios.length > 0 && (
+							<Flex direction="column" gap="2">
+								<Text weight="medium">練習シナリオ</Text>
+								<Flex direction="column" gap="3">
+									{playlist.scenarios
+										.sort((a, b) => a.order - b.order)
+										.map((scenario, index) => (
 										<Card key={index}>
 											<Flex direction="column" gap="2">
 												<Flex justify="between" align="center">
@@ -104,8 +107,9 @@ export function PlaylistDialog({
 											</Flex>
 										</Card>
 									))}
+								</Flex>
 							</Flex>
-						</Flex>
+						)}
 
 						{/* 推論理由 */}
 						<Flex direction="column" gap="2">
@@ -124,8 +128,6 @@ export function PlaylistDialog({
 						</Flex>
 					</Flex>
 				</ScrollArea>
-
-				<Dialog.Close />
 			</Dialog.Content>
 		</Dialog.Root>
 	);

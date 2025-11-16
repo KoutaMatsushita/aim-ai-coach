@@ -45,7 +45,15 @@ export function usePlaylistGenerator(
 				throw new Error(`API error: ${res.status}`);
 			}
 
-			return await res.json();
+			const response = await res.json();
+			console.log("[usePlaylistGenerator] Full API response:", response);
+
+			// taskResult.data を抽出
+			if (response.taskResult && response.taskResult.data) {
+				return response.taskResult.data;
+			}
+
+			throw new Error("Invalid API response structure");
 		},
 		onSuccess: (data) => {
 			// キャッシュ更新

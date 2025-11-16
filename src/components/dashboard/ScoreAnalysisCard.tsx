@@ -7,7 +7,10 @@ import {
 	TrendingUp,
 	X,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useScoreAnalysis } from "./hooks/useScoreAnalysis";
+import { usePlaylistGenerator } from "./hooks/usePlaylistGenerator";
+import { PlaylistDialog } from "./PlaylistDialog";
 
 interface ScoreAnalysisCardProps {
 	userId: string;
@@ -22,6 +25,14 @@ export function ScoreAnalysisCard({ userId }: ScoreAnalysisCardProps) {
 		executeAnalysis,
 		cancelAnalysis,
 	} = useScoreAnalysis(userId);
+
+	const {
+		playlist,
+		isLoading: isGeneratingPlaylist,
+		generatePlaylist,
+	} = usePlaylistGenerator(userId);
+
+	const [isPlaylistDialogOpen, setIsPlaylistDialogOpen] = useState(false);
 
 	const getTrendIcon = (trend: "improving" | "stable" | "declining") => {
 		switch (trend) {
@@ -48,31 +59,43 @@ export function ScoreAnalysisCard({ userId }: ScoreAnalysisCardProps) {
 	};
 
 	const handleGeneratePlaylist = () => {
-		// TODO: プレイリスト生成機能の実装
-		console.log("プレイリスト生成:", analysis?.challenges);
+		if (!analysis?.challenges || analysis.challenges.length === 0) {
+			console.warn("課題が見つかりません");
+			return;
+		}
+
+		generatePlaylist({
+			weakAreas: analysis.challenges,
+		});
 	};
 
-	// エラー状態
-	if (isError) {
-		return (
-			<Card>
-				<Flex direction="column" gap="3" align="center">
-					<Text size="5" weight="bold">
-						スコア分析
-					</Text>
-					<Text color="red">エラーが発生しました</Text>
-					{error && (
-						<Text size="2" color="gray">
-							{error.message}
-						</Text>
-					)}
-					<Button onClick={() => executeAnalysis()}>リトライ</Button>
-				</Flex>
-			</Card>
-		);
-	}
+	// プレイリストが生成されたらダイアログを開く
+	useEffect(() => {
+		if (playlist) {
+			console.log("[ScoreAnalysisCard] Playlist generated:", playlist);
+			setIsPlaylistDialogOpen(true);
+		}
+	}, [playlist]);
 
 	return (
+		<>
+			{/* エラー状態 */}
+			{isError ? (
+				<Card>
+					<Flex direction="column" gap="3" align="center">
+						<Text size="5" weight="bold">
+							スコア分析
+						</Text>
+						<Text color="red">エラーが発生しました</Text>
+						{error && (
+							<Text size="2" color="gray">
+								{error.message}
+							</Text>
+						)}
+						<Button onClick={() => executeAnalysis()}>リトライ</Button>
+					</Flex>
+				</Card>
+			) : (
 		<Card>
 			<Flex direction="column" gap="4">
 				<Text size="5" weight="bold">
@@ -158,9 +181,17 @@ export function ScoreAnalysisCard({ userId }: ScoreAnalysisCardProps) {
 								<Button variant="soft" onClick={() => cancelAnalysis()}>
 									クリア
 								</Button>
-								<Button onClick={handleGeneratePlaylist}>
+								<Button
+									onClick={handleGeneratePlaylist}
+									disabled={
+										isGeneratingPlaylist ||
+										!analysis?.challenges ||
+										analysis.challenges.length === 0
+									}
+									loading={isGeneratingPlaylist}
+								>
 									<ListPlus size={16} />
-									プレイリスト生成
+									{isGeneratingPlaylist ? "生成中..." : "プレイリスト生成"}
 								</Button>
 							</Flex>
 						</Flex>
@@ -179,5 +210,16 @@ export function ScoreAnalysisCard({ userId }: ScoreAnalysisCardProps) {
 				)}
 			</Flex>
 		</Card>
+			)}
+
+			{/* プレイリストダイアログ */}
+			{playlist && (
+				<PlaylistDialog
+					playlist={playlist}
+					open={isPlaylistDialogOpen}
+					onOpenChange={setIsPlaylistDialogOpen}
+				/>
+			)}
+		</>
 	);
 }

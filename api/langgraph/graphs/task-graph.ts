@@ -201,8 +201,9 @@ ${JSON.stringify(scenarioSummary, null, 2)}
 
 5. **reasoning**: プレイリスト構築の理由（100文字程度）`;
 
-		const response = await model.invoke([new HumanMessage(prompt)]);
-		const llmResult = response.content as {
+		const llmResult = (await model.invoke([
+			new HumanMessage(prompt),
+		])) as {
 			weaknesses: string[];
 			scenarios: Array<{
 				name: string;
@@ -215,12 +216,27 @@ ${JSON.stringify(scenarioSummary, null, 2)}
 			reasoning: string;
 		};
 
+		console.log("[Task Graph] LLM Playlist Result:", llmResult);
+
+		// LLMの結果をPlaylist型に変換
 		const playlist = {
 			id: `playlist_${Date.now()}`,
 			userId,
 			title: llmResult.title,
 			description: llmResult.description,
-			scenarios: llmResult.scenarios,
+			scenarios: llmResult.scenarios.map((scenario, index) => ({
+				scenarioName: scenario.name,
+				platform: "kovaaks" as const,
+				purpose: `${scenario.focusSkills.join("、")}の向上`,
+				expectedEffect: `${scenario.focusSkills[0]}スキルの改善`,
+				duration: scenario.duration,
+				order: index + 1,
+				difficultyLevel: scenario.difficulty as
+					| "beginner"
+					| "intermediate"
+					| "advanced"
+					| "expert",
+			})),
 			targetWeaknesses: llmResult.weaknesses,
 			totalDuration: llmResult.scenarios.reduce(
 				(sum, s) => sum + s.duration,
@@ -230,8 +246,6 @@ ${JSON.stringify(scenarioSummary, null, 2)}
 			createdAt: new Date(),
 			isActive: true,
 		};
-
-		console.log("[Task Graph] LLM Playlist Result:", llmResult);
 
 		return {
 			taskResult: {
@@ -373,13 +387,14 @@ ${JSON.stringify(statistics, null, 2)}
    - 具体的で実行可能なアドバイス
    - 弱点改善と強み強化の両方を含める`;
 
-		const response = await model.invoke([new HumanMessage(prompt)]);
-		const analysis = response as {
+		const analysis = (await model.invoke([new HumanMessage(prompt)])) as {
 			trend: "improving" | "stable" | "declining";
 			strengths: string[];
 			weaknesses: string[];
 			recommendations: string[];
 		};
+
+		console.log("[Task Graph] LLM Analysis Result:", analysis);
 
 		const analysisResult = {
 			userId,
@@ -392,8 +407,6 @@ ${JSON.stringify(statistics, null, 2)}
 			trend: analysis.trend,
 			analysisDate: new Date(),
 		};
-
-		console.log("[Task Graph] LLM Analysis Result:", analysis);
 
 		return {
 			taskResult: {
@@ -559,13 +572,16 @@ ${JSON.stringify(monthData, null, 2)}
 4. **nextGoals**: 次の目標（配列、2-3個）
    - 測定可能で達成可能な目標`;
 
-		const response = await model.invoke([new HumanMessage(prompt)]);
-		const llmResult = response.content as {
+		const llmResult = (await model.invoke([
+			new HumanMessage(prompt),
+		])) as {
 			progressSummary: string;
 			achievements: string[];
 			areasForImprovement: string[];
 			nextGoals: string[];
 		};
+
+		console.log("[Task Graph] LLM Progress Review Result:", llmResult);
 
 		const reviewResult = {
 			userId,
@@ -577,8 +593,6 @@ ${JSON.stringify(monthData, null, 2)}
 			nextGoals: llmResult.nextGoals,
 			reviewDate: new Date(),
 		};
-
-		console.log("[Task Graph] LLM Progress Review Result:", llmResult);
 
 		return {
 			taskResult: {
@@ -743,13 +757,16 @@ ${JSON.stringify(weekAverage, null, 2)}
 4. **motivationalMessage**: モチベーションメッセージ（50文字程度）
    - ユーザーを励ます前向きなメッセージ`;
 
-		const response = await model.invoke([new HumanMessage(prompt)]);
-		const llmResult = response.content as {
+		const llmResult = (await model.invoke([
+			new HumanMessage(prompt),
+		])) as {
 			achievements: string[];
 			performance: "excellent" | "good" | "fair" | "needs_improvement";
 			tomorrowGoals: string[];
 			motivationalMessage: string;
 		};
+
+		console.log("[Task Graph] LLM Daily Report Result:", llmResult);
 
 		const reportResult = {
 			userId,
@@ -761,8 +778,6 @@ ${JSON.stringify(weekAverage, null, 2)}
 			tomorrowGoals: llmResult.tomorrowGoals,
 			motivationalMessage: llmResult.motivationalMessage,
 		};
-
-		console.log("[Task Graph] LLM Daily Report Result:", llmResult);
 
 		return {
 			taskResult: {
