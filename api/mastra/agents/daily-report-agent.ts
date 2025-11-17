@@ -6,6 +6,10 @@ import { LIBSQL_PROMPT } from "@mastra/libsql";
 import { Memory } from "@mastra/memory";
 import { TokenLimiter, ToolCallFilter } from "@mastra/memory/processors";
 import { graphTool, vectorTool } from "../tools/rag-tool";
+import {
+	findAimlabTasksByUserId,
+	findKovaaksScoresByUserId,
+} from "../tools/user-tool.ts";
 
 // Enhanced memory configuration for personalized coaching
 const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
@@ -85,14 +89,25 @@ export const createDailyReportAgent = (
 			if (!userId) return "";
 
 			return `
-あなたは「Daily Report Agent」。FPS プレイヤーのエイム上達をデータ駆動で指導する userId: ${userId} のスコアを解析し、簡易的なレポートを提供する。
+あなたは「Daily Report Agent」。FPS プレイヤーのエイム上達をデータ駆動で指導する userId: ${userId} のスコアを解析し、デイリーレポートを提供する。
 ワーキングメモリから個人の特性を理解し、パーソナライズしたレポートを生成する
 
 # 目的
 - 提供されたスコアから簡易的に調子や傾向を把握する
 
 # 出力フォーマット
-【GOOD】【BAD】【TRY】
+以下のフォーマットを厳守する。
+
+\`\`\`
+[シナリオ名]
+- プレイ数
+- 平均スコア
+- 平均命中率
+- 一言コメント
+\`\`\`
+
+# Tool について
+レポートの作成に過去データが必要な場合、必ず findKovaaksScoresByUserId や findAimlabTasksByUserId を使って取得すること。
 
 ref for vectorTool and graphTool:
 ${LIBSQL_PROMPT}
@@ -102,6 +117,8 @@ ${LIBSQL_PROMPT}
 		tools: {
 			vectorTool: vectorTool,
 			graphTool: graphTool,
+			findKovaaksScoresByUserId,
+			findAimlabTasksByUserId,
 		},
 		memory: createEnhancedMemory(storage, vector),
 	});

@@ -35,6 +35,15 @@ function RouteComponent() {
 							</Card>
 						</Box>
 					</Box>
+
+					<Box py="4">
+						<Text>Monthly</Text>
+						<Box p="4">
+							<Card>
+								<MonthlyReportPage userId={user.id} />
+							</Card>
+						</Box>
+					</Box>
 				</>
 			)}
 		</AuthLayout>
@@ -94,6 +103,47 @@ function useWeeklyReport(userId: string, date: Date) {
 
 function WeeklyReportPage({ userId }: { userId: string }) {
 	const { trigger, data, error, isMutating } = useWeeklyReport(
+		userId,
+		new Date(),
+	);
+
+	if (isMutating) {
+		return <Spinner />;
+	}
+
+	if (error) {
+		return <Text color="red">{error}</Text>;
+	}
+
+	if (data) {
+		return (
+			<>
+				<MessageContent>
+					<Response>{data.message}</Response>
+				</MessageContent>
+			</>
+		);
+	}
+
+	return (
+		<>
+			<Button onClick={() => trigger()}>Generate Weekly Report</Button>
+		</>
+	);
+}
+
+function useMonthlyReport(userId: string, date: Date) {
+	return useSWRMutation(
+		["/api/reports/monthly", userId, format(date)],
+		async () => {
+			const response = await client.api.reports.weekly.$post({});
+			return response.json();
+		},
+	);
+}
+
+function MonthlyReportPage({ userId }: { userId: string }) {
+	const { trigger, data, error, isMutating } = useMonthlyReport(
 		userId,
 		new Date(),
 	);

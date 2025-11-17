@@ -8,7 +8,7 @@ export type Variables = {
 	auth: ReturnType<typeof createAuth>;
 	user: Auth["$Infer"]["Session"]["user"] | null;
 	session: Auth["$Infer"]["Session"]["session"] | null;
-	mastra: ReturnType<typeof createMastra>;
+	mastra: Awaited<ReturnType<typeof createMastra>>;
 	db: ReturnType<typeof createDB>;
 };
 

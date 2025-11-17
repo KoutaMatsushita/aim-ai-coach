@@ -11,7 +11,7 @@ export const setupMastra = createMiddleware<{
 }>(async (c, next) => {
 	const { TURSO_DATABASE_URL, TURSO_AUTH_TOKEN } = env<CloudflareBindings>(c);
 
-	const mastra = createMastra(
+	const mastra = await createMastra(
 		new LibSQLStore({
 			url: TURSO_DATABASE_URL,
 			authToken: TURSO_AUTH_TOKEN,

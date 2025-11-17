@@ -36,6 +36,20 @@
 			"when": 1762953791224,
 			"tag": "0004_famous_human_cannonball",
 			"breakpoints": true
+		},
+		{
+			"idx": 5,
+			"version": "6",
+			"when": 1763382595295,
+			"tag": "0005_nosy_smiling_tiger",
+			"breakpoints": true
+		},
+		{
+			"idx": 6,
+			"version": "6",
+			"when": 1763383550743,
+			"tag": "0006_cold_secret_warriors",
+			"breakpoints": true
 		}
 	]
 }

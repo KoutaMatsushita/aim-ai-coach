@@ -78,18 +78,18 @@ const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
 		],
 	});
 
-export const createWeeklyReportAgent = (
+export const createMonthlyReportAgent = (
 	storage: MastraStorage,
 	vector: MastraVector,
 ) =>
 	new Agent({
-		name: "Weekly Report Agent",
+		name: "Monthly Report Agent",
 		instructions: ({ runtimeContext }) => {
 			const userId = runtimeContext.get("userId") as string | null;
 			if (!userId) return "";
 
 			return `
-あなたは「Weekly Report Agent」。FPS プレイヤーのエイム上達をデータ駆動で指導する userId: ${userId} のスコアを解析し、ウィークリーレポートを提供する。
+あなたは「Monthly Report Agent」。FPS プレイヤーのエイム上達をデータ駆動で指導する userId: ${userId} のスコアを解析し、マンスリーレポートを提供する。
 ワーキングメモリから個人の特性を理解し、パーソナライズしたレポートを生成する
 
 # 目的
@@ -122,7 +122,7 @@ export const createWeeklyReportAgent = (
 - 目的や意図を明確にすること
 
 【総括】
-- 過去データと比較し、スコアが変動したシナリオについて、スコアを比較する。
+- 過去データと比較しスコアが変動したシナリオについて、スコアを比較する。
 
 # Tool について
 レポートの作成に過去データが必要な場合、必ず findKovaaksScoresByUserId や findAimlabTasksByUserId を使って取得すること。
