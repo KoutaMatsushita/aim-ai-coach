@@ -2,6 +2,7 @@
 _.file = [
     '.env.development'
 ]
+CONTAINER_NAME="asia-northeast1-docker.pkg.dev/valorant-coaching-465213/aim-ai-coach/app"
 
 [tools]
 bun = "1.2"
@@ -13,11 +14,25 @@ lazyssh = "latest"
 node = "22"
 "npm:kiri-mcp-server" = "latest"
 
-[tasks.dockerBuild]
+[tasks."docker:build"]
 description = "docker build"
-run = "docker buildx build --platform linux/amd64 -t asia-northeast1-docker.pkg.dev/valorant-coaching-465213/aim-ai-coach/app:latest ."
+run = "docker buildx build --platform linux/amd64 -t ${CONTAINER_NAME}:latest ."
+
+[tasks."docker:deploy"]
+description = "docker deploy"
+depends = "docker:build"
+run = "docker push ${CONTAINER_NAME}:latest"
 
 [tasks.deploy]
 description = "deploy prod"
-depends = "dockerBuild"
-run = "docker push asia-northeast1-docker.pkg.dev/valorant-coaching-465213/aim-ai-coach/app:latest"
+depends = "docker:deploy"
+run = """
+IMAGE=$(docker inspect ${CONTAINER_NAME}:latest | jq -r '.[0].RepoDigests[0]')
+gcloud run deploy app \
+    --image=${IMAGE} \
+    --min-instances=0 \
+    --env-vars-file=".env" \
+    --region=asia-northeast1 \
+    --project=valorant-coaching-465213 \
+&& gcloud run services update-traffic app --to-latest
+"""
