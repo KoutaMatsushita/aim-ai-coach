@@ -81,7 +81,7 @@ const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
 		},
 		processors: [
 			new ToolCallFilter(),
-			new TokenLimiter(1_048_576), // gemini 2.5 pro
+            new TokenLimiter(128_000),
 		],
 	});
 

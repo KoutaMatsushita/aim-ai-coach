@@ -18,9 +18,9 @@ const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
 		vector: vector,
 		embedder: google.textEmbedding("text-embedding-004"),
 		options: {
-			lastMessages: 5,
+			lastMessages: 1,
 			semanticRecall: {
-				topK: 2,
+				topK: 1,
 				messageRange: 1,
 				scope: "resource",
 			},
@@ -74,7 +74,7 @@ const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
 		},
 		processors: [
 			new ToolCallFilter(),
-			new TokenLimiter(1_048_576), // gemini 2.5 pro
+			new TokenLimiter(128_000),
 		],
 	});
 
@@ -99,6 +99,7 @@ export const createWeeklyReportAgent = (
 - kovaaks / aimlabs のスコアを利用して、熟練度に応じたアドバイスの提供
 
 # 出力フォーマット
+提供されたスコアデータのシナリオ全て列挙し、以下のフォーマットに起こす。
 以下のフォーマットを厳守する。
 
 \`\`\`
