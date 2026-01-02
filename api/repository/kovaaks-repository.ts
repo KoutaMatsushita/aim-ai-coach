@@ -1,5 +1,4 @@
-import { format } from "@formkit/tempo";
-import { and, count, eq, gte, like, lte } from "drizzle-orm";
+import { and, count, eq, gte, like, lte, sql } from "drizzle-orm";
 import { type DBType, kovaaksScoresTable } from "../db";
 import type { MetricStats, TaskStatistics } from "./aim-labs-repository";
 import type { taskFilter } from "./task-filter.ts";
@@ -60,47 +59,26 @@ export class KovaaksRepository {
 				: undefined,
 		);
 
-		const tasks = await this.db
+		// Prepare date formatter for SQLite
+		let dateFormat = "%Y-%m-%d";
+		if (period === "month") {
+			dateFormat = "%Y-%m";
+		} else if (period === "week") {
+			dateFormat = "%Y-W%W";
+		}
+
+		const dateExpr = sql<string>`strftime(${dateFormat}, ${kovaaksScoresTable.runEpochSec}, 'unixepoch')`;
+
+		const groupedResults = await this.db
 			.select({
-				scenarioName: kovaaksScoresTable.scenarioName,
-				score: kovaaksScoresTable.score,
-				sessionAccuracy: kovaaksScoresTable.sessionAccuracy,
-				runEpochSec: kovaaksScoresTable.runEpochSec,
+				taskName: kovaaksScoresTable.scenarioName,
+				date: dateExpr,
+				scoresStr: sql<string>`GROUP_CONCAT(${kovaaksScoresTable.score})`,
+				accuraciesStr: sql<string>`GROUP_CONCAT(${kovaaksScoresTable.sessionAccuracy})`,
 			})
 			.from(kovaaksScoresTable)
-			.where(whereClause);
-
-		const groupedData = tasks.reduce(
-			(acc, task) => {
-				if (!task.scenarioName) return acc;
-
-				const date = new Date(task.runEpochSec * 1000);
-				const dateStr = this.formatPeriod(date, period);
-				const key = `${task.scenarioName}::${dateStr}`;
-
-				if (!acc[key]) {
-					acc[key] = {
-						taskName: task.scenarioName,
-						date: dateStr,
-						scores: [],
-						accuracies: [],
-					};
-				}
-				acc[key].scores.push(task.score);
-				acc[key].accuracies.push(task.sessionAccuracy);
-
-				return acc;
-			},
-			{} as Record<
-				string,
-				{
-					taskName: string;
-					date: string;
-					scores: number[];
-					accuracies: number[];
-				}
-			>,
-		);
+			.where(whereClause)
+			.groupBy(kovaaksScoresTable.scenarioName, dateExpr);
 
 		const calculateStats = (values: number[]): MetricStats => {
 			const sorted = values.sort((a, b) => a - b);
@@ -122,12 +100,25 @@ export class KovaaksRepository {
 			return result as MetricStats;
 		};
 
-		const result: TaskStatistics[] = Object.values(groupedData).map((group) => {
+		const result: TaskStatistics[] = groupedResults.map((group) => {
+			const scores = group.scoresStr
+				? group.scoresStr
+						.split(",")
+						.map((s) => Number(s))
+						.filter((n) => !isNaN(n))
+				: [];
+			const accuracies = group.accuraciesStr
+				? group.accuraciesStr
+						.split(",")
+						.map((s) => Number(s))
+						.filter((n) => !isNaN(n))
+				: [];
+
 			return {
-				taskName: group.taskName,
+				taskName: group.taskName || "Unknown",
 				date: group.date,
-				score: calculateStats(group.scores),
-				accuracy: calculateStats(group.accuracies),
+				score: calculateStats(scores),
+				accuracy: calculateStats(accuracies),
 			};
 		});
 
@@ -137,24 +128,4 @@ export class KovaaksRepository {
 		});
 	}
 
-	private formatPeriod(date: Date, period: "day" | "week" | "month"): string {
-		switch (period) {
-			case "day":
-				return format(date, "YYYY-MM-DD");
-			case "week": {
-				const d = new Date(date);
-				d.setHours(0, 0, 0, 0);
-				d.setDate(d.getDate() + 4 - (d.getDay() || 7));
-				const yearStart = new Date(d.getFullYear(), 0, 1);
-				const weekNo = Math.ceil(
-					((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7,
-				);
-				return `${d.getFullYear()}-W${String(weekNo).padStart(2, "0")}`;
-			}
-			case "month":
-				return format(date, "YYYY-MM");
-			default:
-				return format(date, "YYYY-MM-DD");
-		}
-	}
 }

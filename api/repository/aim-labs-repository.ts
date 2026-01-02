@@ -78,56 +78,32 @@ export class AimLabsRepository {
 		);
 
 
-		// 1. Fetch all data for the user with optimized query using json_extract
-		const tasks = await this.db
+		// Prepare date formatter for SQLite
+		let dateFormat = "%Y-%m-%d";
+		if (period === "month") {
+			dateFormat = "%Y-%m";
+		} else if (period === "week") {
+			// Simple week emulation for SQLite: %Y-%W
+			dateFormat = "%Y-W%W";
+		}
+
+		// Convert createDate (string) to date string
+		// aimlabTaskTable.createDate is likely stored as a string (YYYY-MM-DD...) based on usage in sorting/filtering
+		const dateExpr = sql<string>`strftime(${dateFormat}, ${aimlabTaskTable.createDate})`;
+
+		// 1. Fetch aggregated data directly from DB
+		const groupedResults = await this.db
 			.select({
 				taskName: aimlabTaskTable.taskName,
-				score: aimlabTaskTable.score,
-				// Extract accTotal directly from JSON in DB to avoid transferring huge strings
-				accTotal: sql<number>`json_extract(${aimlabTaskTable.performance}, '$.accTotal')`,
-				createDate: aimlabTaskTable.createDate,
+				date: dateExpr,
+				scoresStr: sql<string>`GROUP_CONCAT(${aimlabTaskTable.score})`,
+				accuraciesStr: sql<string>`GROUP_CONCAT(json_extract(${aimlabTaskTable.performance}, '$.accTotal'))`,
 			})
 			.from(aimlabTaskTable)
-			.where(whereClause);
+			.where(whereClause)
+			.groupBy(aimlabTaskTable.taskName, dateExpr);
 
-		// 2. Group by Task Name and Period
-		const groupedData = tasks.reduce(
-			(acc, task) => {
-				if (!task.taskName || task.score === null || !task.createDate)
-					return acc;
-
-				const date = new Date(task.createDate);
-				const dateStr = this.formatPeriod(date, period);
-				const key = `${task.taskName}::${dateStr}`;
-
-				if (!acc[key]) {
-					acc[key] = {
-						taskName: task.taskName,
-						date: dateStr,
-						scores: [],
-						accuracies: [],
-					};
-				}
-				acc[key].scores.push(task.score);
-
-				if (task.accTotal !== null && task.accTotal !== undefined) {
-					acc[key].accuracies.push(Number(task.accTotal));
-				}
-
-				return acc;
-			},
-			{} as Record<
-				string,
-				{
-					taskName: string;
-					date: string;
-					scores: number[];
-					accuracies: number[];
-				}
-			>,
-		);
-
-		// 3. Calculate Percentiles
+		// 3. Calculate Percentiles from aggregated strings
 		const calculateStats = (values: number[]): MetricStats => {
 			const sorted = values.sort((a, b) => a - b);
 			const percentiles = [10, 25, 50, 75, 90, 99];
@@ -148,12 +124,27 @@ export class AimLabsRepository {
 			return result as MetricStats;
 		};
 
-		const result: TaskStatistics[] = Object.values(groupedData).map((group) => {
+		const result: TaskStatistics[] = groupedResults.map((group) => {
+			// Parse comma-separated strings back to number arrays
+			// Filter out empty/null values
+			const scores = group.scoresStr
+				? group.scoresStr
+						.split(",")
+						.map((s) => Number(s))
+						.filter((n) => !isNaN(n))
+				: [];
+			const accuracies = group.accuraciesStr
+				? group.accuraciesStr
+						.split(",")
+						.map((s) => Number(s))
+						.filter((n) => !isNaN(n))
+				: [];
+
 			return {
-				taskName: group.taskName,
+				taskName: group.taskName || "Unknown",
 				date: group.date,
-				score: calculateStats(group.scores),
-				accuracy: calculateStats(group.accuracies),
+				score: calculateStats(scores),
+				accuracy: calculateStats(accuracies),
 			};
 		});
 
@@ -164,25 +155,4 @@ export class AimLabsRepository {
 		});
 	}
 
-	private formatPeriod(date: Date, period: "day" | "week" | "month"): string {
-		switch (period) {
-			case "day":
-				return format(date, "YYYY-MM-DD");
-			case "week": {
-				// ISO week format: YYYY-Wxx
-				const d = new Date(date);
-				d.setHours(0, 0, 0, 0);
-				d.setDate(d.getDate() + 4 - (d.getDay() || 7));
-				const yearStart = new Date(d.getFullYear(), 0, 1);
-				const weekNo = Math.ceil(
-					((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7,
-				);
-				return `${d.getFullYear()}-W${String(weekNo).padStart(2, "0")}`;
-			}
-			case "month":
-				return format(date, "YYYY-MM");
-			default:
-				return format(date, "YYYY-MM-DD");
-		}
-	}
 }
