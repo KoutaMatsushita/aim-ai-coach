@@ -12,9 +12,10 @@ export const uploadAimlab = async (
 	path: string,
 	apiClient: ClientType,
 	user: User,
+	force = false,
 ) => {
 	try {
-		logger.info("Starting Aimlab data upload", { path, userId: user.id });
+		logger.info("Starting Aimlab data upload", { path, userId: user.id, force });
 
 		const dbPath = await findFirstWithExt(path, ".bytes");
 		if (!dbPath) {
@@ -31,23 +32,30 @@ export const uploadAimlab = async (
 
 		const localDB = await getDB();
 
-		// 既に処理されたタスクIDを取得
-		const completedTaskIds = await localDB.query.localCompleteAimlabTask
-			.findMany({
-				columns: {
-					taskId: true,
-				},
-			})
-			.then((r) => r.map((r) => r.taskId));
+		// 既に処理されたタスクIDを取得 (force=true の場合は空配列)
+		let completedTaskIds: number[] = [];
+		if (!force) {
+			completedTaskIds = await localDB.query.localCompleteAimlabTask
+				.findMany({
+					columns: {
+						taskId: true,
+					},
+				})
+				.then((r) => r.map((r) => r.taskId));
+		}
 
 		logger.info("Checking for new tasks", {
 			completedTasksCount: completedTaskIds.length,
+			force,
 		});
 
 		// アップロードする新しいタスクを特定
 		const uploadTasks = await aimlabDB.query.taskData
 			.findMany({
-				where: (t, { notInArray }) => notInArray(t.taskId, completedTaskIds),
+				where: (t, { notInArray }) =>
+					completedTaskIds.length > 0
+						? notInArray(t.taskId, completedTaskIds)
+						: undefined,
 			})
 			.then((r) =>
 				r.map((t) => ({

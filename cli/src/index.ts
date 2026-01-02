@@ -56,7 +56,8 @@ program
 		"upload api base endpoint",
 		"https://aim-ai-coach.mk2481.dev",
 	)
-	.action(async (path: string, opts: { endpoint: string }) => {
+	.option("-f, --force", "force re-upload even if tasks are already processed")
+	.action(async (path: string, opts: { endpoint: string; force?: boolean }) => {
 		const { user } = await getSessionOrLogin();
 		const client = hc<APIType>(opts.endpoint, {
 			headers: {
@@ -64,7 +65,7 @@ program
 			},
 		});
 
-		await uploadAimlab(path, client, user);
+		await uploadAimlab(path, client, user, opts.force);
 	});
 
 program
