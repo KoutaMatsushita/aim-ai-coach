@@ -22,7 +22,7 @@ program
 		"upload api base endpoint",
 		"https://aim-ai-coach.mk2481.dev",
 	)
-	.action(async (opts: { endpoint: string }) => {
+	.action(async () => {
 		console.log(await getSessionOrLogin());
 	});
 

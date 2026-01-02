@@ -72,10 +72,7 @@ const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
 `,
 			},
 		},
-		processors: [
-			new ToolCallFilter(),
-            new TokenLimiter(128_000),
-		],
+		processors: [new ToolCallFilter(), new TokenLimiter(128_000)],
 	});
 
 export const createDailyReportAgent = (
@@ -114,7 +111,7 @@ ref for vectorTool and graphTool:
 ${LIBSQL_PROMPT}
 `;
 		},
-		model: google("gemini-2.5-flash"),
+		model: google("gemini-3-pro-preview"),
 		tools: {
 			vectorTool: vectorTool,
 			graphTool: graphTool,

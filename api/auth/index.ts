@@ -1,8 +1,8 @@
 import { betterAuth } from "better-auth";
 import { type DB, drizzleAdapter } from "better-auth/adapters/drizzle";
 import { bearer, deviceAuthorization, magicLink } from "better-auth/plugins";
-import { passkey } from "better-auth/plugins/passkey";
-import { reactStartCookies } from "better-auth/react-start";
+import { passkey } from "@better-auth/passkey"
+import { tanstackStartCookies } from "better-auth/tanstack-start";
 import {
 	accounts,
 	deviceCodes,
@@ -84,10 +84,10 @@ export const createAuth = ({
 			bearer(),
 			passkey(),
 			magicLink({
-				sendMagicLink: async ({ email, token, url }, request) => {
-					await sendMail({ email, token, url }, request);
+				sendMagicLink: async ({ email, token, url }, ctx) => {
+					await sendMail({ email, token, url }, ctx?.request);
 				},
 			}),
-			reactStartCookies(),
+            tanstackStartCookies(),
 		],
 	});

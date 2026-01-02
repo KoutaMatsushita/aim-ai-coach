@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StatsRouteImport } from './routes/stats'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReportsIndexRouteImport } from './routes/reports/index'
 import { Route as KnowledgesIndexRouteImport } from './routes/knowledges/index'
@@ -17,6 +18,11 @@ import { Route as AuthAuthViewRouteImport } from './routes/auth/$authView'
 import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as AccountSettingsRouteImport } from './routes/account/settings'
 
+const StatsRoute = StatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -55,6 +61,7 @@ const AccountSettingsRoute = AccountSettingsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/stats': typeof StatsRoute
   '/account/settings': typeof AccountSettingsRoute
   '/api/$': typeof ApiSplatRoute
   '/auth/$authView': typeof AuthAuthViewRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/stats': typeof StatsRoute
   '/account/settings': typeof AccountSettingsRoute
   '/api/$': typeof ApiSplatRoute
   '/auth/$authView': typeof AuthAuthViewRoute
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/stats': typeof StatsRoute
   '/account/settings': typeof AccountSettingsRoute
   '/api/$': typeof ApiSplatRoute
   '/auth/$authView': typeof AuthAuthViewRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/stats'
     | '/account/settings'
     | '/api/$'
     | '/auth/$authView'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/stats'
     | '/account/settings'
     | '/api/$'
     | '/auth/$authView'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/stats'
     | '/account/settings'
     | '/api/$'
     | '/auth/$authView'
@@ -113,6 +125,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  StatsRoute: typeof StatsRoute
   AccountSettingsRoute: typeof AccountSettingsRoute
   ApiSplatRoute: typeof ApiSplatRoute
   AuthAuthViewRoute: typeof AuthAuthViewRoute
@@ -123,6 +136,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/stats': {
+      id: '/stats'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof StatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -177,6 +197,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  StatsRoute: StatsRoute,
   AccountSettingsRoute: AccountSettingsRoute,
   ApiSplatRoute: ApiSplatRoute,
   AuthAuthViewRoute: AuthAuthViewRoute,

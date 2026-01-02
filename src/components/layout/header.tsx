@@ -39,6 +39,10 @@ export const Header = ({ threadId }: HeaderProps) => {
 								<Link to="/knowledges">Knowledges</Link>
 							</Button>
 
+							<Button variant="ghost" size="2" asChild>
+								<Link to="/stats">Stats</Link>
+							</Button>
+
 							{threadId && (
 								<AlertDialog.Root>
 									<AlertDialog.Trigger>

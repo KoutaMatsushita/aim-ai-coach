@@ -79,10 +79,7 @@ const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
 `,
 			},
 		},
-		processors: [
-			new ToolCallFilter(),
-            new TokenLimiter(128_000),
-		],
+		processors: [new ToolCallFilter(), new TokenLimiter(128_000)],
 	});
 
 export const createAimAiCoachAgent = (
@@ -122,7 +119,7 @@ ref for vectorTool and graphTool:
 ${LIBSQL_PROMPT}
 `;
 		},
-		model: google("gemini-2.5-pro"),
+		model: google("gemini-3-pro-preview"),
 		tools: {
 			findUser,
 			findKovaaksScoresByUserId,

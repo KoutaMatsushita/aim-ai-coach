@@ -11,6 +11,7 @@ import { chatApp } from "./routes/chat";
 import { knowledgesApp } from "./routes/knowledges";
 import { kovaaksApp } from "./routes/kovaaks";
 import { reportsApp } from "./routes/reports.ts";
+import { statsApp } from "./routes/stats";
 import { threadApp } from "./routes/threads";
 import type { Variables } from "./variables";
 
@@ -32,6 +33,7 @@ const apiApp = new Hono<{
 	.use("/threads/*", setupSession)
 	.use("/knowledges/*", setupSession)
 	.use("/reports/*", setupSession)
+	.use("/stats/*", setupSession)
 	.route("/aimlabs", aimlabsApp)
 	.route("/kovaaks", kovaaksApp)
 	.use("/chat/*", setupMastra)
@@ -41,7 +43,8 @@ const apiApp = new Hono<{
 	.route("/chat", chatApp)
 	.route("/threads", threadApp)
 	.route("/knowledges", knowledgesApp)
-	.route("/reports", reportsApp);
+	.route("/reports", reportsApp)
+	.route("/stats", statsApp);
 
 export type APIType = typeof apiApp;
 
