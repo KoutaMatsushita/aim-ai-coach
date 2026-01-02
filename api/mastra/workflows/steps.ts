@@ -79,3 +79,68 @@ export const findScores = createStep({
 		};
 	},
 });
+
+export const findStats = createStep({
+	id: "findStats",
+	inputSchema: z.object({
+		days: z.number(),
+		user: UserSelectSchema,
+	}),
+	outputSchema: z.object({
+		days: z.number(),
+		user: UserSelectSchema,
+		stats: z.array(
+			z.object({
+				taskName: z.string(),
+				date: z.string(),
+				score: z.object({
+					count: z.number(),
+					p10: z.number(),
+					p25: z.number(),
+					p50: z.number(),
+					p75: z.number(),
+					p90: z.number(),
+					p99: z.number(),
+				}),
+				accuracy: z.object({
+					count: z.number(),
+					p10: z.number(),
+					p25: z.number(),
+					p50: z.number(),
+					p75: z.number(),
+					p90: z.number(),
+					p99: z.number(),
+				}),
+				source: z.enum(["Aimlab", "KovaaKs"]),
+			}),
+		),
+	}),
+	execute: async ({ inputData }) => {
+		const { days, user } = inputData;
+
+		const aimRepo = new AimLabsRepository(db);
+		const kovaaksRepo = new KovaaksRepository(db);
+
+		const startDate = addDay(new Date(), -days);
+		const endDate = addDay(new Date());
+
+		const [aimStats, kovaaksStats] = await Promise.all([
+			aimRepo.getTaskStatistics(user.id, "day", { startDate, endDate }),
+			kovaaksRepo.getTaskStatistics(user.id, "day", { startDate, endDate }),
+		]);
+
+		const mergedStats = [
+			...aimStats.map((s) => ({ ...s, source: "Aimlab" as const })),
+			...kovaaksStats.map((s) => ({ ...s, source: "KovaaKs" as const })),
+		].sort((a, b) => {
+			if (a.date !== b.date) return b.date.localeCompare(a.date);
+			return a.taskName.localeCompare(b.taskName);
+		});
+
+		return {
+			days,
+			user,
+			stats: mergedStats,
+		};
+	},
+});

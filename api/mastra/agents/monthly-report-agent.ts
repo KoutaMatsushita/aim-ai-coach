@@ -10,6 +10,7 @@ import {
 	findAimlabTasksByUserId,
 	findKovaaksScoresByUserId,
 } from "../tools/user-tool.ts";
+import { getStats } from "../tools/stats-tool";
 
 // Enhanced memory configuration for personalized coaching
 const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
@@ -135,6 +136,7 @@ ${LIBSQL_PROMPT}
 			graphTool: graphTool,
 			findKovaaksScoresByUserId,
 			findAimlabTasksByUserId,
+			getStats,
 		},
 		memory: createEnhancedMemory(storage, vector),
 	});

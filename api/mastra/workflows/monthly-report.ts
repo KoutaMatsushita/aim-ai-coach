@@ -1,56 +1,52 @@
-import { addDay } from "@formkit/tempo";
 import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
-import { AimLabsRepository } from "../../repository/aim-labs-repository.ts";
-import { KovaaksRepository } from "../../repository/kovaaks-repository.ts";
-import type { taskFilter } from "../../repository/task-filter.ts";
-import {
-	AimlabTaskSelectSchema,
-	db,
-	KovaaksScoreInsertSchema,
-	UserSelectSchema,
-} from "../db";
-import { findScores, findUser } from "./steps.ts";
+import { UserSelectSchema } from "../db";
+import { findStats, findUser } from "./steps.ts";
 
 const callLLM = createStep({
 	id: "callLLM",
 	inputSchema: z.object({
 		days: z.number(),
 		user: UserSelectSchema,
-		aimLabsScores: z.object({
-			data: z.array(AimlabTaskSelectSchema),
-			total: z.number(),
-		}),
-		kovaaksScores: z.object({
-			data: z.array(KovaaksScoreInsertSchema),
-			total: z.number(),
-		}),
+		stats: z.array(
+			z.object({
+				taskName: z.string(),
+				date: z.string(),
+				score: z.object({
+					count: z.number(),
+					p10: z.number(),
+					p25: z.number(),
+					p50: z.number(),
+					p75: z.number(),
+					p90: z.number(),
+					p99: z.number(),
+				}),
+				accuracy: z.object({
+					count: z.number(),
+					p10: z.number(),
+					p25: z.number(),
+					p50: z.number(),
+					p75: z.number(),
+					p90: z.number(),
+					p99: z.number(),
+				}),
+				source: z.enum(["Aimlab", "KovaaKs"]),
+			}),
+		),
 	}),
 	outputSchema: z.object({
 		message: z.string(),
 	}),
 	execute: async ({ inputData, runtimeContext, mastra }) => {
-		const { days, user } = inputData;
-
-		const aimLabsRepository = new AimLabsRepository(db);
-		const kovaaksRepository = new KovaaksRepository(db);
-
-		const filter: taskFilter = {
-			startDate: addDay(new Date(), -days),
-			endDate: addDay(new Date()),
-		};
-
-		const [aimLabsScores, kovaaksScores] = await Promise.all([
-			await aimLabsRepository.findTasksByUserId(user.id, filter),
-			await kovaaksRepository.findTasksByUserId(user.id, filter),
-		]);
+		const { days, user, stats } = inputData;
 
 		const agent = mastra.getAgent("weeklyReportWorkflow");
 		const message = await agent.generate(
 			`
-        下記の直近 ${days} 日のスコアを解析して、マンスリーリポートを生成する。
-        aimlabsScore: ${JSON.stringify(aimLabsScores)}
-        kovaaksScores: ${JSON.stringify(kovaaksScores)}
+        直近 ${days} 日間のプレイ統計情報（パーセンタイル統計）に基づき、マンスリーレポートを作成してください。
+        
+        統計データ:
+        ${JSON.stringify(stats, null, 2)}
         `,
 			{
 				memory: {
@@ -78,6 +74,6 @@ export const monthlyReportWorkflow = createWorkflow({
 	}),
 })
 	.then(findUser)
-	.then(findScores)
+	.then(findStats)
 	.then(callLLM)
 	.commit();

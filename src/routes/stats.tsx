@@ -14,10 +14,13 @@ import {
 	Flex,
 	Card,
 	TextField,
+	Tabs,
+	Badge,
 } from "@radix-ui/themes";
 import type { ChangeEvent } from "react";
 import { client } from "@/lib/client";
 import { format, addMonth } from "@formkit/tempo";
+import { useState } from "react";
 
 // Define search params validation
 type StatsSearch = {
@@ -25,6 +28,29 @@ type StatsSearch = {
 	startDate?: string;
 	endDate?: string;
 };
+
+// Types for the API response (aligned with Repository)
+interface MetricStats {
+	count: number;
+	p10: number;
+	p25: number;
+	p50: number;
+	p75: number;
+	p90: number;
+	p99: number;
+}
+
+interface TaskStatistics {
+	taskName: string;
+	date: string;
+	score: MetricStats;
+	accuracy: MetricStats;
+	source: "Aimlab" | "KovaaKs";
+}
+
+interface ApiResponse {
+	data: TaskStatistics[];
+}
 
 export const Route = createFileRoute("/stats")({
 	component: StatsPage,
@@ -41,6 +67,12 @@ function StatsPage() {
 	const search = useSearch({ from: "/stats" });
 	const navigate = useNavigate({ from: "/stats" });
 	const period = search.period || "day";
+
+	// Local state for metric toggle
+	const [activeMetric, setActiveMetric] = useState<"score" | "accuracy">(
+		"score",
+	);
+	const [activeGame, setActiveGame] = useState<"all" | "Aimlab" | "KovaaKs">("all");
 
 	// Default to last 3 months
 	const now = new Date();
@@ -61,8 +93,13 @@ function StatsPage() {
 				},
 			});
 			if (!res.ok) throw new Error("Failed to fetch stats");
-			return res.json();
+			return res.json() as Promise<ApiResponse>;
 		},
+	});
+
+	const filteredData = data?.data?.filter((item) => {
+		if (activeGame === "all") return true;
+		return item.source === activeGame;
 	});
 
 	const handlePeriodChange = (value: string) => {
@@ -128,6 +165,24 @@ function StatsPage() {
 							justify={{ initial: "between", sm: "start" }}
 						>
 							<Text size="2" color="gray">
+								Game:
+							</Text>
+							<Select.Root value={activeGame} onValueChange={(v) => setActiveGame(v as any)}>
+								<Select.Trigger />
+								<Select.Content>
+									<Select.Item value="all">All</Select.Item>
+									<Select.Item value="Aimlab">Aimlab</Select.Item>
+									<Select.Item value="KovaaKs">KovaaK's</Select.Item>
+								</Select.Content>
+							</Select.Root>
+						</Flex>
+						<Flex
+							gap="2"
+							align="center"
+							width={{ initial: "100%", sm: "auto" }}
+							justify={{ initial: "between", sm: "start" }}
+						>
+							<Text size="2" color="gray">
 								Period:
 							</Text>
 							<Select.Root value={period} onValueChange={handlePeriodChange}>
@@ -142,10 +197,23 @@ function StatsPage() {
 					</Flex>
 				</Flex>
 
+				<Tabs.Root
+					value={activeMetric}
+					onValueChange={(val) =>
+						setActiveMetric(val as "score" | "accuracy")
+					}
+				>
+					<Tabs.List>
+						<Tabs.Trigger value="score">Score</Tabs.Trigger>
+						<Tabs.Trigger value="accuracy">Accuracy</Tabs.Trigger>
+					</Tabs.List>
+				</Tabs.Root>
+
 				<Card>
 					<Table.Root>
 						<Table.Header>
 							<Table.Row>
+								<Table.ColumnHeaderCell>Game</Table.ColumnHeaderCell>
 								<Table.ColumnHeaderCell>Task Name</Table.ColumnHeaderCell>
 								<Table.ColumnHeaderCell>Date</Table.ColumnHeaderCell>
 								<Table.ColumnHeaderCell>Count</Table.ColumnHeaderCell>
@@ -161,32 +229,40 @@ function StatsPage() {
 						<Table.Body>
 							{isLoading ? (
 								<Table.Row>
-									<Table.Cell colSpan={9}>
+									<Table.Cell colSpan={10}>
 										<Text align="center">Loading...</Text>
 									</Table.Cell>
 								</Table.Row>
-							) : data?.data?.length === 0 ? (
+							) : !filteredData || filteredData.length === 0 ? (
 								<Table.Row>
-									<Table.Cell colSpan={9}>
+									<Table.Cell colSpan={10}>
 										<Text align="center">No data found</Text>
 									</Table.Cell>
 								</Table.Row>
 							) : (
-								data?.data?.map((item) => (
-									<Table.Row key={`${item.taskName}-${item.date}`}>
-										<Table.Cell>
-											<Text weight="bold">{item.taskName}</Text>
-										</Table.Cell>
-										<Table.Cell>{item.date}</Table.Cell>
-										<Table.Cell>{item.count}</Table.Cell>
-										<Table.Cell>{Math.round(item.p10)}</Table.Cell>
-										<Table.Cell>{Math.round(item.p25)}</Table.Cell>
-										<Table.Cell>{Math.round(item.p50)}</Table.Cell>
-										<Table.Cell>{Math.round(item.p75)}</Table.Cell>
-										<Table.Cell>{Math.round(item.p90)}</Table.Cell>
-										<Table.Cell>{Math.round(item.p99)}</Table.Cell>
-									</Table.Row>
-								))
+								filteredData.map((item) => {
+									const stats = item[activeMetric];
+									return (
+										<Table.Row key={`${item.source}-${item.taskName}-${item.date}`}>
+											<Table.Cell>
+												<Badge color={item.source === "Aimlab" ? "cyan" : "orange"}>
+													{item.source}
+												</Badge>
+											</Table.Cell>
+											<Table.Cell>
+												<Text weight="bold">{item.taskName}</Text>
+											</Table.Cell>
+											<Table.Cell>{item.date}</Table.Cell>
+											<Table.Cell>{stats.count}</Table.Cell>
+											<Table.Cell>{Math.round(stats.p10)}</Table.Cell>
+											<Table.Cell>{Math.round(stats.p25)}</Table.Cell>
+											<Table.Cell>{Math.round(stats.p50)}</Table.Cell>
+											<Table.Cell>{Math.round(stats.p75)}</Table.Cell>
+											<Table.Cell>{Math.round(stats.p90)}</Table.Cell>
+											<Table.Cell>{Math.round(stats.p99)}</Table.Cell>
+										</Table.Row>
+									);
+								})
 							)}
 						</Table.Body>
 					</Table.Root>

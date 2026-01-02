@@ -17,6 +17,7 @@ import {
 	findKovaaksScoresByUserId,
 	findUser,
 } from "../tools/user-tool";
+import { getStats } from "../tools/stats-tool";
 
 // Enhanced memory configuration for personalized coaching
 const createEnhancedMemory = (storage: MastraStorage, vector: MastraVector) =>
@@ -110,8 +111,9 @@ export const createAimAiCoachAgent = (
 
 # Tools
 - findUser: ユーザ情報の取得
-- findKovaaksScoresByUserId: userId の kovaaks のスコアを取得
-- findAimlabTasksByUserId: userId の aimlabs のスコアを取得
+- findKovaaksScoresByUserId: userId の kovaaks のスコアを取得 (生データ)
+- findAimlabTasksByUserId: userId の aimlabs のスコアを取得 (生データ)
+- getStats: userId の aimlabs / kovaaks の統計情報を取得 (p10-p99の傾向分析用)
 - vectorTool: RAG からエイムコーチや aimlabs や kovaaks のプレイリストに関する知識を取得
 - graphTool: RAG に対して GraphRag を用いた検索を行う
 
@@ -124,8 +126,7 @@ ${LIBSQL_PROMPT}
 			findUser,
 			findKovaaksScoresByUserId,
 			findAimlabTasksByUserId,
-			// getKovaaksStatsByUserId,
-			// getAimlabStatsByUserId,
+			getStats,
 			vectorTool: vectorTool,
 			graphTool: graphTool,
 			addYoutubeContentTool,

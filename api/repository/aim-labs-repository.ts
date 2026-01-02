@@ -1,11 +1,9 @@
 import { format } from "@formkit/tempo";
-import { and, count, eq, gte, like, lte } from "drizzle-orm";
+import { and, count, eq, gte, like, lte, sql } from "drizzle-orm";
 import { aimlabTaskTable, type DBType } from "../db";
 import type { taskFilter } from "./task-filter.ts";
 
-export interface TaskStatistics {
-	taskName: string;
-	date: string;
+export interface MetricStats {
 	count: number;
 	p10: number;
 	p25: number;
@@ -13,6 +11,13 @@ export interface TaskStatistics {
 	p75: number;
 	p90: number;
 	p99: number;
+}
+
+export interface TaskStatistics {
+	taskName: string;
+	date: string;
+	score: MetricStats;
+	accuracy: MetricStats;
 }
 
 export class AimLabsRepository {
@@ -72,11 +77,14 @@ export class AimLabsRepository {
 				: undefined,
 		);
 
-		// 1. Fetch all data for the user (optimize: fetch only needed columns)
+
+		// 1. Fetch all data for the user with optimized query using json_extract
 		const tasks = await this.db
 			.select({
 				taskName: aimlabTaskTable.taskName,
 				score: aimlabTaskTable.score,
+				// Extract accTotal directly from JSON in DB to avoid transferring huge strings
+				accTotal: sql<number>`json_extract(${aimlabTaskTable.performance}, '$.accTotal')`,
 				createDate: aimlabTaskTable.createDate,
 			})
 			.from(aimlabTaskTable)
@@ -88,7 +96,7 @@ export class AimLabsRepository {
 				if (!task.taskName || task.score === null || !task.createDate)
 					return acc;
 
-				const date = new Date(task.createDate); // createDate is numeric/text in schema? Checked schema: numeric
+				const date = new Date(task.createDate);
 				const dateStr = this.formatPeriod(date, period);
 				const key = `${task.taskName}::${dateStr}`;
 
@@ -97,35 +105,55 @@ export class AimLabsRepository {
 						taskName: task.taskName,
 						date: dateStr,
 						scores: [],
+						accuracies: [],
 					};
 				}
 				acc[key].scores.push(task.score);
+
+				if (task.accTotal !== null && task.accTotal !== undefined) {
+					acc[key].accuracies.push(Number(task.accTotal));
+				}
+
 				return acc;
 			},
 			{} as Record<
 				string,
-				{ taskName: string; date: string; scores: number[] }
+				{
+					taskName: string;
+					date: string;
+					scores: number[];
+					accuracies: number[];
+				}
 			>,
 		);
 
 		// 3. Calculate Percentiles
-		const percentiles = [10, 25, 50, 75, 90, 99];
-		const result: TaskStatistics[] = Object.values(groupedData).map((group) => {
-			const sortedScores = group.scores.sort((a, b) => a - b);
-			const stats: Partial<Omit<TaskStatistics, "taskName" | "date">> = {
-				count: sortedScores.length,
+		const calculateStats = (values: number[]): MetricStats => {
+			const sorted = values.sort((a, b) => a - b);
+			const percentiles = [10, 25, 50, 75, 90, 99];
+			const result: Partial<MetricStats> = {
+				count: sorted.length,
 			};
 
 			percentiles.forEach((p) => {
-				const index = Math.ceil((p / 100) * sortedScores.length) - 1;
+				if (sorted.length === 0) {
+					// @ts-ignore
+					result[`p${p}`] = 0;
+					return;
+				}
+				const index = Math.ceil((p / 100) * sorted.length) - 1;
 				// @ts-ignore
-				stats[`p${p}`] = sortedScores[Math.max(0, index)];
+				result[`p${p}`] = sorted[Math.max(0, index)];
 			});
+			return result as MetricStats;
+		};
 
+		const result: TaskStatistics[] = Object.values(groupedData).map((group) => {
 			return {
 				taskName: group.taskName,
 				date: group.date,
-				...(stats as Omit<TaskStatistics, "taskName" | "date">),
+				score: calculateStats(group.scores),
+				accuracy: calculateStats(group.accuracies),
 			};
 		});
 

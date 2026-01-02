@@ -182,6 +182,11 @@ export const kovaaksScoresTable = sqliteTable(
 		ttk: text("ttk").notNull(), // "TTK": "0.000000s"（末尾 s を含むため text）
 		timestamp: text("timestamp").notNull(), // "Timestamp": "17:34:32.573"
 		weapon: text("weapon").notNull(), // "Weapon": "pistol"
+
+		// セッション全体情報（CSVフッター由来）
+		score: real("score").default(0).notNull(),
+		sessionAccuracy: real("session_accuracy").default(0).notNull(),
+		meta: text("meta"), // JSON string
 	},
 	(t) => [
 		unique().on(t.sourceFilename, t.timestamp),
