@@ -1,3 +1,4 @@
+import { dayEnd, parse } from "@formkit/tempo";
 import { tool } from "ai";
 import { AimLabsRepository } from "api/repository/aim-labs-repository";
 import { KovaaksRepository } from "api/repository/kovaaks-repository";
@@ -33,8 +34,13 @@ export const getStats = async (
 ) => {
 	const { userId, period, game, startDate, endDate, limit } = args;
 
-	const start = startDate ? new Date(startDate) : undefined;
-	const end = endDate ? new Date(endDate) : undefined;
+	// Parse inputs using tempo (handles local time correctly)
+	// startDate: 00:00:00 JST
+	// endDate: 23:59:59.999 JST
+	const start = startDate ? parse(startDate, "YYYY-MM-DD") : undefined;
+	const end = endDate
+		? dayEnd(parse(endDate, "YYYY-MM-DD"))
+		: undefined;
 
 	const promises = [];
 

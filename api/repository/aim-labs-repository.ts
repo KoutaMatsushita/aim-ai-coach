@@ -69,11 +69,14 @@ export class AimLabsRepository {
 			options.startDate
 				? gte(
 						aimlabTaskTable.createDate,
-						format(options.startDate, "YYYY-MM-DD"),
+						options.startDate.toISOString().replace("T", " ").substring(0, 19),
 					)
 				: undefined,
 			options.endDate
-				? lte(aimlabTaskTable.createDate, format(options.endDate, "YYYY-MM-DD"))
+				? lte(
+						aimlabTaskTable.createDate,
+						options.endDate.toISOString().replace("T", " ").substring(0, 19),
+					)
 				: undefined,
 		);
 
