@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { Hono } from "hono";
-import { aimlabTaskTable } from "../mastra/db";
+import { aimlabTaskTable } from "../db/schema";
 import { requireUser } from "../middleware/require-user";
 import type { Variables } from "../variables";
 

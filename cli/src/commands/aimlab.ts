@@ -15,7 +15,11 @@ export const uploadAimlab = async (
 	force = false,
 ) => {
 	try {
-		logger.info("Starting Aimlab data upload", { path, userId: user.id, force });
+		logger.info("Starting Aimlab data upload", {
+			path,
+			userId: user.id,
+			force,
+		});
 
 		const dbPath = await findFirstWithExt(path, ".bytes");
 		if (!dbPath) {

@@ -26,7 +26,11 @@ export const uploadKovaaks = async (
 	force = false,
 ) => {
 	try {
-		logger.info("Starting Kovaaks data upload", { path, userId: user.id, force });
+		logger.info("Starting Kovaaks data upload", {
+			path,
+			userId: user.id,
+			force,
+		});
 
 		const db = await getDB();
 		const all = (await readdir(path)).filter((f) => f.endsWith(".csv"));
@@ -107,7 +111,7 @@ export const uploadKovaaks = async (
 		for (const chunk of chunks) {
 			try {
 				console.log(chunk);
-                // @ts-ignore
+				// @ts-ignore
 				const response = await client.api.kovaaks.$post({ json: chunk });
 				if (response.ok) {
 					uploadedChunks++;
@@ -162,19 +166,18 @@ const parseKovaaks = async (path: string, file: string, user: User) => {
 			return null;
 		}
 
-
 		// 空行でセクションを分割（ヘッダー+データ行 と フッター）
 		// KovaaKs CSVは通常、データ行の後に空行があり、その後にフッターが続く
 		// ただし、空行がない場合や複数ある場合も考慮する必要がある
 		// ここでは、"Weapon,Shots,Hits..." のようなフッター特有のヘッダーが出現する場所、
 		// または "Kills:," のようなキーバリュー行が出現する場所を探す
 
-		const lines = text
-			.split("\n")
-			.map((line) => line.trim());
-			// 空行除去はまだしない（セクション区切りのため）
+		const lines = text.split("\n").map((line) => line.trim());
+		// 空行除去はまだしない（セクション区切りのため）
 
-		const headerIndex = lines.findIndex(line => line.includes("Kill #,Timestamp,Bot,Weapon"));
+		const headerIndex = lines.findIndex((line) =>
+			line.includes("Kill #,Timestamp,Bot,Weapon"),
+		);
 		if (headerIndex === -1) {
 			logger.warn("File has no valid header", { file });
 			return null;
@@ -185,7 +188,10 @@ const parseKovaaks = async (path: string, file: string, user: User) => {
 		let footerStartIndex = -1;
 		for (let i = headerIndex + 1; i < lines.length; i++) {
 			// 空行、またはCSV形式ではない行（フッターの開始）を見つける
-			if (lines[i] === "" || (!lines[i].includes(",") && lines[i].includes(":"))) {
+			if (
+				lines[i] === "" ||
+				(!lines[i].includes(",") && lines[i].includes(":"))
+			) {
 				footerStartIndex = i;
 				break;
 			}
@@ -197,13 +203,17 @@ const parseKovaaks = async (path: string, file: string, user: User) => {
 		}
 
 		if (footerStartIndex === -1) {
-            // フッターが見つからない場合はファイルの最後までデータとする
-            footerStartIndex = lines.length;
-        }
+			// フッターが見つからない場合はファイルの最後までデータとする
+			footerStartIndex = lines.length;
+		}
 
 		// データ部分の抽出
-		const dataLines = lines.slice(headerIndex, footerStartIndex).filter(l => l.length > 0);
-        const footerLines = lines.slice(footerStartIndex).filter(l => l.length > 0);
+		const dataLines = lines
+			.slice(headerIndex, footerStartIndex)
+			.filter((l) => l.length > 0);
+		const footerLines = lines
+			.slice(footerStartIndex)
+			.filter((l) => l.length > 0);
 
 		if (dataLines.length < 2) {
 			logger.warn(
@@ -217,7 +227,7 @@ const parseKovaaks = async (path: string, file: string, user: User) => {
 		}
 
 		const header = dataLines.shift()!.split(",");
-		
+
 		const rows = dataLines
 			.map((line) => line.split(","))
 			.filter((row) => row.length === header.length);
@@ -233,40 +243,39 @@ const parseKovaaks = async (path: string, file: string, user: User) => {
 
 		// フッターのパース
 		const metaDict: Record<string, string> = {};
-        
-        // フッター内の キー:値 を抽出
-        for (const line of footerLines) {
-            // "Key:,Value" 形式
-            if (line.includes(":,")) {
-                const parts = line.split(":,");
-                if (parts.length >= 2) {
-                    const key = parts[0].trim();
-                    const val = parts[1].trim();
-                    metaDict[key] = val;
-                }
-            }
-             // "Key:,Value,Key2:,Value2" のような横並びや、"Weapon,Shots..." のようなテーブル形式は簡易的に処理
-             // 今回は "Score:,580.0" のような形式を優先
-             else if (line.includes(",")) {
-                 // "Weapon,Shots,Hits..." の行やその下の値の行は、今のところ単純なMapには入れにくいので
-                 // 特定のキー（Hit Count, Shotsなど）は文字列検索で頑張るか、このループで処理しきれないものは無視
-                 // ユーザー要望の Score は "Score:,580.0" 形式で来るため上記分岐で取れる
-                 
-                 // Hit Count, Shots は "Hit Count:,928" のように入っているか確認が必要
-                 // ユーザー提供の例を見ると:
-                 // "Hit Count:,928"
-                 // "Miss Count:,688"
-                 // となっているので上記分岐で取れるはず
-             }
-        }
 
-        // 特別対応: Footerに "Weapon,Shots,Hits..." のテーブルがある場合、そこから Shots を取る必要があるかも？
-        // 提供されたCSV例では:
-        // Weapon,Shots,Hits,...
-        // LG,1616,928,...
-        // となっている。
-        // "Hit Count:,928" という行もあるので、そちらを優先すればテーブルパースは不要かもしれない。
-        // 一応、metaDict に入った値を確認して計算する。
+		// フッター内の キー:値 を抽出
+		for (const line of footerLines) {
+			// "Key:,Value" 形式
+			if (line.includes(":,")) {
+				const parts = line.split(":,");
+				if (parts.length >= 2) {
+					const key = parts[0].trim();
+					const val = parts[1].trim();
+					metaDict[key] = val;
+				}
+			}
+			// "Key:,Value,Key2:,Value2" のような横並びや、"Weapon,Shots..." のようなテーブル形式は簡易的に処理
+			// 今回は "Score:,580.0" のような形式を優先
+			else if (line.includes(",")) {
+				// "Weapon,Shots,Hits..." の行やその下の値の行は、今のところ単純なMapには入れにくいので
+				// 特定のキー（Hit Count, Shotsなど）は文字列検索で頑張るか、このループで処理しきれないものは無視
+				// ユーザー要望の Score は "Score:,580.0" 形式で来るため上記分岐で取れる
+				// Hit Count, Shots は "Hit Count:,928" のように入っているか確認が必要
+				// ユーザー提供の例を見ると:
+				// "Hit Count:,928"
+				// "Miss Count:,688"
+				// となっているので上記分岐で取れるはず
+			}
+		}
+
+		// 特別対応: Footerに "Weapon,Shots,Hits..." のテーブルがある場合、そこから Shots を取る必要があるかも？
+		// 提供されたCSV例では:
+		// Weapon,Shots,Hits,...
+		// LG,1616,928,...
+		// となっている。
+		// "Hit Count:,928" という行もあるので、そちらを優先すればテーブルパースは不要かもしれない。
+		// 一応、metaDict に入った値を確認して計算する。
 
 		const meta = parseFilename(file);
 		if (!meta) {
@@ -274,36 +283,50 @@ const parseKovaaks = async (path: string, file: string, user: User) => {
 			return null;
 		}
 
-        const score = safeParseFloat(metaDict["Score"]);
-        const hits = safeParseFloat(metaDict["Hit Count"]);
-        // Removed unused variable
-        
-        let sessionShots = 0;
-        if (metaDict["Shots"]) {
-             sessionShots = safeParseFloat(metaDict["Shots"]);
-        } else if (metaDict["Hit Count"] && metaDict["Miss Count"]) {
-             sessionShots = safeParseFloat(metaDict["Hit Count"]) + safeParseFloat(metaDict["Miss Count"]);
-        } else {
-             // 見つからない場合はテーブル行を探す
-             const weaponHeaderIndex = footerLines.findIndex(l => l.startsWith("Weapon,Shots,Hits"));
-             if (weaponHeaderIndex !== -1 && weaponHeaderIndex + 1 < footerLines.length) {
-                 const valRow = footerLines[weaponHeaderIndex + 1].split(",");
-                 // Weapon, Shots, Hits... なので Index 1 が Shots
-                 sessionShots = safeParseFloat(valRow[1]);
-             }
-        }
+		const score = safeParseFloat(metaDict["Score"]);
+		const hits = safeParseFloat(metaDict["Hit Count"]);
+		// Removed unused variable
 
-        const sessionAccuracy = sessionShots > 0 ? hits / sessionShots : 0;
+		let sessionShots = 0;
+		if (metaDict["Shots"]) {
+			sessionShots = safeParseFloat(metaDict["Shots"]);
+		} else if (metaDict["Hit Count"] && metaDict["Miss Count"]) {
+			sessionShots =
+				safeParseFloat(metaDict["Hit Count"]) +
+				safeParseFloat(metaDict["Miss Count"]);
+		} else {
+			// 見つからない場合はテーブル行を探す
+			const weaponHeaderIndex = footerLines.findIndex((l) =>
+				l.startsWith("Weapon,Shots,Hits"),
+			);
+			if (
+				weaponHeaderIndex !== -1 &&
+				weaponHeaderIndex + 1 < footerLines.length
+			) {
+				const valRow = footerLines[weaponHeaderIndex + 1].split(",");
+				// Weapon, Shots, Hits... なので Index 1 が Shots
+				sessionShots = safeParseFloat(valRow[1]);
+			}
+		}
 
-        // metaDict を JSON にして保存
-        const metaJson = JSON.stringify(metaDict);
+		const sessionAccuracy = sessionShots > 0 ? hits / sessionShots : 0;
 
-		const mappedData = mapKovaaksRow(objects, meta, user, score, sessionAccuracy, metaJson);
+		// metaDict を JSON にして保存
+		const metaJson = JSON.stringify(metaDict);
+
+		const mappedData = mapKovaaksRow(
+			objects,
+			meta,
+			user,
+			score,
+			sessionAccuracy,
+			metaJson,
+		);
 		logger.debug("File parsed successfully", {
 			file,
 			recordCount: mappedData.length,
-            score,
-            sessionAccuracy
+			score,
+			sessionAccuracy,
 		});
 
 		return mappedData;
@@ -371,9 +394,9 @@ const mapKovaaksRow = (
 	raws: { [p: string]: any }[],
 	meta: MetaData,
 	user: User,
-    score: number,
-    sessionAccuracy: number,
-    metaJson: string
+	score: number,
+	sessionAccuracy: number,
+	metaJson: string,
 ) => {
 	return raws.map((raw) => {
 		try {
@@ -401,11 +424,11 @@ const mapKovaaksRow = (
 				ttk: raw["TTK"] || "",
 				timestamp: raw["Timestamp"] || "",
 				weapon: raw["Weapon"] || "",
-                
-                // フッター由来情報
-                score,
-                sessionAccuracy,
-                meta: metaJson
+
+				// フッター由来情報
+				score,
+				sessionAccuracy,
+				meta: metaJson,
 			} as const;
 		} catch (error) {
 			logger.error("Failed to map Kovaaks row", { raw, error });
@@ -426,4 +449,3 @@ const safeParseInt = (value: string | undefined): number => {
 	const parsed = Number.parseInt(value.trim(), 10);
 	return isNaN(parsed) ? 0 : parsed;
 };
-

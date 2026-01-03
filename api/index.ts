@@ -4,10 +4,8 @@ import type { CloudflareBindings } from "./bindings";
 import { setupAuth } from "./middleware/auth";
 import { setupCors } from "./middleware/cors";
 import { setupDB } from "./middleware/db";
-import { setupMastra } from "./middleware/mastra";
 import { setupSession } from "./middleware/session";
 import { aimlabsApp } from "./routes/aimlabs";
-import { chatApp } from "./routes/chat";
 import { knowledgesApp } from "./routes/knowledges";
 import { kovaaksApp } from "./routes/kovaaks";
 import { reportsApp } from "./routes/reports.ts";
@@ -30,21 +28,14 @@ const apiApp = new Hono<{
 	})
 	.use("/aimlabs/*", setupSession)
 	.use("/kovaaks/*", setupSession)
-	.use("/chat/*", setupSession)
 	.use("/threads/*", setupSession)
 	.use("/knowledges/*", setupSession)
 	.use("/reports/*", setupSession)
 	.use("/stats/*", setupSession)
 	.route("/aimlabs", aimlabsApp)
 	.route("/kovaaks", kovaaksApp)
-	.use("/chat/*", setupMastra)
-	.use("/threads/*", setupMastra)
-	.use("/knowledges/*", setupMastra)
-	.use("/reports/*", setupMastra)
-	.route("/chat", chatApp)
 	.route("/threads", threadApp)
 	.route("/knowledges", knowledgesApp)
-	.route("/reports", reportsApp)
 	.route("/reports", reportsApp)
 	.route("/stats", statsApp)
 	.route("/benchmarks", benchmarkApp);

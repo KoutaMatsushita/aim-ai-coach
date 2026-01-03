@@ -151,9 +151,7 @@ export class BenchmarkRepository {
 		const userScores = await this.db
 			.select({
 				scenarioName: kovaaksScoresTable.scenarioName,
-				maxScore: sql<number>`max(${kovaaksScoresTable.score})`.as(
-					"max_score",
-				),
+				maxScore: sql<number>`max(${kovaaksScoresTable.score})`.as("max_score"),
 			})
 			.from(kovaaksScoresTable)
 			.where(
@@ -164,7 +162,9 @@ export class BenchmarkRepository {
 			)
 			.groupBy(kovaaksScoresTable.scenarioName);
 
-		const scoreMap = new Map(userScores.map((s) => [s.scenarioName, s.maxScore]));
+		const scoreMap = new Map(
+			userScores.map((s) => [s.scenarioName, s.maxScore]),
+		);
 
 		// Calculate Ranks
 		const resultScenarios = benchmark.scenarios.map((scenario) => {

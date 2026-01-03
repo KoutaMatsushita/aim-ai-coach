@@ -1,69 +1,83 @@
 {
-  "version": "7",
-  "dialect": "sqlite",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "6",
-      "when": 1758958932924,
-      "tag": "0000_sharp_king_bedlam",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1759847838982,
-      "tag": "0001_steep_goblin_queen",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1760969370531,
-      "tag": "0002_complete_terrax",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1760969699099,
-      "tag": "0003_harsh_spitfire",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1762953791224,
-      "tag": "0004_famous_human_cannonball",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1763382595295,
-      "tag": "0005_nosy_smiling_tiger",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "6",
-      "when": 1763383550743,
-      "tag": "0006_cold_secret_warriors",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "6",
-      "when": 1767363346901,
-      "tag": "0007_dapper_shen",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "6",
-      "when": 1767406479513,
-      "tag": "0008_dear_anthem",
-      "breakpoints": true
-    }
-  ]
+	"version": "7",
+	"dialect": "sqlite",
+	"entries": [
+		{
+			"idx": 0,
+			"version": "6",
+			"when": 1758958932924,
+			"tag": "0000_sharp_king_bedlam",
+			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "6",
+			"when": 1759847838982,
+			"tag": "0001_steep_goblin_queen",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "6",
+			"when": 1760969370531,
+			"tag": "0002_complete_terrax",
+			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "6",
+			"when": 1760969699099,
+			"tag": "0003_harsh_spitfire",
+			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "6",
+			"when": 1762953791224,
+			"tag": "0004_famous_human_cannonball",
+			"breakpoints": true
+		},
+		{
+			"idx": 5,
+			"version": "6",
+			"when": 1763382595295,
+			"tag": "0005_nosy_smiling_tiger",
+			"breakpoints": true
+		},
+		{
+			"idx": 6,
+			"version": "6",
+			"when": 1763383550743,
+			"tag": "0006_cold_secret_warriors",
+			"breakpoints": true
+		},
+		{
+			"idx": 7,
+			"version": "6",
+			"when": 1767363346901,
+			"tag": "0007_dapper_shen",
+			"breakpoints": true
+		},
+		{
+			"idx": 8,
+			"version": "6",
+			"when": 1767406479513,
+			"tag": "0008_dear_anthem",
+			"breakpoints": true
+		},
+		{
+			"idx": 9,
+			"version": "6",
+			"when": 1767412198987,
+			"tag": "0009_fluffy_oracle",
+			"breakpoints": true
+		},
+		{
+			"idx": 10,
+			"version": "6",
+			"when": 1767441730775,
+			"tag": "0010_glossy_nico_minoru",
+			"breakpoints": true
+		}
+	]
 }

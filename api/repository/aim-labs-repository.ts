@@ -77,7 +77,6 @@ export class AimLabsRepository {
 				: undefined,
 		);
 
-
 		// Prepare date formatter for SQLite
 		let dateFormat = "%Y-%m-%d";
 		if (period === "month") {
@@ -154,5 +153,4 @@ export class AimLabsRepository {
 			return a.taskName.localeCompare(b.taskName);
 		});
 	}
-
 }

@@ -10,7 +10,7 @@ export const statsApp = new Hono<{ Variables: Variables }>()
 		const userId = c.var.user.id;
 		const query = c.req.query();
 		const period = (query.period || "day") as "day" | "week" | "month";
-		
+
 		const startDate = query.startDate ? new Date(query.startDate) : undefined;
 		const endDate = query.endDate ? new Date(query.endDate) : undefined;
 
@@ -23,8 +23,8 @@ export const statsApp = new Hono<{ Variables: Variables }>()
 		]);
 
 		const mergedStats = [
-			...aimStats.map(s => ({ ...s, source: "Aimlab" as const })),
-			...kovaaksStats.map(s => ({ ...s, source: "KovaaKs" as const })),
+			...aimStats.map((s) => ({ ...s, source: "Aimlab" as const })),
+			...kovaaksStats.map((s) => ({ ...s, source: "KovaaKs" as const })),
 		].sort((a, b) => {
 			if (a.date !== b.date) return b.date.localeCompare(a.date);
 			return a.taskName.localeCompare(b.taskName);

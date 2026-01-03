@@ -1,10 +1,12 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import z from "zod";
-import { contentAnalyzer } from "../mastra/services/content-analyzer";
-import { RAGLibSQLService } from "../mastra/services/rag-libsql";
-import { youtubeService } from "../mastra/services/youtube";
+import { contentAnalyzer } from "../ai/services/content-analyzer";
+import { RAGLibSQLService } from "../ai/services/rag-libsql";
+import { youtubeService } from "../ai/services/youtube";
 import type { RequiredAuthVariables } from "../variables";
+import { LibSQLVector } from "@mastra/libsql";
+import type { CloudflareBindings } from "../bindings";
 
 function extractVideoId(url: string): string | null {
 	const patterns = [
@@ -23,6 +25,7 @@ function extractVideoId(url: string): string | null {
 
 export const knowledgesApp = new Hono<{
 	Variables: RequiredAuthVariables;
+	Bindings: CloudflareBindings;
 }>()
 	.post(
 		"/youtube",
@@ -36,8 +39,13 @@ export const knowledgesApp = new Hono<{
 			const { url } = await c.req.json();
 
 			try {
+				const { TURSO_DATABASE_URL, TURSO_AUTH_TOKEN } = c.env;
 				const ragLibSQLService = new RAGLibSQLService(
-					c.var.mastra.getVector("vector"),
+					new LibSQLVector({
+						connectionUrl: TURSO_DATABASE_URL,
+						authToken: TURSO_AUTH_TOKEN,
+						id: "knowledge-vector-store",
+					}),
 				);
 				await ragLibSQLService.initializeIndex();
 
@@ -109,8 +117,13 @@ export const knowledgesApp = new Hono<{
 			const { title, content, forceOverwrite } = await c.req.json();
 
 			try {
+				const { TURSO_DATABASE_URL, TURSO_AUTH_TOKEN } = c.env;
 				const ragLibSQLService = new RAGLibSQLService(
-					c.var.mastra.getVector("vector"),
+					new LibSQLVector({
+						connectionUrl: TURSO_DATABASE_URL,
+						authToken: TURSO_AUTH_TOKEN,
+						id: "knowledge-vector-store-text",
+					}),
 				);
 				await ragLibSQLService.initializeIndex();
 

@@ -4,7 +4,7 @@
  */
 
 import { google } from "@ai-sdk/google";
-import type { MastraVector } from "@mastra/core";
+import type { LibSQLVector } from "@mastra/libsql";
 import { embed } from "ai";
 import type { AimAnalysisResult } from "./content-analyzer";
 import type { YouTubeVideo } from "./youtube";
@@ -157,7 +157,7 @@ export interface PersonalizedRecommendation {
  */
 export class RAGLibSQLService {
 	constructor(
-		private readonly vectorStore: MastraVector,
+		private readonly vectorStore: LibSQLVector,
 		private readonly embeddingModel = google.textEmbedding(
 			"text-embedding-004",
 		),

@@ -80,7 +80,7 @@ export default function HomePage({
 
 	const { messages, sendMessage, setMessages, status } = useChat({
 		transport: new DefaultChatTransport({
-			api: "/api/chat",
+			api: `/api/threads/${thread}/chat`,
 			credentials: "include",
 		}),
 	});
@@ -150,7 +150,9 @@ export default function HomePage({
 															<Text size="1" className="pt-4">
 																{new Date(
 																	(message.metadata as { createdAt: string })
-																		?.createdAt,
+																		?.createdAt ??
+																		(message as any).createdAt ??
+																		Date.now(),
 																).toLocaleString()}
 															</Text>
 														</MessageContent>

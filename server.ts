@@ -530,7 +530,7 @@ async function initializeServer() {
 			...routes,
 
 			// Fallback to TanStack Start handler for all other routes
-			"/*": (req: Request) => {
+			"/*": (req: any) => {
 				try {
 					return handler.fetch(req);
 				} catch (error) {

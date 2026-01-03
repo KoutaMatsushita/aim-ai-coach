@@ -127,5 +127,4 @@ export class KovaaksRepository {
 			return a.taskName.localeCompare(b.taskName);
 		});
 	}
-
 }

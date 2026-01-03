@@ -152,6 +152,53 @@ export const passkeys = sqliteTable("passkeys", {
 });
 
 // ========================================
+// Chat History テーブル
+// ========================================
+
+export const chatThreads = sqliteTable(
+	"chat_threads",
+	{
+		id: text("id").primaryKey(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		title: text("title"),
+		createdAt: integer("created_at", { mode: "timestamp" })
+			.defaultNow()
+			.notNull(),
+		updatedAt: integer("updated_at", { mode: "timestamp" })
+			.defaultNow()
+			.$onUpdate(() => new Date())
+			.notNull(),
+	},
+	(t) => [index("chat_threads_user_id_idx").on(t.userId)],
+);
+
+export const chatMessages = sqliteTable(
+	"chat_messages",
+	{
+		id: text("id").primaryKey(),
+		threadId: text("thread_id")
+			.notNull()
+			.references(() => chatThreads.id, { onDelete: "cascade" }),
+		role: text("role").notNull(), // 'user' | 'assistant' | 'system' | 'tool'
+		parts: text("parts", { mode: "json" }),
+		metadata: text("metadata", { mode: "json" }),
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		createdAt: integer("created_at", { mode: "timestamp" })
+			.defaultNow()
+			.notNull(),
+	},
+	(t) => [
+		index("chat_messages_thread_id_idx").on(t.threadId),
+		index("chat_messages_user_id_idx").on(t.userId),
+		index("chat_messages_created_at_idx").on(t.createdAt),
+	],
+);
+
+// ========================================
 // AIM AI Coach データテーブル
 // ========================================
 
@@ -295,6 +342,8 @@ export const usersRelations = relations(users, ({ many }) => ({
 	dailyReports: many(dailyReportTable),
 	weeklyReports: many(weeklyReportTable),
 	monthlyReports: many(monthlyReportTable),
+	chatThreads: many(chatThreads),
+	chatMessages: many(chatMessages),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -359,6 +408,25 @@ export const monthlyReportRelation = relations(
 		}),
 	}),
 );
+
+export const chatThreadsRelation = relations(chatThreads, ({ one, many }) => ({
+	user: one(users, {
+		fields: [chatThreads.userId],
+		references: [users.id],
+	}),
+	messages: many(chatMessages),
+}));
+
+export const chatMessagesRelation = relations(chatMessages, ({ one }) => ({
+	user: one(users, {
+		fields: [chatMessages.userId],
+		references: [users.id],
+	}),
+	thread: one(chatThreads, {
+		fields: [chatMessages.threadId],
+		references: [chatThreads.id],
+	}),
+}));
 
 // ========================================
 // Local Processing テーブル (collector用)
@@ -452,6 +520,12 @@ export const MonthlyReportSelectSchema = createSelectSchema(monthlyReportTable);
 export type MonthlyReportSelectSchema = z.infer<
 	typeof MonthlyReportSelectSchema
 >;
+
+// Chat Messages
+export const ChatMessageInsertSchema = createInsertSchema(chatMessages);
+export const ChatMessageSelectSchema = createSelectSchema(chatMessages);
+export type ChatMessageInsert = z.infer<typeof ChatMessageInsertSchema>;
+export type ChatMessageSelect = z.infer<typeof ChatMessageSelectSchema>;
 
 // ========================================
 // Benchmark Tables (Viscose Benches etc.)

@@ -8,12 +8,15 @@ export const kovaaksApp = new Hono<{ Variables: Variables }>().post(
 	async (c) => {
 		const data = await c.req.json();
 		const dataArray = Array.isArray(data) ? data : [data];
-		
+
 		await c.var.db
 			.insert(kovaaksScoresTable)
 			.values(dataArray)
 			.onConflictDoUpdate({
-				target: [kovaaksScoresTable.sourceFilename, kovaaksScoresTable.timestamp],
+				target: [
+					kovaaksScoresTable.sourceFilename,
+					kovaaksScoresTable.timestamp,
+				],
 				set: {
 					score: sql`excluded.score`,
 					sessionAccuracy: sql`excluded.session_accuracy`,

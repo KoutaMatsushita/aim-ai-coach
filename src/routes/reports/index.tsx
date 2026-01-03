@@ -78,7 +78,7 @@ function DailyReportPage({ userId }: { userId: string }) {
 		return (
 			<>
 				<MessageContent>
-					<Response>{data.message}</Response>
+					<Response>{data.message._output}</Response>
 				</MessageContent>
 			</>
 		);
@@ -119,7 +119,7 @@ function WeeklyReportPage({ userId }: { userId: string }) {
 		return (
 			<>
 				<MessageContent>
-					<Response>{data.message}</Response>
+					<Response>{data.message._output}</Response>
 				</MessageContent>
 			</>
 		);
@@ -136,7 +136,7 @@ function useMonthlyReport(userId: string, date: Date) {
 	return useSWRMutation(
 		["/api/reports/monthly", userId, format(date)],
 		async () => {
-			const response = await client.api.reports.weekly.$post({});
+			const response = await client.api.reports.monthly.$post({});
 			return response.json();
 		},
 	);
@@ -160,7 +160,7 @@ function MonthlyReportPage({ userId }: { userId: string }) {
 		return (
 			<>
 				<MessageContent>
-					<Response>{data.message}</Response>
+					<Response>{data.message._output}</Response>
 				</MessageContent>
 			</>
 		);

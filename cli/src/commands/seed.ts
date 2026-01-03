@@ -25,7 +25,7 @@ export const applySeeds = async (client: ClientType) => {
 		logger.info("path", { path });
 		const file = Bun.file(join(textDir, path));
 		const response = await client.api.knowledges.text.$post({
-			json: { title: file.name, content: await file.text() },
+			json: { title: file.name ?? "Untitled", content: await file.text() },
 		});
 		if (!response.ok) {
 			throw await response.text();

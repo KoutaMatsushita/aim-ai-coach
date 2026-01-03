@@ -72,7 +72,9 @@ function StatsPage() {
 	const [activeMetric, setActiveMetric] = useState<"score" | "accuracy">(
 		"score",
 	);
-	const [activeGame, setActiveGame] = useState<"all" | "Aimlab" | "KovaaKs">("all");
+	const [activeGame, setActiveGame] = useState<"all" | "Aimlab" | "KovaaKs">(
+		"all",
+	);
 
 	// Default to last 3 months
 	const now = new Date();
@@ -130,7 +132,11 @@ function StatsPage() {
 						direction={{ initial: "column", sm: "row" }}
 						width={{ initial: "100%", sm: "auto" }}
 					>
-						<Flex gap="2" align="center" width={{ initial: "100%", sm: "auto" }}>
+						<Flex
+							gap="2"
+							align="center"
+							width={{ initial: "100%", sm: "auto" }}
+						>
 							<Text size="2" color="gray">
 								Range:
 							</Text>
@@ -167,7 +173,10 @@ function StatsPage() {
 							<Text size="2" color="gray">
 								Game:
 							</Text>
-							<Select.Root value={activeGame} onValueChange={(v) => setActiveGame(v as any)}>
+							<Select.Root
+								value={activeGame}
+								onValueChange={(v) => setActiveGame(v as any)}
+							>
 								<Select.Trigger />
 								<Select.Content>
 									<Select.Item value="all">All</Select.Item>
@@ -199,9 +208,7 @@ function StatsPage() {
 
 				<Tabs.Root
 					value={activeMetric}
-					onValueChange={(val) =>
-						setActiveMetric(val as "score" | "accuracy")
-					}
+					onValueChange={(val) => setActiveMetric(val as "score" | "accuracy")}
 				>
 					<Tabs.List>
 						<Tabs.Trigger value="score">Score</Tabs.Trigger>
@@ -243,9 +250,13 @@ function StatsPage() {
 								filteredData.map((item) => {
 									const stats = item[activeMetric];
 									return (
-										<Table.Row key={`${item.source}-${item.taskName}-${item.date}`}>
+										<Table.Row
+											key={`${item.source}-${item.taskName}-${item.date}`}
+										>
 											<Table.Cell>
-												<Badge color={item.source === "Aimlab" ? "cyan" : "orange"}>
+												<Badge
+													color={item.source === "Aimlab" ? "cyan" : "orange"}
+												>
 													{item.source}
 												</Badge>
 											</Table.Cell>

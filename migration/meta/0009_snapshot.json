@@ -1,8 +1,8 @@
 {
 	"version": "6",
 	"dialect": "sqlite",
-	"id": "1da09592-db0d-42cc-90e2-47e5da30b9e7",
-	"prevId": "60e710ce-976d-4393-9d1b-733ee55a7e8b",
+	"id": "bcd26f1d-356b-46f8-8f7d-1c52acdd51e1",
+	"prevId": "62edb777-4165-4748-9eb3-cf9b33e81bd5",
 	"tables": {
 		"accounts": {
 			"name": "accounts",
@@ -292,6 +292,443 @@
 				"aimlab_task_data_user_id_users_id_fk": {
 					"name": "aimlab_task_data_user_id_users_id_fk",
 					"tableFrom": "aimlab_task_data",
+					"tableTo": "users",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {}
+		},
+		"benchmark_ranks": {
+			"name": "benchmark_ranks",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"benchmark_id": {
+					"name": "benchmark_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"order": {
+					"name": "order",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"color": {
+					"name": "color",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"image_url": {
+					"name": "image_url",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				}
+			},
+			"indexes": {
+				"benchmark_ranks_benchmark_id_idx": {
+					"name": "benchmark_ranks_benchmark_id_idx",
+					"columns": ["benchmark_id"],
+					"isUnique": false
+				},
+				"benchmark_ranks_benchmark_id_order_unique": {
+					"name": "benchmark_ranks_benchmark_id_order_unique",
+					"columns": ["benchmark_id", "order"],
+					"isUnique": true
+				}
+			},
+			"foreignKeys": {
+				"benchmark_ranks_benchmark_id_benchmarks_id_fk": {
+					"name": "benchmark_ranks_benchmark_id_benchmarks_id_fk",
+					"tableFrom": "benchmark_ranks",
+					"tableTo": "benchmarks",
+					"columnsFrom": ["benchmark_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {}
+		},
+		"benchmark_scenario_requirements": {
+			"name": "benchmark_scenario_requirements",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"scenario_id": {
+					"name": "scenario_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"rank_id": {
+					"name": "rank_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"min_score": {
+					"name": "min_score",
+					"type": "real",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				}
+			},
+			"indexes": {
+				"benchmark_reqs_scenario_id_idx": {
+					"name": "benchmark_reqs_scenario_id_idx",
+					"columns": ["scenario_id"],
+					"isUnique": false
+				},
+				"benchmark_reqs_rank_id_idx": {
+					"name": "benchmark_reqs_rank_id_idx",
+					"columns": ["rank_id"],
+					"isUnique": false
+				},
+				"benchmark_scenario_requirements_scenario_id_rank_id_unique": {
+					"name": "benchmark_scenario_requirements_scenario_id_rank_id_unique",
+					"columns": ["scenario_id", "rank_id"],
+					"isUnique": true
+				}
+			},
+			"foreignKeys": {
+				"benchmark_scenario_requirements_scenario_id_benchmark_scenarios_id_fk": {
+					"name": "benchmark_scenario_requirements_scenario_id_benchmark_scenarios_id_fk",
+					"tableFrom": "benchmark_scenario_requirements",
+					"tableTo": "benchmark_scenarios",
+					"columnsFrom": ["scenario_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"benchmark_scenario_requirements_rank_id_benchmark_ranks_id_fk": {
+					"name": "benchmark_scenario_requirements_rank_id_benchmark_ranks_id_fk",
+					"tableFrom": "benchmark_scenario_requirements",
+					"tableTo": "benchmark_ranks",
+					"columnsFrom": ["rank_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {}
+		},
+		"benchmark_scenarios": {
+			"name": "benchmark_scenarios",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"benchmark_id": {
+					"name": "benchmark_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"category": {
+					"name": "category",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"sub_category": {
+					"name": "sub_category",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"description": {
+					"name": "description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"game": {
+					"name": "game",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				}
+			},
+			"indexes": {
+				"benchmark_scenarios_benchmark_id_idx": {
+					"name": "benchmark_scenarios_benchmark_id_idx",
+					"columns": ["benchmark_id"],
+					"isUnique": false
+				},
+				"benchmark_scenarios_name_idx": {
+					"name": "benchmark_scenarios_name_idx",
+					"columns": ["name"],
+					"isUnique": false
+				}
+			},
+			"foreignKeys": {
+				"benchmark_scenarios_benchmark_id_benchmarks_id_fk": {
+					"name": "benchmark_scenarios_benchmark_id_benchmarks_id_fk",
+					"tableFrom": "benchmark_scenarios",
+					"tableTo": "benchmarks",
+					"columnsFrom": ["benchmark_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {}
+		},
+		"benchmarks": {
+			"name": "benchmarks",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"description": {
+					"name": "description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"version": {
+					"name": "version",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false,
+					"default": "(cast((julianday('now') - 2440587.5)*86400000 as integer))"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false,
+					"default": "(cast((julianday('now') - 2440587.5)*86400000 as integer))"
+				}
+			},
+			"indexes": {
+				"benchmarks_name_version_unique": {
+					"name": "benchmarks_name_version_unique",
+					"columns": ["name", "version"],
+					"isUnique": true
+				}
+			},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {}
+		},
+		"chat_messages": {
+			"name": "chat_messages",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"thread_id": {
+					"name": "thread_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"role": {
+					"name": "role",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"content": {
+					"name": "content",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"user_id": {
+					"name": "user_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false,
+					"default": "(cast((julianday('now') - 2440587.5)*86400000 as integer))"
+				}
+			},
+			"indexes": {
+				"chat_messages_thread_id_idx": {
+					"name": "chat_messages_thread_id_idx",
+					"columns": ["thread_id"],
+					"isUnique": false
+				},
+				"chat_messages_user_id_idx": {
+					"name": "chat_messages_user_id_idx",
+					"columns": ["user_id"],
+					"isUnique": false
+				},
+				"chat_messages_created_at_idx": {
+					"name": "chat_messages_created_at_idx",
+					"columns": ["created_at"],
+					"isUnique": false
+				}
+			},
+			"foreignKeys": {
+				"chat_messages_thread_id_chat_threads_id_fk": {
+					"name": "chat_messages_thread_id_chat_threads_id_fk",
+					"tableFrom": "chat_messages",
+					"tableTo": "chat_threads",
+					"columnsFrom": ["thread_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"chat_messages_user_id_users_id_fk": {
+					"name": "chat_messages_user_id_users_id_fk",
+					"tableFrom": "chat_messages",
+					"tableTo": "users",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {}
+		},
+		"chat_threads": {
+			"name": "chat_threads",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"user_id": {
+					"name": "user_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"title": {
+					"name": "title",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false,
+					"default": "(cast((julianday('now') - 2440587.5)*86400000 as integer))"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false,
+					"default": "(cast((julianday('now') - 2440587.5)*86400000 as integer))"
+				}
+			},
+			"indexes": {
+				"chat_threads_user_id_idx": {
+					"name": "chat_threads_user_id_idx",
+					"columns": ["user_id"],
+					"isUnique": false
+				}
+			},
+			"foreignKeys": {
+				"chat_threads_user_id_users_id_fk": {
+					"name": "chat_threads_user_id_users_id_fk",
+					"tableFrom": "chat_threads",
 					"tableTo": "users",
 					"columnsFrom": ["user_id"],
 					"columnsTo": ["id"],

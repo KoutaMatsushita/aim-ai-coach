@@ -9,8 +9,6 @@ bun = "1.3.3"
 docker-cli = "latest"
 docker-compose = "latest"
 gcloud = "latest"
-lazydocker = "latest"
-lazyssh = "latest"
 node = "22"
 "npm:kiri-mcp-server" = "latest"
 

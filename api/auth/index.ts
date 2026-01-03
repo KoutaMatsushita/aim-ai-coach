@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { type DB, drizzleAdapter } from "better-auth/adapters/drizzle";
 import { bearer, deviceAuthorization, magicLink } from "better-auth/plugins";
-import { passkey } from "@better-auth/passkey"
+import { passkey } from "@better-auth/passkey";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import {
 	accounts,
@@ -88,6 +88,6 @@ export const createAuth = ({
 					await sendMail({ email, token, url }, ctx?.request);
 				},
 			}),
-            tanstackStartCookies(),
+			tanstackStartCookies(),
 		],
 	});
