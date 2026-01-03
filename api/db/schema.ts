@@ -163,10 +163,10 @@ export const chatThreads = sqliteTable(
 			.notNull()
 			.references(() => users.id, { onDelete: "cascade" }),
 		title: text("title"),
-		createdAt: integer("created_at", { mode: "timestamp" })
+		createdAt: integer("created_at", { mode: "timestamp_ms" })
 			.defaultNow()
 			.notNull(),
-		updatedAt: integer("updated_at", { mode: "timestamp" })
+		updatedAt: integer("updated_at", { mode: "timestamp_ms" })
 			.defaultNow()
 			.$onUpdate(() => new Date())
 			.notNull(),
@@ -187,7 +187,7 @@ export const chatMessages = sqliteTable(
 		userId: text("user_id")
 			.notNull()
 			.references(() => users.id, { onDelete: "cascade" }),
-		createdAt: integer("created_at", { mode: "timestamp" })
+		createdAt: integer("created_at", { mode: "timestamp_ms" })
 			.defaultNow()
 			.notNull(),
 	},

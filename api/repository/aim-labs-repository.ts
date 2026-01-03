@@ -88,7 +88,7 @@ export class AimLabsRepository {
 
 		// Convert createDate (string) to date string
 		// aimlabTaskTable.createDate is likely stored as a string (YYYY-MM-DD...) based on usage in sorting/filtering
-		const dateExpr = sql<string>`strftime(${dateFormat}, ${aimlabTaskTable.createDate})`;
+		const dateExpr = sql<string>`strftime(${dateFormat}, ${aimlabTaskTable.createDate}, '+09:00')`;
 
 		// 1. Fetch aggregated data directly from DB
 		const groupedResults = await this.db

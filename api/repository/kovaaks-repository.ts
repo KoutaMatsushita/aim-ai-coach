@@ -67,7 +67,7 @@ export class KovaaksRepository {
 			dateFormat = "%Y-W%W";
 		}
 
-		const dateExpr = sql<string>`strftime(${dateFormat}, ${kovaaksScoresTable.runEpochSec}, 'unixepoch')`;
+		const dateExpr = sql<string>`strftime(${dateFormat}, ${kovaaksScoresTable.runEpochSec}, 'unixepoch', '+09:00')`;
 
 		const groupedResults = await this.db
 			.select({
