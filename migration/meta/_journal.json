@@ -57,6 +57,13 @@
       "when": 1767363346901,
       "tag": "0007_dapper_shen",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1767406479513,
+      "tag": "0008_dear_anthem",
+      "breakpoints": true
     }
   ]
 }

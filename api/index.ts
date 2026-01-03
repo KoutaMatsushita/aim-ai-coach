@@ -13,6 +13,7 @@ import { kovaaksApp } from "./routes/kovaaks";
 import { reportsApp } from "./routes/reports.ts";
 import { statsApp } from "./routes/stats";
 import { threadApp } from "./routes/threads";
+import { benchmarkApp } from "./routes/benchmarks";
 import type { Variables } from "./variables";
 
 const apiApp = new Hono<{
@@ -44,7 +45,9 @@ const apiApp = new Hono<{
 	.route("/threads", threadApp)
 	.route("/knowledges", knowledgesApp)
 	.route("/reports", reportsApp)
-	.route("/stats", statsApp);
+	.route("/reports", reportsApp)
+	.route("/stats", statsApp)
+	.route("/benchmarks", benchmarkApp);
 
 export type APIType = typeof apiApp;
 

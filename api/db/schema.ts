@@ -449,7 +449,166 @@ export type WeeklyReportSelectSchema = z.infer<typeof WeeklyReportSelectSchema>;
 
 export const MonthlyReportInsertSchema = createInsertSchema(monthlyReportTable);
 export const MonthlyReportSelectSchema = createSelectSchema(monthlyReportTable);
-export type MonthlyReportInsert = z.infer<typeof MonthlyReportInsertSchema>;
 export type MonthlyReportSelectSchema = z.infer<
 	typeof MonthlyReportSelectSchema
+>;
+
+// ========================================
+// Benchmark Tables (Viscose Benches etc.)
+// ========================================
+
+export const benchmarks = sqliteTable(
+	"benchmarks",
+	{
+		id: text("id").primaryKey(), // e.g. "viscose_v4"
+		name: text("name").notNull(), // e.g. "Viscose Benches Season 4"
+		description: text("description"),
+		version: text("version").notNull(),
+		createdAt: integer("created_at", { mode: "timestamp" })
+			.defaultNow()
+			.notNull(),
+		updatedAt: integer("updated_at", { mode: "timestamp" })
+			.defaultNow()
+			.$onUpdate(() => new Date())
+			.notNull(),
+	},
+	(t) => [unique().on(t.name, t.version)],
+);
+
+export const benchmarkScenarios = sqliteTable(
+	"benchmark_scenarios",
+	{
+		id: text("id").primaryKey(), // e.g. "viscose_v4_vt_minigod"
+		benchmarkId: text("benchmark_id")
+			.notNull()
+			.references(() => benchmarks.id, { onDelete: "cascade" }),
+		name: text("name").notNull(), // Scene name in KovaaKs/Aimlab e.g. "VT MiniGod"
+		category: text("category").notNull(), // e.g. "Clicking", "Tracking", "Switching"
+		subCategory: text("sub_category"), // e.g. "Static", "Dynamic", "Precise"
+		description: text("description"),
+		game: text("game").notNull(), // "KovaaKs" or "Aimlab"
+	},
+	(t) => [
+		index("benchmark_scenarios_benchmark_id_idx").on(t.benchmarkId),
+		// Index for looking up scenarios by name (important for matching with scores)
+		index("benchmark_scenarios_name_idx").on(t.name),
+	],
+);
+
+export const benchmarkRanks = sqliteTable(
+	"benchmark_ranks",
+	{
+		id: text("id").primaryKey(), // e.g. "viscose_v4_gold"
+		benchmarkId: text("benchmark_id")
+			.notNull()
+			.references(() => benchmarks.id, { onDelete: "cascade" }),
+		name: text("name").notNull(), // e.g. "Gold", "Diamond"
+		order: integer("order").notNull(), // 1, 2, 3... (higher is better)
+		color: text("color"), // Hex code for UI
+		imageUrl: text("image_url"), // Icon URL
+	},
+	(t) => [
+		index("benchmark_ranks_benchmark_id_idx").on(t.benchmarkId),
+		unique().on(t.benchmarkId, t.order),
+	],
+);
+
+export const benchmarkScenarioRequirements = sqliteTable(
+	"benchmark_scenario_requirements",
+	{
+		id: text("id").primaryKey(),
+		scenarioId: text("scenario_id")
+			.notNull()
+			.references(() => benchmarkScenarios.id, { onDelete: "cascade" }),
+		rankId: text("rank_id")
+			.notNull()
+			.references(() => benchmarkRanks.id, { onDelete: "cascade" }),
+		minScore: real("min_score").notNull(),
+	},
+	(t) => [
+		index("benchmark_reqs_scenario_id_idx").on(t.scenarioId),
+		index("benchmark_reqs_rank_id_idx").on(t.rankId),
+		unique().on(t.scenarioId, t.rankId),
+	],
+);
+
+// ========================================
+// Benchmark Relations
+// ========================================
+
+export const benchmarksRelations = relations(benchmarks, ({ many }) => ({
+	scenarios: many(benchmarkScenarios),
+	ranks: many(benchmarkRanks),
+}));
+
+export const benchmarkScenariosRelations = relations(
+	benchmarkScenarios,
+	({ one, many }) => ({
+		benchmark: one(benchmarks, {
+			fields: [benchmarkScenarios.benchmarkId],
+			references: [benchmarks.id],
+		}),
+		requirements: many(benchmarkScenarioRequirements),
+	}),
+);
+
+export const benchmarkRanksRelations = relations(
+	benchmarkRanks,
+	({ one, many }) => ({
+		benchmark: one(benchmarks, {
+			fields: [benchmarkRanks.benchmarkId],
+			references: [benchmarks.id],
+		}),
+		requirements: many(benchmarkScenarioRequirements),
+	}),
+);
+
+export const benchmarkScenarioRequirementsRelations = relations(
+	benchmarkScenarioRequirements,
+	({ one }) => ({
+		scenario: one(benchmarkScenarios, {
+			fields: [benchmarkScenarioRequirements.scenarioId],
+			references: [benchmarkScenarios.id],
+		}),
+		rank: one(benchmarkRanks, {
+			fields: [benchmarkScenarioRequirements.rankId],
+			references: [benchmarkRanks.id],
+		}),
+	}),
+);
+
+// ========================================
+// Benchmark Zod Schemas
+// ========================================
+
+export const BenchmarkInsertSchema = createInsertSchema(benchmarks);
+export const BenchmarkSelectSchema = createSelectSchema(benchmarks);
+export type Benchmark = z.infer<typeof BenchmarkSelectSchema>;
+export type BenchmarkInsert = z.infer<typeof BenchmarkInsertSchema>;
+
+export const BenchmarkScenarioInsertSchema =
+	createInsertSchema(benchmarkScenarios);
+export const BenchmarkScenarioSelectSchema =
+	createSelectSchema(benchmarkScenarios);
+export type BenchmarkScenario = z.infer<typeof BenchmarkScenarioSelectSchema>;
+export type BenchmarkScenarioInsert = z.infer<
+	typeof BenchmarkScenarioInsertSchema
+>;
+
+export const BenchmarkRankInsertSchema = createInsertSchema(benchmarkRanks);
+export const BenchmarkRankSelectSchema = createSelectSchema(benchmarkRanks);
+export type BenchmarkRank = z.infer<typeof BenchmarkRankSelectSchema>;
+export type BenchmarkRankInsert = z.infer<typeof BenchmarkRankInsertSchema>;
+
+export const BenchmarkRequirementInsertSchema = createInsertSchema(
+	benchmarkScenarioRequirements,
+);
+export const BenchmarkRequirementSelectSchema = createSelectSchema(
+	benchmarkScenarioRequirements,
+);
+export type BenchmarkRequirement = z.infer<
+	typeof BenchmarkRequirementSelectSchema
+>;
+export type BenchmarkRequirementInsert = z.infer<
+	typeof BenchmarkRequirementInsertSchema
 >;
