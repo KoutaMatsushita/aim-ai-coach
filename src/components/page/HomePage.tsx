@@ -111,7 +111,7 @@ export default function HomePage({
 	return (
 		<div className="max-w-4xl mx-auto relative w-full h-full">
 			<div className="flex flex-col h-full">
-				<Conversation className="h-full">
+				<Conversation className="">
 					<ConversationContent>
 						{messages.map((message) => (
 							<div key={message.id}>
