@@ -38,9 +38,7 @@ export const getStats = async (
 	// startDate: 00:00:00 JST
 	// endDate: 23:59:59.999 JST
 	const start = startDate ? parse(startDate, "YYYY-MM-DD") : undefined;
-	const end = endDate
-		? dayEnd(parse(endDate, "YYYY-MM-DD"))
-		: undefined;
+	const end = endDate ? dayEnd(parse(endDate, "YYYY-MM-DD")) : undefined;
 
 	const promises = [];
 
